@@ -17,7 +17,7 @@ class CreateProductosTable extends Migration
             $table->id();
             $table->integer('codigoProducto');
             $table->boolean('estado');
-            $table->bigint('precioProducto');
+            $table->biginteger('precioProducto');
             $table->string('nombreProducto');
             $table->string('descripcionProducto');
             $table->integer('numeroStock');
