@@ -15,7 +15,7 @@ class OfertaApiController extends Controller
      */
     public function index()
     {
-        $ofertas = Oferta::all();
+        $ofertas = Oferta::where("establecimiento_id",$id)->get();
         return response()->json($ofertas,200);
     }
 
@@ -39,7 +39,7 @@ class OfertaApiController extends Controller
      */
     public function show($id)
     {
-        $ofertas = Oferta::find($id);
+        $ofertas = Oferta::where("establecimiento_id",$id)->get();
         return response()->json($ofertas,200);
     }
 
