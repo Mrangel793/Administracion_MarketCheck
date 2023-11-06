@@ -6,14 +6,11 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Categoria;
 use App\Models\Establecimiento;
+use App\Models\SubCategoria;
 
-class Oferta extends Model
+class Producto extends Model
 {
-    use HasFactory;
-    protected $fillable = ['estado', 'fecha_inicio', 'fecha_fin','nombre',
-    'descripcion','imagen','numero_stock','id_categoria', 'establecimiento_id'];
-    public $timestamps = false;
-    
+
     public function categoria(){
         return $this->belongsTo(Categoria::class,'id_categoria');
     }
@@ -21,5 +18,12 @@ class Oferta extends Model
     public function establecimiento(){
         return $this->belongsTo(Establecimiento::class,'id_establecimiento');
     }
-    
-}
+    public function subcategoria(){
+        return $this->belongsTo(SubCategoria::class,'id_subcategoria');
+    }
+
+    use HasFactory;
+    protected $fillable = ['codigoProducto', 'estado', 'precioProducto', 'nombreProducto', 'descripcionProducto',
+    'numeroStock','id_categoria', 'id_establecimiento'];
+    public $timestamps = false;
+}  

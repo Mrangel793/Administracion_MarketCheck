@@ -5,6 +5,7 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Categoria;
+use App\Models\Producto;
 
 class SubCategoria extends Model
 {
@@ -13,5 +14,8 @@ class SubCategoria extends Model
     public $timestamps = false;
     public function categoria(){
         return $this->belongsTo(Categoria::class);
+    }
+    public function producto(){
+        return $this->hasMany(Producto::class);
     }
 }

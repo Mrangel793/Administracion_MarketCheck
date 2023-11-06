@@ -9,6 +9,8 @@ use App\Http\Controllers\API\RolApiController;
 use App\Http\Controllers\API\CategoriaApiController;
 use App\Http\Controllers\API\SubCategoriaApiController;
 use App\Http\Controllers\AuthController;
+use App\Http\Controllers\Api\ProductoApiController;
+
 
 
 
@@ -28,12 +30,27 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('oferta', OfertaApiController::class)->middleware("auth:api");;
+Route::apiResource('oferta', OfertaApiController::class)->middleware("auth:api");
+Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
+Route::get('ofertas/{oferta_id}', [OfertaApiController::class, 'show'])->middleware('auth:api');
+
+
 Route::apiResource('establecimiento',EstablecimientoApiController::class)->middleware("auth:api");
-Route::apiResource('user',UserApiController::class);
+Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::apiResource('rol',RolApiController::class);
 Route::apiResource('categoria',CategoriaApiController::class);
+
 Route::apiResource('subcategoria',SubCategoriaApiController::class);
+Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria'])->middleware('auth:api');
+
+
+Route::prefix('productos')->group(function () {
+    Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
+    Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
+    Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
+    Route::delete('/{id}', [ProductoApiController::class, 'destroy'])->middleware('auth:api');
+});
+
 
 Route::group([
     'prefix' => 'auth'

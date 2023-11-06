@@ -4,6 +4,7 @@ use Illuminate\Support\Facades\Route;
 use App\Http\Controllers\EstablecimientosController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\OfertaController;
+use App\Http\Controllers\ProductoController;
 
 /*
 |--------------------------------------------------------------------------
@@ -21,9 +22,10 @@ Route::get('/', function () {
 });
 
 
-Route::resource('establecimiento',EstablecimientosController::class);
+Route::resource('establecimiento',EstablecimientosController::class)->middleware('auth');
 
 Route::resource('user',UsersController::class);
+Route::resource('producto', ProductoController::class);
 
 
 
