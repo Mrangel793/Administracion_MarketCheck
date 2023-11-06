@@ -8,6 +8,7 @@ use Illuminate\Http\Request;
 use App\Models\Establecimiento;
 use App\Models\Rol;
 use App\Models\User;
+use App\Models\Oferta;
 
 class EstablecimientoApiController extends Controller
 {
@@ -89,4 +90,22 @@ class EstablecimientoApiController extends Controller
         }else{
             return response()->json(['Error'=>'Id no encontrado'],404);        }
     }
+
+    public function showOffer($establecimiento_id, $oferta_id)
+{
+    // Buscar una oferta específica ($oferta_id) en el contexto de un establecimiento específico ($establecimiento_id).
+    // Realiza la lógica necesaria para buscar y devolver la oferta.
+
+    // Ejemplo:
+    $oferta = Oferta::where('establecimiento_id', $establecimiento_id)
+                   ->where('id', $oferta_id)
+                   ->first();
+
+    if ($oferta) {
+        return response()->json($oferta, 200);
+    } else {
+        return response()->json(['message' => 'Oferta no encontrada'], 404);
+    }
+}
+
 }

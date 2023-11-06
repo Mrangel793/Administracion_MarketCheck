@@ -17,50 +17,62 @@ class CategoriasSeeder extends Seeder
         //
         Categoria::create([
             'id' => 1,
-            'nombre' => 'Bebidas',
-            'imagen' => 'images/bebidas.jpg',
+            'nombre' => 'Alimentos básicos',
+            'imagen' => 'https://ejemplo.com/imagen/alimentos-basicos.jpg',
         ]);
-
+        
         Categoria::create([
             'id' => 2,
-            'nombre' => 'Alimentos frescos',
-            'imagen' => 'images/alimentos_frescos.jpg',
+            'nombre' => 'Bebidas',
+            'imagen' => 'https://ejemplo.com/imagen/bebidas.jpg',
         ]);
-
+        
         Categoria::create([
             'id' => 3,
-            'nombre' => 'Alimentos enlatados y envasados',
-            'imagen' => 'images/alimentos_enlatados.jpg',
+            'nombre' => 'Productos enlatados y secos',
+            'imagen' => 'https://ejemplo.com/imagen/enlatados-y-secos.jpg',
         ]);
-
+        
         Categoria::create([
             'id' => 4,
-            'nombre' => 'Productos secos y envasados',
-            'imagen' => 'images/productos_secos.jpg',
+            'nombre' => 'Snacks y golosinas',
+            'imagen' => 'https://ejemplo.com/imagen/snacks-y-golosinas.jpg',
         ]);
-
+        
         Categoria::create([
             'id' => 5,
-            'nombre' => 'Cuidado personal y limpieza del hogar',
-            'imagen' => 'images/cuidado_personal.jpg',
+            'nombre' => 'Productos de despensa',
+            'imagen' => 'https://ejemplo.com/imagen/despensa.jpg',
         ]);
-
+        
         Categoria::create([
             'id' => 6,
-            'nombre' => 'Snacks y golosinas',
-            'imagen' => 'images/snacks.jpg',
+            'nombre' => 'Productos congelados',
+            'imagen' => 'https://ejemplo.com/imagen/congelados.jpg',
         ]);
-
+        
         Categoria::create([
             'id' => 7,
-            'nombre' => 'Cuidado del bebé',
-            'imagen' => 'images/cuidado_bebe.jpg',
+            'nombre' => 'Desayuno y cereales',
+            'imagen' => 'https://ejemplo.com/imagen/desayuno-y-cereales.jpg',
         ]);
-
+        
         Categoria::create([
             'id' => 8,
-            'nombre' => 'Productos para mascotas',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Alimentos étnicos',
+            'imagen' => 'https://ejemplo.com/imagen/alimentos-etnicos.jpg',
+        ]);
+        
+        Categoria::create([
+            'id' => 9,
+            'nombre' => 'Alimentos para bebés y productos infantiles',
+            'imagen' => 'https://ejemplo.com/imagen/alimentos-para-bebes.jpg',
+        ]);
+        
+        Categoria::create([
+            'id' => 10,
+            'nombre' => 'Productos dietéticos y saludables',
+            'imagen' => 'https://ejemplo.com/imagen/dieteticos-y-saludables.jpg',
         ]);
 
         

@@ -29,6 +29,11 @@ class RolSeeder extends Seeder
             'nombre'=> "Trabajador",
             'descripcion'=>"Funciones limitadas",
             ]);
+            Rol::create([
+                'id' => 4,
+                'nombre'=> "Cliente",
+                'descripcion'=>"Solo acceso a la APP",
+                ]);
     }
     }
 

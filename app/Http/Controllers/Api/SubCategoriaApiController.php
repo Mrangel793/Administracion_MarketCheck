@@ -19,6 +19,12 @@ class SubCategoriaApiController extends Controller
         return response()->json($subcategorias,200);
     }
 
+    public function indexporCategoria($categoria_id)
+{
+    $subcategorias = SubCategoria::where('categoria_id', $categoria_id)->get();
+    return response()->json($subcategorias, 200);
+}
+
     /**
      * Store a newly created resource in storage.
      *

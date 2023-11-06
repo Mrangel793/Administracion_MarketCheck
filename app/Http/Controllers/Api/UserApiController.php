@@ -6,6 +6,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Establecimiento;
+use Illuminate\Support\Facades\Hash;
 
 class UserApiController extends Controller
 {
@@ -28,7 +29,27 @@ class UserApiController extends Controller
      */
     public function store(Request $request)
     {
-        
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users',
+            'rol_id' => 'required|numeric', // Validación del rol como un número.
+        ]);
+
+        $name = $request->input('name');
+        $email = $request->input('email');
+        $establecimientoId = $request->input('establecimiento_id');
+        $rolId = $request->input('rol_id'); 
+
+        $user = new User();
+        $user->name = $name;
+        $user->email = $email;
+        $user->password = Hash::make($name);
+        $user->establecimiento_id = $establecimientoId;
+        $user->rol_id = $rolId; 
+
+        $user->save();
+
+        return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
     }
 
     /**
@@ -51,9 +72,22 @@ class UserApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        //
+{
+    $request->validate([
+        'password' => 'required|string|min:8',
+    ]);
+
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'Usuario no encontrado'], 404);
     }
+
+    $user->password = Hash::make($request->input('password'));
+    $user->save();
+
+    return response()->json(['message' => 'Contraseña actualizada con éxito'], 200);
+}
 
     /**
      * Remove the specified resource from storage.

@@ -14,120 +14,220 @@ class SubCategoriasSeeder extends Seeder
      */
     public function run()
     {
-        // Subcategorías relacionadas con 'Alimentos frescos' (Categoría ID 2)
         SubCategoria::create([
-            'nombre' => 'Frutas',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 2,
+            'nombre' => 'Frutas y verduras frescas',
+            'imagen' => 'https://ejemplo.com/imagen/frutas-y-verduras.jpg',
+            'categoria_id' => 1,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Verduras',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 2,
+            'nombre' => 'Carnes y pescados frescos',
+            'imagen' => 'https://ejemplo.com/imagen/carnes-y-pescados.jpg',
+            'categoria_id' => 1,
         ]);
-
-        // Subcategorías relacionadas con 'Alimentos enlatados y envasados' (Categoría ID 3)
+        
         SubCategoria::create([
-            'nombre' => 'Conservas de vegetales',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 3,
+            'nombre' => 'Productos lácteos (leche, queso, yogur)',
+            'imagen' => 'https://ejemplo.com/imagen/productos-lacteos.jpg',
+            'categoria_id' => 1,
         ]);
-
-        // Subcategorías relacionadas con 'Productos secos y envasados' (Categoría ID 4)
+        
         SubCategoria::create([
-            'nombre' => 'Arroz, pasta y granos',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 4,
+            'nombre' => 'Pan y productos horneados',
+            'imagen' => 'https://ejemplo.com/imagen/pan-y-horneados.jpg',
+            'categoria_id' => 1,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Cereales y avena',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 4,
+            'nombre' => 'Huevos y productos refrigerados',
+            'imagen' => 'https://ejemplo.com/imagen/huevos-y-refrigerados.jpg',
+            'categoria_id' => 1,
         ]);
-
-        SubCategoria::create([
-            'nombre' => 'Aceites y vinagres',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 4,
-        ]);
-
-        // Subcategorías relacionadas con 'Bebidas' (Categoría ID 1)
+        
         SubCategoria::create([
             'nombre' => 'Agua embotellada',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 1,
+            'imagen' => 'https://ejemplo.com/imagen/agua-embotellada.jpg',
+            'categoria_id' => 2,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Refrescos',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 1,
+            'nombre' => 'Refrescos y bebidas gaseosas',
+            'imagen' => 'https://ejemplo.com/imagen/refrescos-y-gaseosas.jpg',
+            'categoria_id' => 2,
         ]);
-
-        // Subcategorías relacionadas con 'Cuidado personal y limpieza del hogar' (Categoría ID 5)
+        
         SubCategoria::create([
-            'nombre' => 'Champú',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Jugos y bebidas de frutas',
+            'imagen' => 'https://ejemplo.com/imagen/jugos-y-bebidas-de-frutas.jpg',
+            'categoria_id' => 2,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Bebidas alcohólicas (cerveza, vino, licores)',
+            'imagen' => 'https://ejemplo.com/imagen/bebidas-alcoholicas.jpg',
+            'categoria_id' => 2,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Conservas (vegetales, frutas, carnes enlatadas)',
+            'imagen' => 'https://ejemplo.com/imagen/conservas.jpg',
+            'categoria_id' => 3,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Pastas y arroz',
+            'imagen' => 'https://ejemplo.com/imagen/pastas-y-arroz.jpg',
+            'categoria_id' => 3,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Sopas y caldos',
+            'imagen' => 'https://ejemplo.com/imagen/sopas-y-caldos.jpg',
+            'categoria_id' => 3,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Cereales y granos',
+            'imagen' => 'https://ejemplo.com/imagen/cereales-y-granos.jpg',
+            'categoria_id' => 3,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Chips y aperitivos',
+            'imagen' => 'https://ejemplo.com/imagen/chips-y-aperitivos.jpg',
+            'categoria_id' => 4,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Dulces y chocolates',
+            'imagen' => 'https://ejemplo.com/imagen/dulces-y-chocolates.jpg',
+            'categoria_id' => 4,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Frutos secos',
+            'imagen' => 'https://ejemplo.com/imagen/frutos-secos.jpg',
+            'categoria_id' => 4,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Galletas y bocadillos',
+            'imagen' => 'https://ejemplo.com/imagen/galletas-y-bocadillos.jpg',
+            'categoria_id' => 4,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Aceites y vinagres',
+            'imagen' => 'https://ejemplo.com/imagen/aceites-y-vinagres.jpg',
             'categoria_id' => 5,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Jabón',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Salsas (salsa de tomate, salsa de soja, ketchup)',
+            'imagen' => 'https://ejemplo.com/imagen/salsas.jpg',
             'categoria_id' => 5,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Pasta de dientes',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Especias y condimentos',
+            'imagen' => 'https://ejemplo.com/imagen/especias-y-condimentos.jpg',
             'categoria_id' => 5,
         ]);
-
-        // Subcategorías relacionadas con 'Snacks y golosinas' (Categoría ID 6)
+        
         SubCategoria::create([
-            'nombre' => 'Chips',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Harina y azúcar',
+            'imagen' => 'https://ejemplo.com/imagen/harina-y-azucar.jpg',
+            'categoria_id' => 5,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Comidas congeladas (pizzas, nuggets de pollo)',
+            'imagen' => 'https://ejemplo.com/imagen/comidas-congeladas.jpg',
             'categoria_id' => 6,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Galletas',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Vegetales congelados',
+            'imagen' => 'https://ejemplo.com/imagen/vegetales-congelados.jpg',
             'categoria_id' => 6,
         ]);
-
+    
         SubCategoria::create([
-            'nombre' => 'Chocolate',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Postres congelados (helado, pasteles)',
+            'imagen' => 'https://ejemplo.com/imagen/postres-congelados.jpg',
             'categoria_id' => 6,
         ]);
-
-        // Subcategorías relacionadas con 'Cuidado del bebé' (Categoría ID 7)
+        
         SubCategoria::create([
-            'nombre' => 'Pañales',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Cereales para el desayuno',
+            'imagen' => 'https://ejemplo.com/imagen/cereales-desayuno.jpg',
             'categoria_id' => 7,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Alimentos para bebés',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Avena',
+            'imagen' => 'https://ejemplo.com/imagen/avena.jpg',
             'categoria_id' => 7,
         ]);
-
-        // Subcategorías relacionadas con 'Productos para mascotas' (Categoría ID 8)
+        
         SubCategoria::create([
-            'nombre' => 'Comida para perros',
-            'imagen' => 'images/productos_mascotas.jpg',
+            'nombre' => 'Panqueques y siropes',
+            'imagen' => 'https://ejemplo.com/imagen/panqueques-siropes.jpg',
+            'categoria_id' => 7,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Café y té',
+            'imagen' => 'https://ejemplo.com/imagen/cafe-te.jpg',
+            'categoria_id' => 7,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Ingredientes y productos de cocina de diferentes culturas',
+            'imagen' => 'https://ejemplo.com/imagen/alimentos-etnicos.jpg',
             'categoria_id' => 8,
         ]);
-
+        
         SubCategoria::create([
-            'nombre' => 'Comida para gatos',
-            'imagen' => 'images/productos_mascotas.jpg',
-            'categoria_id' => 8,
+            'nombre' => 'Alimentos para bebés envasados',
+            'imagen' => 'https://ejemplo.com/imagen/alimentos-para-bebes.jpg',
+            'categoria_id' => 9,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Fórmula para bebés',
+            'imagen' => 'https://ejemplo.com/imagen/formula-bebes.jpg',
+            'categoria_id' => 9,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Comida para niños',
+            'imagen' => 'https://ejemplo.com/imagen/comida-ninos.jpg',
+            'categoria_id' => 9,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Alimentos orgánicos',
+            'imagen' => 'https://ejemplo.com/imagen/alimentos-organicos.jpg',
+            'categoria_id' => 10,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Productos sin gluten',
+            'imagen' => 'https://ejemplo.com/imagen/productos-sin-gluten.jpg',
+            'categoria_id' => 10,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Alimentos bajos en calorías',
+            'imagen' => 'https://ejemplo.com/imagen/alimentos-bajos-calorias.jpg',
+            'categoria_id' => 10,
+        ]);
+        
+        SubCategoria::create([
+            'nombre' => 'Suplementos dietéticos',
+            'imagen' => 'https://ejemplo.com/imagen/suplementos-dieteticos.jpg',
+            'categoria_id' => 10,
         ]);
 
 

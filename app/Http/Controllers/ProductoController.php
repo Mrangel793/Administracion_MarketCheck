@@ -4,6 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use App\Models\Producto;
+use App\Models\Categoria;
+use App\Models\SubCategoria;
+
+use Illuminate\Support\Facades\Auth;
+
 
 class ProductoController extends Controller
 {
@@ -14,7 +19,8 @@ class ProductoController extends Controller
      */
     public function index()
     {
-        $productos = Producto::all();
+        $usuario = Auth::user();
+        $productos = Producto::where('id_establecimiento', $usuario->establecimiento_id)->get();
         return view('productos.index', compact('productos'));
     }
 
@@ -25,7 +31,11 @@ class ProductoController extends Controller
      */
     public function create()
     {
-        return view('productos.create');
+        $categorias = Categoria::all();
+        $subcategorias = SubCategoria::all();
+
+
+        return view('productos.create',compact('categorias','subcategorias'));
     }
 
     /**
@@ -36,7 +46,27 @@ class ProductoController extends Controller
      */
     public function store(Request $request)
     {
-        Producto::create($request->all());
+        $usuario = Auth::user();
+
+        $categorias = Categoria::all();
+        $subcategorias = SubCategoria::all();
+
+        $productos = new Producto();
+        $productos ->codigoProducto = $request->codigoProducto;
+        $productos ->nombreProducto = $request->nombreProducto;
+        $productos ->descripcionProducto = $request->descripcionProducto;
+        $productos ->precioProducto = $request->precioProducto;
+        $productos ->numeroStock = $request->numeroStock;
+        $productos ->estado = $request->estado;
+        $productos->id_categoria = $request->id_categoria;
+        $productos->id_subcategoria = $request->id_subcategoria;
+        
+        $productos ->id_establecimiento = $usuario->establecimiento_id;
+
+        
+        $productos->save();
+
+
         return redirect()->route('producto.index');
     }
 
@@ -59,8 +89,11 @@ class ProductoController extends Controller
      */
     public function edit($id)
     {
-        $productos = Producto::find($id);
-        return view('productos.edit', compact('productos'));
+        $usuario = Auth::user();
+        $categorias = Categoria::all();
+        $subcategorias = SubCategoria::all();
+        $producto = Producto::find($id);
+        return view('productos.edit', compact('producto', 'subcategorias', 'categorias'));
     }
 
     /**
@@ -72,8 +105,25 @@ class ProductoController extends Controller
      */
     public function update(Request $request, $id)
     {
-        $productos = Producto::find($id);
-        $productos->update($request->all());
+        $usuario = Auth::user();
+
+        $categorias = Categoria::all();
+        $subcategorias = SubCategoria::all();
+
+        $producto = Producto::find($id);
+        $producto->codigoProducto = $request->codigoProducto;
+        $producto->nombreProducto = $request->nombreProducto;
+        $producto->descripcionProducto = $request->descripcionProducto;
+        $producto->precioProducto = $request->precioProducto;
+        $producto->numeroStock = $request->numeroStock;
+        $producto->estado = $request->estado;
+        $producto->id_categoria = $request->id_categoria;
+        $producto->id_subcategoria = $request->id_subcategoria;
+        
+        // No necesitas actualizar el id_establecimiento si no ha cambiado
+    
+        $producto->update();
+
         return redirect()->route('producto.index');
     }
 

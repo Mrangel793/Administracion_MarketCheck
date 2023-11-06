@@ -22,9 +22,10 @@ Route::get('/', function () {
 });
 
 
-Route::resource('establecimiento',EstablecimientosController::class);
+Route::resource('establecimiento',EstablecimientosController::class)->middleware('auth');
 
 Route::resource('user',UsersController::class);
+Route::resource('producto', ProductoController::class);
 
 Route::resource('producto', ProductoController::class);
 
