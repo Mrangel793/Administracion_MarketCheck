@@ -27,6 +27,8 @@ Route::resource('establecimiento',EstablecimientosController::class)->middleware
 Route::resource('user',UsersController::class);
 Route::resource('producto', ProductoController::class);
 
+Route::resource('producto', ProductoController::class);
+
 
 
 Auth::routes();

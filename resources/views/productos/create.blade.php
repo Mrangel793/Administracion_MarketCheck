@@ -37,6 +37,7 @@
                 <div class="input-group-text mt-3">
                     <span class="input-group-text">Stock</span>
                     <input type="number" class="form-control" name="numeroStock">
+
                 </div> 
                 <div class="mb-3">
                     <label for="id_categoria" class="form-label">Categoria:</label>
@@ -56,6 +57,7 @@
                     </select>
                     
                  </div>
+
                 <button type="submit" class="btn btn-success mt-3">Guardar Producto</button>
         </div>
     </div>

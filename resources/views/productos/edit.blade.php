@@ -16,7 +16,9 @@
                 @method('PUT')
                 <div class="input-group-text">
                     <span class="input-group-text">Codigo</span>
+
                     <input type="text" class="form-control" name="codigoProducto" value="{{$producto->codigoProducto}}">
+
                 </div>
                 <select class="form-select mt-3" name="estado" >
                     <option value="1" >Activo</option>
@@ -24,6 +26,7 @@
                 </select>
                 <div class="input-group-text mt-3">
                     <span class="input-group-text">Nombre</span>
+
                     <input type="text" class="form-control" name="nombreProducto" value="{{$producto->nombreProducto}}">
                 </div>
                 <div class="input-group-text mt-3">
@@ -58,6 +61,7 @@
         @endforeach
     </select>
 </div>
+
 
                 <button type="submit" class="btn btn-success mt-3">Editar Producto</button>
         </div>

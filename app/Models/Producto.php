@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+
 use App\Models\Categoria;
 use App\Models\Establecimiento;
 use App\Models\SubCategoria;
@@ -27,3 +28,13 @@ class Producto extends Model
     'numeroStock','id_categoria', 'id_establecimiento'];
     public $timestamps = false;
 }  
+
+
+class Producto extends Model
+{
+    use HasFactory;
+    protected $fillable = ['codigoProducto', 'estado', 'precioProducto', 'nombreProducto', 'descripcionProducto',
+    'numeroStock'];
+    public $timestamps = false;
+}
+
