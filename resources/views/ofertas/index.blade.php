@@ -9,6 +9,8 @@
 </head>
 <body>
 <div class="container">
+<a href="{{route('oferta.create')}}" class="btn btn-primary">Nuevo Producto</a>
+
         <table class="table">
             <thead>
                 <tr>
