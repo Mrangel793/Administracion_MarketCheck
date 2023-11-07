@@ -20,9 +20,7 @@ class Categoria extends Model
     public function subcategorias(){
         return $this->hasMany(SubCategoria::class,'categoria_id');
     }
-    public function oferta(){
-        return $this->hasMany(Oferta::class,'categoria_id');
-    }
+    
 
     public function producto(){
         return $this->hasMany(Producto::class,'id_categoria');

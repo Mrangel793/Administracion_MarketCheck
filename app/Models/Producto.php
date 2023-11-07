@@ -23,6 +23,10 @@ class Producto extends Model
         return $this->belongsTo(SubCategoria::class,'id_subcategoria');
     }
 
+    public function oferta_producto(){
+        return $this->hasMany(Oferta_Producto::class,'id_producto');
+    }
+
     use HasFactory;
     protected $fillable = ['codigoProducto', 'estado', 'precioProducto', 'nombreProducto', 'descripcionProducto',
     'numeroStock','id_categoria', 'id_establecimiento'];
