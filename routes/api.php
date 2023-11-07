@@ -10,6 +10,8 @@ use App\Http\Controllers\API\CategoriaApiController;
 use App\Http\Controllers\API\SubCategoriaApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\ProductoApiController;
+use App\Http\Controllers\Api\CompraController;
+
 
 
 
@@ -39,6 +41,7 @@ Route::apiResource('establecimiento',EstablecimientoApiController::class)->middl
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::apiResource('rol',RolApiController::class);
 Route::apiResource('categoria',CategoriaApiController::class);
+Route::apiResource('compra',CompraController::class);
 
 Route::apiResource('subcategoria',SubCategoriaApiController::class);
 Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria'])->middleware('auth:api');

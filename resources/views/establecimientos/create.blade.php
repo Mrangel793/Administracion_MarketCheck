@@ -53,6 +53,10 @@
     </div>
     
     <div class="mb-3">
+        <label for="Imagen" class="form-label">URL de Logo:</label>
+        <input class="form-control" list="datalistOptions" type="text" name="Logo" placeholder="URL Logo Establecimiento" value="{{ old('Logo') }}"/>
+    </div>
+    <div class="mb-3">
         <label for="Imagen" class="form-label">URL de Imagen:</label>
         <input class="form-control" list="datalistOptions" type="text" name="Imagen" placeholder="URL Logo Establecimiento" value="{{ old('Imagen') }}"/>
     </div>

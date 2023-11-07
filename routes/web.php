@@ -5,6 +5,7 @@ use App\Http\Controllers\EstablecimientosController;
 use App\Http\Controllers\UsersController;
 use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\ProductoController;
+use App\Http\Controllers\CargaInventarioController;
 
 /*
 |--------------------------------------------------------------------------
@@ -35,4 +36,7 @@ Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::resource('oferta',OfertaController::class)->middleware('auth');
+
+Route::get('importe', [App\Http\Controllers\CargaInventarioController::class, 'index'])->name('importe')->middleware('auth');;
+Route::post('importe/importar', [App\Http\Controllers\CargaInventarioController::class, 'importar'])->middleware('auth');;
 

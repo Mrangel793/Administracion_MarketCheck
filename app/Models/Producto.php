@@ -27,14 +27,7 @@ class Producto extends Model
     protected $fillable = ['codigoProducto', 'estado', 'precioProducto', 'nombreProducto', 'descripcionProducto',
     'numeroStock','id_categoria', 'id_establecimiento'];
     public $timestamps = false;
+    
 }  
 
-
-class Producto extends Model
-{
-    use HasFactory;
-    protected $fillable = ['codigoProducto', 'estado', 'precioProducto', 'nombreProducto', 'descripcionProducto',
-    'numeroStock'];
-    public $timestamps = false;
-}
 
