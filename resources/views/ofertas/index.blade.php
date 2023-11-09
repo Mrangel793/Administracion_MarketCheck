@@ -3,7 +3,7 @@
 @section('content')
 
 <body>
-<div class="container mt-5">
+<div class=" tamaño mt-5">
     <h1>Gestión de Ofertas</h1>
     <hr class="border color-background2 border-2 opacity-100">
     <div><a href="{{ route('home') }}" class="btn btn-secondary ms-2 mb-3">Volver</a>

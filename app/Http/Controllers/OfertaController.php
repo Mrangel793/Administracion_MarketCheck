@@ -121,17 +121,15 @@ class OfertaController extends Controller
 {
     $oferta = Oferta::find($ofertaId);
 
-       // Obtiene todos los productos asociados a esta oferta
+   
        $productosOferta = $oferta->productos;
 
-       // Itera a través de los productos y restaura sus precios originales
        foreach ($productosOferta as $producto) {
-           // Restaura el precio original del producto
            $producto->precioProducto = $producto->precioOriginal;
            $producto->save();
        }
    
-       // Desactiva la oferta
+      
        $oferta->estado = 0;
        $oferta->save();
    
@@ -143,7 +141,7 @@ class OfertaController extends Controller
     public function agregarProductos($ofertaId)
     {
         $oferta = Oferta::find($ofertaId);
-        $productos = Producto::all(); // Recupera la lista de productos
+        $productos = Producto::all(); 
     
         return view('ofertas.agregar_productos_oferta', [
             'oferta' => $oferta,
@@ -151,7 +149,6 @@ class OfertaController extends Controller
         ]);
     }
     
-   // Controlador para guardar productos en una oferta activa
 public function guardarProductos(Request $request, $ofertaId)
 {
     $oferta = Oferta::find($ofertaId);
@@ -179,29 +176,9 @@ public function guardarProductos(Request $request, $ofertaId)
         ->with('success', " $producto->nombreProducto agregado con éxito a la oferta");
 }
 
-// Controlador para finalizar el proceso de agregar productos
 public function finalizarAgregarProductos($ofertaId)
 {
-    $oferta = Oferta::find($ofertaId);
     
-    // Activa la oferta
-    $oferta->estado = 1;
-    $oferta->save();
-    
-    // Obtiene todos los productos asociados a esta oferta
-    $productosOferta = $oferta->productos;
-    
-    // Itera a través de los productos y actualiza sus precios de oferta
-    foreach ($productosOferta as $producto) {
-        // Implementa tu lógica de cálculo de precio de oferta si es necesario
-        // $precioOferta = $this->calcularPrecioOferta($producto, $oferta);
-        // $producto->precioProducto = $precioOferta;
-        // $producto->save();
-        
-        // Actualiza el precio del producto a su precio original
-        $producto->precioProducto = $producto->precio_original;
-        $producto->save();
-    }
     
     return redirect()->route('oferta.index');
 }
@@ -256,6 +233,14 @@ public function finalizarAgregarProductos($ofertaId)
     public function destroy($id)
 {
     $oferta = Oferta::find($id);
+
+   
+       $productosOferta = $oferta->productos;
+
+       foreach ($productosOferta as $producto) {
+           $producto->precioProducto = $producto->precioOriginal;
+           $producto->save();
+       }
 
     if (!$oferta) {
         return redirect()->route('oferta.index')->with('error', 'La oferta no existe.');
