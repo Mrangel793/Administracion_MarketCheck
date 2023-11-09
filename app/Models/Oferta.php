@@ -22,9 +22,11 @@ class Oferta extends Model
         return $this->belongsTo(Establecimiento::class,'id_establecimiento');
     }
 
-    public function oferta_producto(){
-        return $this->hasMany(Oferta_Producto::class,'id_oferta');
-    }
+    public function productos()
+{
+    return $this->belongsToMany(Producto::class, 'oferta_productos', 'id_oferta', 'id_producto')
+    ->withPivot('precio_oferta');
+}
 
 
     

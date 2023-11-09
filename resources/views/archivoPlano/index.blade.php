@@ -1,22 +1,23 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Subida archivo plano</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
-</head>
+@extends('layouts.app')
+
+@section('content')
+
 <body>
-    <div class="container">
-        <div class="card mt-3 p-5">
+<div class="container mt-5">
+    <h1>Importe de Inventario</h1>
+    <hr class="border color-background2 border-2 opacity-100">
+
+        
             <form method="post" action="{{url('importe/importar')}}" enctype="multipart/form-data">
                 @csrf
             <div class="input-group-text mt-3">
                     <input class="form-control" type="file" name="documento" />
             </div>
+            <div>
             <button type="submit" class="btn btn-success mt-3">Subir Archivo</button>
+            <a href="{{ route('home') }}" class="btn btn-secondary mt-3">Volver</a>
+            </div>
             </form>
-        </div>
+        
     </div>
-</body>
-</html>
+@endsection

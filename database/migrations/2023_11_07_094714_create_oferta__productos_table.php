@@ -13,7 +13,7 @@ class CreateOfertaProductosTable extends Migration
      */
     public function up()
     {
-        Schema::create('oferta__productos', function (Blueprint $table) {
+        Schema::create('oferta_productos', function (Blueprint $table) {
             $table->unsignedBigInteger("id_producto");
             $table->foreign("id_producto")->references("id")->on("productos");
             $table->unsignedBigInteger("id_oferta");

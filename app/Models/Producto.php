@@ -8,9 +8,11 @@ use Illuminate\Database\Eloquent\Model;
 use App\Models\Categoria;
 use App\Models\Establecimiento;
 use App\Models\SubCategoria;
+use App\Models\Oferta;
 
 class Producto extends Model
 {
+
 
     public function categoria(){
         return $this->belongsTo(Categoria::class,'id_categoria');
@@ -23,22 +25,23 @@ class Producto extends Model
         return $this->belongsTo(SubCategoria::class,'id_subcategoria');
     }
 
-    public function oferta_producto(){
-        return $this->hasMany(Oferta_Producto::class,'id_producto');
+    public function ofertas()
+    {
+        return $this->belongsToMany(Oferta::class, 'oferta_productos', 'id_producto', 'id_oferta')
+            ->withPivot('precio_oferta');
     }
 
+
+
     use HasFactory;
-    protected $fillable = ['codigoProducto', 'estado', 'precioProducto', 'nombreProducto', 'descripcionProducto',
+    protected $fillable = ['codigoProducto', 'estado', 'precioProducto','precioOriginal' ,'nombreProducto', 'descripcionProducto',
     'numeroStock','id_categoria', 'id_establecimiento'];
+    protected $attributes = [
+        'precioProducto' => 0, // Puedes definir un valor por defecto apropiado
+    ];
     public $timestamps = false;
 }  
 
 
-class Producto extends Model
-{
-    use HasFactory;
-    protected $fillable = ['codigoProducto', 'estado', 'precioProducto', 'nombreProducto', 'descripcionProducto',
-    'numeroStock'];
-    public $timestamps = false;
-}
+
 

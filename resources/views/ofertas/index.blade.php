@@ -1,15 +1,14 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Ofertas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+@extends('layouts.app')
 
-</head>
+@section('content')
+
 <body>
-<div class="container">
-<a href="{{route('oferta.create')}}" class="btn btn-primary">Nuevo Producto</a>
+<div class="container mt-5">
+    <h1>Gestión de Ofertas</h1>
+    <hr class="border color-background2 border-2 opacity-100">
+    <div><a href="{{ route('home') }}" class="btn btn-secondary ms-2 mb-3">Volver</a>
+<a href="{{route('oferta.create')}}" class="btn btn-primary ms-2 mb-3">Nueva Oferta</a>
+    </div>
 
         <table class="table">
             <thead>
@@ -22,7 +21,6 @@
                     <th>Descripción</th>
                     <th>Imagen</th>
                     <th>Número de Stock</th>
-                    <th>Categoría</th>
                     <th>Acciones</th>
                 </tr>
             </thead>
@@ -30,14 +28,17 @@
             @foreach ($ofertas as $oferta)
                         <tr>
                             <td>{{ $oferta->id }}</td>
-                            <td>{{ $oferta->estado }}</td>
+                            <td>@if ($oferta->estado == 1)
+                                    Activo
+                                @else
+                                    Inactivo
+                                @endif</td>
                             <td>{{ $oferta->fecha_inicio }}</td>
                             <td>{{ $oferta->fecha_fin }}</td>
                             <td>{{ $oferta->nombre }}</td>
                             <td>{{ $oferta->descripcion }}</td>
                             <td><img src="{{ asset($oferta->imagen) }}" alt="Imagen actual" width="150px"></td>
                             <td>{{ $oferta->numero_stock }}</td>
-                            <td>{{ $oferta->categoria->nombre }}</td>
                             <td>
                                 <div class="d-flex">
                                     <a href="{{ route('oferta.edit', $oferta->id) }}" class="btn btn-warning">Editar</a>
@@ -46,6 +47,23 @@
                                         @csrf
                                         <button type="submit" class="btn btn-danger">Eliminar</button>
                                     </form>
+                                    
+                                    @if ($oferta->estado == 1)
+                                        {{-- Si la oferta está activada, muestra el botón para desactivar --}}
+                                            <form action="{{ route('oferta.desactivar', ['ofertaId' => $oferta->id]) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-danger">Desactivar Oferta</button>
+                                            </form>
+                                    @else
+                                        {{-- Si la oferta está desactivada, muestra el botón para activar --}}
+                                            <form action="{{ route('oferta.activar', ['ofertaId' => $oferta->id]) }}" method="POST">
+                                            @csrf
+                                            @method('PUT')
+                                            <button type="submit" class="btn btn-primary">Activar Oferta</button>
+                                    </form>
+                                    @endif
+</form>
                                 </div>
                             </td>
                         </tr>
@@ -54,5 +72,4 @@
             </tbody>
         </table>
     </div>
-</body>
-</html>
+@endsection

@@ -8,13 +8,11 @@ use App\Models\Oferta;
 
 class Oferta_Producto extends Model
 {
-    public function oferta(){
-        return $this->belongsTo(Oferta::class,'id_oferta');
-    }
+    protected $table = 'oferta_productos';
 
-    public function producto(){
-        return $this->belongsTo(Producto::class,'id_producto');
-    }
+    protected $fillable = ['id_producto', 'id_oferta', 'porcentaje', 'precio_oferta'];
+
+    public $timestamps = false;
 
     use HasFactory;
 }

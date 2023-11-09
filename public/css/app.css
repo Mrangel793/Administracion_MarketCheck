@@ -1,0 +1,58 @@
+body{
+    margin: 0;
+    width: 100%;
+}
+.barra{
+    background-color: #0eb0eb;
+}
+
+.logo {
+    width: 100px; 
+    height: auto; 
+}
+
+.colorlogo{
+    background:#0eb0eb;
+}
+.logo2 {
+
+   
+    width: 90%; 
+    height: auto; 
+}
+
+.color-background {
+    background: linear-gradient(to bottom, #5ec0e4, #dce1e4, #f4fbff);
+    height: 100vh; 
+    border-top-right-radius: 2rem;
+    border-bottom-right-radius: 2rem;
+}
+
+.color-background2 {
+    background-color: #5ec0e4;
+}
+
+.negrita {
+    font-weight: bold;
+}
+
+.inicio {
+    margin: auto; 
+    position: absolute; 
+    top: 25%;
+    right: 10% ;
+    bottom: 30%;
+    left: 55%;
+}
+
+.welcome-message {
+    text-align: center;
+    font-size: 40px; 
+    font-weight: bold; 
+    font-family: 'Arial', sans-serif; 
+    color: #000000; 
+}
+
+.margen{
+    margin-right: 50%;
+}

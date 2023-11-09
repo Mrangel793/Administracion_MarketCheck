@@ -1,16 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Editar Producto</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+@extends('layouts.app')
 
-</head>
+@section('content')
 <body>
-    <div class="container">
-        <div class="card">
-            <h1>Editar Producto</h1>
+<div class="container mt-5">
+    <h1>Editar Producto</h1>
+    <hr class="border color-background2 border-2 opacity-100">
+        
             <form action="{{route('producto.update',$producto->id)}}" method="POST">
                 @csrf
                 @method('PUT')
@@ -35,7 +30,7 @@
                 </div>
                 <div class="input-group-text mt-3">
                     <span class="input-group-text">Precio</span>
-                    <input type="number" class="form-control" name="precioProducto" value="{{$producto->precioProducto}}">
+                    <input type="number" class="form-control" name="precioProducto" value="{{$producto->precioOriginal}}">
                 </div>
                 <div class="input-group-text mt-3">
                     <span class="input-group-text">Stock</span>
@@ -62,9 +57,12 @@
     </select>
 </div>
 
-
+                <div>
                 <button type="submit" class="btn btn-success mt-3">Editar Producto</button>
+                <a href="{{ route('producto.index') }}" class="btn btn-secondary mt-3">Volver</a>
+
+                </div>
+                <br><br>
         </div>
-    </div>
-</body>
-</html>
+    
+@endsection

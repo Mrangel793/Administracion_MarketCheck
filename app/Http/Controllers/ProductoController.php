@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\SubCategoria;
+use App\Models\Oferta;
+
 
 use Illuminate\Support\Facades\Auth;
 
@@ -21,6 +23,9 @@ class ProductoController extends Controller
     {
         $usuario = Auth::user();
         $productos = Producto::where('id_establecimiento', $usuario->establecimiento_id)->get();
+    
+    
+    
         return view('productos.index', compact('productos'));
     }
 
@@ -45,30 +50,34 @@ class ProductoController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
-    {
-        $usuario = Auth::user();
+{
+    $usuario = Auth::user();
+    $categorias = Categoria::all();
+    $subcategorias = SubCategoria::all();
 
-        $categorias = Categoria::all();
-        $subcategorias = SubCategoria::all();
+    // Crea una nueva instancia de Producto
+    $producto = new Producto();
+    
+    // Completa los campos con los valores del formulario
+    $producto->codigoProducto = $request->codigoProducto;
+    $producto->nombreProducto = $request->nombreProducto;
+    $producto->descripcionProducto = $request->descripcionProducto;
+    $producto->precioProducto = $request->precioProducto;
+    $producto->numeroStock = $request->numeroStock;
+    $producto->estado = $request->estado;
+    $producto->id_categoria = $request->id_categoria;
+    $producto->id_subcategoria = $request->id_subcategoria;
+    
+    $producto->precioOriginal = $request->precioProducto;
+    $producto->precioProducto = $request->precioProducto;
 
-        $productos = new Producto();
-        $productos ->codigoProducto = $request->codigoProducto;
-        $productos ->nombreProducto = $request->nombreProducto;
-        $productos ->descripcionProducto = $request->descripcionProducto;
-        $productos ->precioProducto = $request->precioProducto;
-        $productos ->numeroStock = $request->numeroStock;
-        $productos ->estado = $request->estado;
-        $productos->id_categoria = $request->id_categoria;
-        $productos->id_subcategoria = $request->id_subcategoria;
-        
-        $productos ->id_establecimiento = $usuario->establecimiento_id;
+    
+    $producto->id_establecimiento = $usuario->establecimiento_id;
 
-        
-        $productos->save();
+    $producto->save();
 
-
-        return redirect()->route('producto.index');
-    }
+    return redirect()->route('producto.index');
+}
 
     /**
      * Display the specified resource.
@@ -119,6 +128,10 @@ class ProductoController extends Controller
         $producto->estado = $request->estado;
         $producto->id_categoria = $request->id_categoria;
         $producto->id_subcategoria = $request->id_subcategoria;
+        $producto->precioOriginal = $request->precioProducto;
+        $producto->precioProducto = $request->precioProducto;
+    
+        
         
         // No necesitas actualizar el id_establecimiento si no ha cambiado
     
