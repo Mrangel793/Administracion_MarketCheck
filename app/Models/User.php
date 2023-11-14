@@ -9,6 +9,7 @@ use Illuminate\Notifications\Notifiable;
 use Laravel\Passport\HasApiTokens;
 use App\Models\Establecimiento;
 use App\Models\Rol;
+use App\Models\Compra;
 
 
 
@@ -23,6 +24,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'documento',
         'email',
         'password',
         'establecimiento_id',
@@ -35,6 +37,10 @@ class User extends Authenticatable
 
     public function rol(){
         return $this->belongsTo(Rol::class,'rol_id'); 
+    }
+
+    public function compra(){
+        return $this->hasMany(Compra::class,'user_id');
     }
 
     /**
