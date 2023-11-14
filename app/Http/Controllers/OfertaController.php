@@ -8,6 +8,9 @@ use App\Models\Categoria;
 use Illuminate\Support\Facades\Storage;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Establecimiento;
+use App\Models\Producto;
+use App\Models\Oferta_Producto;
+
 
 
 class OfertaController extends Controller
@@ -63,8 +66,6 @@ class OfertaController extends Controller
         $ofertas ->estado = $request->estado;
         $ofertas ->establecimiento_id = $usuario->establecimiento_id;
         
-
-        $ofertas->id_categoria = $request->categorias;
         if($request->File('file')){
             $imagenes = $request->file('file')->store('public/imagenes');
             $url =Storage::url($imagenes);
@@ -73,10 +74,10 @@ class OfertaController extends Controller
                 echo "No se cargo imagen";
                 }
         $ofertas->save();
+        $nuevaOferta = $ofertas; // Asigna la oferta recién creada a $nuevaOferta
+        return view('ofertas.create', ['nuevaOferta' => $nuevaOferta]);
         
-        //$imagenes = $request->file('file')->store('public/imagenes');
-        return redirect()->route('oferta.index');
-        //return $ofertas-> imagen;
+       
     }
 
     /**
@@ -89,6 +90,114 @@ class OfertaController extends Controller
     {
         //
     }
+
+    public function activarOferta($ofertaId)
+    {
+        $oferta = Oferta::find($ofertaId);
+    
+        if (!$oferta) {
+            return redirect()->route('oferta.index')->with('error', 'La oferta no existe.');
+        }
+    
+        $productosOferta = $oferta->productos; 
+    
+        foreach ($productosOferta as $producto) {
+            $precioOferta = $producto->pivot->precio_oferta; 
+      
+            if ($producto->precioProducto !== null) {
+                $producto->precioProducto = $precioOferta;
+                $producto->update();
+            }
+        }
+    
+        $oferta->estado = 1; // Activa la oferta
+        $oferta->save();
+    
+        return redirect()->route('oferta.index')->with('success', 'Oferta activada con éxito.');
+    }
+
+
+    public function desactivarOferta($ofertaId)
+{
+    $oferta = Oferta::find($ofertaId);
+
+   
+       $productosOferta = $oferta->productos;
+
+       foreach ($productosOferta as $producto) {
+           $producto->precioProducto = $producto->precioOriginal;
+           $producto->save();
+       }
+   
+      
+       $oferta->estado = 0;
+       $oferta->save();
+   
+       return redirect()->route('oferta.index')->with('success', 'Oferta desactivada con éxito.');
+   
+}
+
+
+    public function agregarProductos($ofertaId)
+    {
+        $oferta = Oferta::find($ofertaId);
+        $productos = Producto::all(); 
+    
+        return view('ofertas.agregar_productos_oferta', [
+            'oferta' => $oferta,
+            'productos' => $productos,
+        ]);
+    }
+    
+public function guardarProductos(Request $request, $ofertaId)
+{
+    $oferta = Oferta::find($ofertaId);
+    
+    $porcentaje = $request->input('porcentaje');
+    $producto_id = $request->input('producto_id');
+    $producto = Producto::find($producto_id);
+    
+    // Calcula el precio de oferta
+    $precioDescuento = $producto->precioOriginal - ($producto->precioOriginal * $porcentaje / 100);
+    
+    // Guarda los datos en la tabla oferta_productos
+    $ofertaProducto = new Oferta_Producto();
+    $ofertaProducto->id_producto = $producto_id;
+    $ofertaProducto->id_oferta = $oferta->id;
+    $ofertaProducto->porcentaje = $porcentaje;
+    $ofertaProducto->precio_oferta = $precioDescuento;
+    $ofertaProducto->save();
+    
+    // Actualiza el precio del producto en la tabla productos
+    $producto->precioProducto = $precioDescuento;
+    $producto->save();
+    
+    return redirect()->route('oferta.agregar_productos', ['ofertaId' => $oferta->id])
+        ->with('success', " $producto->nombreProducto agregado con éxito a la oferta");
+}
+
+public function finalizarAgregarProductos($ofertaId)
+{
+    $oferta = Oferta::find($ofertaId);
+    
+    // Activa la oferta
+    $oferta->estado = 1;
+    $oferta->save();
+    
+    // Obtiene todos los productos asociados a esta oferta
+    $productosOferta = $oferta->productos;
+    
+    // Itera a través de los productos y actualiza sus precios de oferta
+    foreach ($productosOferta as $producto) {
+    
+        
+        // Actualiza el precio del producto a su precio original
+        $producto->precioProducto = $producto->precio_original;
+        $producto->save();
+    }
+    
+    return redirect()->route('oferta.index');
+}
 
     /**
      * Show the form for editing the specified resource.
@@ -119,7 +228,6 @@ class OfertaController extends Controller
         $oferta ->descripcion = $request->descripcion;
         $oferta ->numero_stock =$request->numero_stock;
         $oferta ->estado =$request->estado;
-        $oferta->id_categoria = $request->categorias;
         if ($request->File('file')) {
             $imagenes = $request->file('file')->store('public/imagenes');
             $url =Storage::url($imagenes);
@@ -141,7 +249,22 @@ class OfertaController extends Controller
     public function destroy($id)
     {
         $oferta = Oferta::find($id);
+    
+       
+           $productosOferta = $oferta->productos;
+    
+           foreach ($productosOferta as $producto) {
+               $producto->precioProducto = $producto->precioOriginal;
+               $producto->save();
+           }
+    
+        if (!$oferta) {
+            return redirect()->route('oferta.index')->with('error', 'La oferta no existe.');
+        }
+    
+        $oferta->productos()->detach();
         $oferta->delete();
-        return redirect()->route('oferta.index');
+    
+        return redirect()->route('oferta.index')->with('success', 'Oferta eliminada con éxito.');
     }
-}
+    }

@@ -93,10 +93,7 @@ class EstablecimientoApiController extends Controller
 
     public function showOffer($establecimiento_id, $oferta_id)
 {
-    // Buscar una oferta específica ($oferta_id) en el contexto de un establecimiento específico ($establecimiento_id).
-    // Realiza la lógica necesaria para buscar y devolver la oferta.
-
-    // Ejemplo:
+   
     $oferta = Oferta::where('establecimiento_id', $establecimiento_id)
                    ->where('id', $oferta_id)
                    ->first();

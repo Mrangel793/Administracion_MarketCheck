@@ -10,6 +10,7 @@ use App\Http\Controllers\API\CategoriaApiController;
 use App\Http\Controllers\API\SubCategoriaApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\ProductoApiController;
+use App\Models\Oferta;
 use App\Http\Controllers\Api\ComprasApiController;
 
 
@@ -33,9 +34,22 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
 
-Route::apiResource('oferta', OfertaApiController::class)->middleware("auth:api");
 Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
-Route::get('ofertas/{oferta_id}', [OfertaApiController::class, 'show'])->middleware('auth:api');
+
+
+Route::get('/ofertas', [OfertaApiController::class, 'index'])->middleware('auth:api');
+Route::post('/ofertas', [OfertaApiController::class, 'store'])->middleware('auth:api');
+Route::get('/ofertas/{id}', [OfertaApiController::class, 'show'])->middleware('auth:api');
+Route::put('/ofertas/{id}', [OfertaApiController::class, 'update'])->middleware('auth:api');
+Route::delete('/ofertas/{id}', [OfertaApiController::class, 'destroy'])->middleware('auth:api');
+Route::post('/ofertas/{ofertaId}/activar', [OfertaApiController::class, 'activarOferta'])->middleware('auth:api');
+Route::post('/ofertas/{ofertaId}/desactivar', [OfertaApiController::class, 'desactivarOferta'])->middleware('auth:api');
+Route::post('/ofertas/{ofertaId}/guardar-productos', [OfertaApiController::class, 'guardarProductos'])->middleware('auth:api');
+Route::put('/ofertas/{ofertaId}/productos/{productoId}/editar-porcentaje', [OfertaApiController::class, 'editarPorcentaje'])->middleware('auth:api');
+Route::get('/ofertas/{ofertaId}/productos', [OfertaApiController::class, 'productosOferta'])->middleware('auth:api');
+Route::delete('/ofertas/{ofertaId}/productos/{productoId}', [OfertaApiController::class, 'eliminarProducto'])->middleware('auth:api');
+
+
 
 
 Route::apiResource('establecimiento',EstablecimientoApiController::class)->middleware("auth:api");

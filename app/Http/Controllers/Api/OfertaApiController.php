@@ -2,76 +2,297 @@
 
 namespace App\Http\Controllers\Api;
 
-use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use App\Http\Controllers\Controller;
 use App\Models\Oferta;
+use App\Models\Categoria;
+use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Facades\Auth;
+use App\Models\Establecimiento;
+use App\Models\Producto;
+use App\Models\Oferta_Producto;
 
 class OfertaApiController extends Controller
 {
-    /**
-     * Display a listing of the resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
     public function index()
     {
-        $ofertas = Oferta::where("establecimiento_id",$id)->get();
-        return response()->json($ofertas,200);
+        $usuario = Auth::user();
+        $ofertas = Oferta::where('establecimiento_id', $usuario->establecimiento_id)->get();
+        return response()->json(['ofertas' => $ofertas]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    public function create()
+    {
+        $categorias = Categoria::all();
+        return response()->json(['categorias' => $categorias]);
+    }
+
+
     public function store(Request $request)
     {
-        $ofertas = Oferta::create($request->all());
-        return response()->json($ofertas, 201);
+        $usuario = Auth::user();
+ 
+    
+        $oferta = new Oferta();
+        $oferta->fecha_inicio = $request->fecha_inicio;
+        $oferta->fecha_fin = $request->fecha_fin;
+        $oferta->nombre = $request->nombre;
+        $oferta->descripcion = $request->descripcion;
+        $oferta->numero_stock = $request->numero_stock;
+        $oferta->estado = $request->estado;
+        $oferta->establecimiento_id = $usuario->establecimiento_id;
+        
+        $oferta->imagen = $request->imagen;
+    
+        $oferta->save();
+    
+        return response()->json(['message' => 'Oferta creada con éxito', 'oferta' => $oferta]);
     }
 
-    /**
-     * Display the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function show($id)
+        public function show($id)
     {
-        $ofertas = Oferta::where("establecimiento_id",$id)->get();
-        return response()->json($ofertas,200);
-    }
+        $usuario = Auth::user();
+        $oferta = Oferta::find($id);
 
-    /**
-     * Update the specified resource in storage.
-     *
-     * @param  \Illuminate\Http\Request  $request
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function update(Request $request, $id)
-    {
-        $ofertas = Oferta::find($id);
-        $ofertas->update($request->all());
-        return response()->json($ofertas,200);
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function destroy($id)
-    {
-        $ofertas = Oferta::find($id);
-        if($ofertas){
-            $ofertas->delete();
-            return response()->json($ofertas,200);
-        }else{
-            return response()->json(['Error'=>'Id no encontrado'],404);
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
         }
 
+    
+        if ($oferta->establecimiento_id !== $usuario->establecimiento_id) {
+            return response()->json(['error' => 'No tienes permiso para ver esta oferta.'], 403);
+        }
+
+        return response()->json(['oferta' => $oferta]);
     }
+
+
+        public function activarOferta($ofertaId)
+    {
+        $oferta = Oferta::find($ofertaId);
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $productosOferta = $oferta->productos; 
+    
+            foreach ($productosOferta as $producto) {
+                $precioOferta = $producto->pivot->precio_oferta; 
+      
+                if ($producto->precioProducto !== null) {
+                    $producto->precioProducto = $precioOferta;
+                    $producto->update();
+                }
+            }
+
+        $oferta->estado = 1; 
+        $oferta->save();
+
+        return response()->json(['message' => 'Oferta activada con éxito', 'oferta' => $oferta]);
+    }
+
+    public function desactivarOferta($ofertaId)
+    {
+        $oferta = Oferta::find($ofertaId);
+
+        $productosOferta = $oferta->productos;
+
+
+       foreach ($productosOferta as $producto) {
+           $producto->precioProducto = $producto->precioOriginal;
+           $producto->save();
+       }
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $oferta->estado = 0; // Desactiva la oferta
+        $oferta->save();
+
+      return response()->json(['message' => 'Oferta desactivada con éxito', 'oferta' => $oferta]);
+    }
+
+   
+
+    public function guardarProductos(Request $request, $ofertaId)
+    {
+        $oferta = Oferta::find($ofertaId);
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $porcentaje = $request->input('porcentaje');
+        $productoId = $request->input('producto_id');
+        $producto = Producto::find($productoId);
+
+        if (!$producto) {
+            return response()->json(['error' => 'El producto no existe.'], 404);
+        }
+
+    
+        $precioDescuento = $producto->precioProducto - ($producto->precioProducto * $porcentaje / 100);
+
+    
+        $ofertaProducto = new Oferta_Producto();
+        $ofertaProducto->id_producto = $productoId;
+        $ofertaProducto->id_oferta = $oferta->id;
+        $ofertaProducto->porcentaje = $porcentaje;
+        $ofertaProducto->precio_oferta = $precioDescuento;
+        $ofertaProducto->save();
+
+        if ($oferta->estado === 1) {
+            $producto->precioProducto = $precioDescuento;
+            $producto->save();
+        }
+
+
+        return response()->json(['message' => "$producto->nombreProducto agregado con éxito a la oferta", 'oferta_producto' => $ofertaProducto]);
+    }
+
+
+
+    public function edit($id)
+    {
+        $categorias = Categoria::all();
+        $oferta = Oferta::find($id);
+        return response()->json(['oferta' => $oferta, 'categorias' => $categorias]);
+    }
+
+    public function update(Request $request, $id)
+    {
+        $oferta = Oferta::find($id);
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $oferta->fecha_inicio = $request->fecha_inicio;
+        $oferta->fecha_fin = $request->fecha_fin;
+        $oferta->nombre = $request->nombre;
+        $oferta->descripcion = $request->descripcion;
+        $oferta->numero_stock = $request->numero_stock;
+        $oferta->estado = $request->estado;
+        $oferta->imagen = $request->imagen;
+
+        $oferta->save();
+
+        return response()->json(['message' => 'Oferta actualizada con éxito.']);
+    }
+
+        public function editarPorcentaje(Request $request, $ofertaId, $productoId)
+    {
+        $oferta = Oferta::find($ofertaId);
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $producto = Producto::find($productoId);
+
+        if (!$producto) {
+            return response()->json(['error' => 'El producto no existe.'], 404);
+        }
+
+        $usuario = Auth::user();
+        if ($oferta->establecimiento_id !== $usuario->establecimiento_id || $producto->id_establecimiento !== $usuario->establecimiento_id) {
+            return response()->json(['error' => 'No tienes permiso para editar el porcentaje de este producto en la oferta.'], 403);
+        }
+
+        $request->validate([
+            'porcentaje' => 'required|numeric|min:0|max:100',
+        ]);
+
+        $porcentaje = $request->input('porcentaje');
+
+        $precioDescuento = $producto->precioOriginal - ($producto->precioOriginal * $porcentaje / 100);
+
+        $ofertaProducto = Oferta_Producto::where('id_oferta', $oferta->id)
+    ->where('id_producto', $producto->id)
+    ->first();
+
+        if (!$ofertaProducto) {
+            return response()->json(['error' => 'El producto no está asociado a la oferta.'], 400);
+        }
+
+
+        $ofertaProducto->porcentaje = $porcentaje;
+        $ofertaProducto->precio_oferta = $precioDescuento;
+        $ofertaProducto->save();
+
+        if ($oferta->estado === 1) {
+            $producto->precioProducto = $precioDescuento;
+            $producto->save();
+        }
+
+        return response()->json(['message' => 'Porcentaje del producto actualizado con éxito.', 'oferta_producto' => $ofertaProducto]);
+    }
+
+        public function productosOferta($ofertaId)
+    {
+        $oferta = Oferta::find($ofertaId);
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $productosOferta = $oferta->productos;
+
+        return response()->json(['productos_oferta' => $productosOferta]);
+    }   
+
+        public function eliminarProducto($ofertaId, $productoId)
+    {
+        $oferta = Oferta::find($ofertaId);
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $producto = Producto::find($productoId);
+
+        if (!$producto) {
+            return response()->json(['error' => 'El producto no existe.'], 404);
+        }
+
+        $usuario = Auth::user();
+        if ($oferta->establecimiento_id !== $usuario->establecimiento_id || $producto->id_establecimiento !== $usuario->establecimiento_id) {
+            return response()->json(['error' => 'No tienes permiso para eliminar este producto de la oferta.'], 403);
+        }
+
+        $oferta->productos()->detach($producto->id);
+
+        $producto->precioProducto = $producto->precioOriginal;
+        $producto->save();
+
+        return response()->json(['message' => 'Producto eliminado de la oferta con éxito']);
+    }
+
+    public function destroy($id)
+    {
+        $oferta = Oferta::find($id);
+
+        if (!$oferta) {
+            return response()->json(['error' => 'La oferta no existe.'], 404);
+        }
+
+        $usuario = Auth::user();
+        if ($oferta->establecimiento_id !== $usuario->establecimiento_id) {
+            return response()->json(['error' => 'No tienes permiso para eliminar esta oferta.'], 403);
+        }
+
+        $productosOferta = $oferta->productos;
+        foreach ($productosOferta as $producto) {
+            $producto->precioProducto = $producto->precioOriginal;
+            $producto->save();
+        }
+
+        $oferta->productos()->detach();
+        $oferta->delete();
+
+        return response()->json(['message' => 'Oferta eliminada con éxito.']);
+    }
+
 }

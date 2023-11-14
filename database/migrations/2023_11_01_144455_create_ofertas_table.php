@@ -22,9 +22,7 @@ class CreateOfertasTable extends Migration
             $table->string('descripcion');
             $table->string('imagen');
             $table->integer('numero_stock');
-            
-            $table->foreignId('id_categoria');
-            $table->foreign('id_categoria')->references('id')->on('categorias');
+           
 
             $table->foreignId('establecimiento_id');
             $table->foreign('establecimiento_id')->references('id')->on('establecimientos');

@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use App\Models\Establecimiento;
 use App\Models\Rol;
+use Illuminate\Support\Facades\Auth;
 
 use Illuminate\Support\Facades\Hash;
 
@@ -21,9 +22,16 @@ class UsersController extends Controller
      */
     public function index()
     {
-        $users=User::all();
-        return view('users.index',compact('users'));
+        
+    $usuario = Auth::user();
+    $users = User::where('establecimiento_id', $usuario->establecimiento_id)->get();
+
+
+
+    return view('users.index', compact('users'));
     }
+
+
 
     /**
      * Show the form for creating a new resource.

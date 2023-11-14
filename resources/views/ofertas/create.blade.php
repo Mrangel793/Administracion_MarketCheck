@@ -1,16 +1,12 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Creación de ofertas</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet" integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+@extends('layouts.app')
 
-</head>
+@section('content')
+
 <body>
-    <div class="container">
-        <div class="card p-5 mt-5">
-            <h1>Crear Ofertas</h1>
+<div class="container mt-5">
+    <h1>Creación de Ofertas</h1>
+    <hr class="border color-background2 border-2 opacity-100">
+        
             <form method="post" action="{{route('oferta.store')}}" enctype="multipart/form-data">
                 @csrf
                 <div class="input-group-text">
@@ -40,18 +36,21 @@
                     <small class="text-danger">*{{$message}}</small><br>
                     @enderror
                 </div>
-                <select class="form-select mt-3" name="categorias" >
-                    @foreach($categorias as $categoria)
-                    <option value="{{$categoria->id}}">{{$categoria->nombre}}</option>
-                    @endforeach
-                </select>
+                
                 <select class="form-select mt-3" name="estado" >
                     <option value="1">Activo</option>
                     <option value="0">Inactivo</option>
                 </select>
-                <button type="submit" class="btn btn-success mt-3">Guardar Oferta</button>
+                <form method="post" action="{{ route('oferta.store') }}" enctype="multipart/form-data">
+    @csrf
+    <!-- ... Campos de creación de la oferta ... -->
+    <button type="submit" class="btn btn-success mt-3">Guardar Oferta</button><br><br>
+</form>
+
+@if (isset($nuevaOferta))
+    <a href="{{ route('oferta.agregar_productos', ['ofertaId' => $nuevaOferta->id]) }}" class="btn btn-primary mt-1">Agregar Productos</a>
+@endif
             </form>
         </div>
     </div>
-</body>
-</html>
+@endsection

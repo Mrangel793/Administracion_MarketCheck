@@ -21,11 +21,13 @@ use App\Http\Controllers\ComprasController;
 */
 
 Route::get('/', function () {
-    return view('welcome');
+    return view('auth.login');
 });
 
 
 Route::resource('establecimiento',EstablecimientosController::class)->middleware('auth');
+
+
 
 Route::resource('user',UsersController::class);
 Route::resource('producto', ProductoController::class);
@@ -39,12 +41,20 @@ Route::post('compras/guardar', [App\Http\Controllers\ComprasController::class, '
 
 
 
-
+Route::get('importe', [App\Http\Controllers\CargaInventarioController::class, 'index'])->name('importe')->middleware('auth');;
+Route::post('importe/importar', [App\Http\Controllers\CargaInventarioController::class, 'importar'])->middleware('auth');;
 
 Auth::routes();
 
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::resource('oferta',OfertaController::class)->middleware('auth');
+Route::get('/oferta/{ofertaId}/agregar-productos', [OfertaController::class, 'agregarProductos'])->name('oferta.agregar_productos');
+Route::post('/oferta/{ofertaId}/guardar-productos', [OfertaController::class, 'guardarProductos'])->name('oferta.guardar_productos');
+Route::post('/oferta/{ofertaId}/finalizar-agregar-productos', [OfertaController::class,'finalizarAgregarProductos'])->name('oferta.finalizar_agregar_productos');
+Route::put('/ofertas/desactivar/{ofertaId}', [OfertaController::class,'desactivarOferta'])->name('oferta.desactivar');
+Route::put('/ofertas/activar/{ofertaId}', [OfertaController::class,'activarOferta'])->name('oferta.activar');
+
+
 
 Route::get('importe', [App\Http\Controllers\CargaInventarioController::class, 'index'])->name('importe')->middleware('auth');
 Route::post('importe/importar', [App\Http\Controllers\CargaInventarioController::class, 'importar'])->middleware('auth');

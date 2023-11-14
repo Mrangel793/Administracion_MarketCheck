@@ -53,6 +53,7 @@ class ProductoApiController extends Controller
         $producto->estado = $request->estado;
         $producto->id_categoria = $request->id_categoria;
         $producto->id_subcategoria = $request->id_subcategoria;
+        $producto->id_establecimiento = $usuario->establecimiento_id;
         $producto->update();
 
         return response()->json(['message' => 'Producto actualizado con éxito']);
