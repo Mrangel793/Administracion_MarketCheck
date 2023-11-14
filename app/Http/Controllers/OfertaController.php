@@ -193,10 +193,7 @@ public function finalizarAgregarProductos($ofertaId)
     
     // Itera a través de los productos y actualiza sus precios de oferta
     foreach ($productosOferta as $producto) {
-        // Implementa tu lógica de cálculo de precio de oferta si es necesario
-        // $precioOferta = $this->calcularPrecioOferta($producto, $oferta);
-        // $producto->precioProducto = $precioOferta;
-        // $producto->save();
+    
         
         // Actualiza el precio del producto a su precio original
         $producto->precioProducto = $producto->precio_original;
@@ -254,16 +251,24 @@ public function finalizarAgregarProductos($ofertaId)
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-{
-    $oferta = Oferta::find($id);
-
-    if (!$oferta) {
-        return redirect()->route('oferta.index')->with('error', 'La oferta no existe.');
+    {
+        $oferta = Oferta::find($id);
+    
+       
+           $productosOferta = $oferta->productos;
+    
+           foreach ($productosOferta as $producto) {
+               $producto->precioProducto = $producto->precioOriginal;
+               $producto->save();
+           }
+    
+        if (!$oferta) {
+            return redirect()->route('oferta.index')->with('error', 'La oferta no existe.');
+        }
+    
+        $oferta->productos()->detach();
+        $oferta->delete();
+    
+        return redirect()->route('oferta.index')->with('success', 'Oferta eliminada con éxito.');
     }
-
-    $oferta->productos()->detach();
-    $oferta->delete();
-
-    return redirect()->route('oferta.index')->with('success', 'Oferta eliminada con éxito.');
-}
-}
+    }
