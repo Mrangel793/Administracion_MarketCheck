@@ -6,6 +6,9 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\Establecimiento;
 use App\Models\User;
+use App\Models\Producto;
+use App\Models\CompraProductos;
+
 
 
 class Compra extends Model
@@ -20,6 +23,11 @@ class Compra extends Model
 
     public function user(){
         return $this->belongsTo(User::class,'user_id');
+    }
+
+    public function productos(){
+        return $this->belongsToMany(Producto::class,'compras_productos', 'compra_id', 'producto_id')
+            ->withPivot('id','cantidad', 'precio');
     }
 
 }

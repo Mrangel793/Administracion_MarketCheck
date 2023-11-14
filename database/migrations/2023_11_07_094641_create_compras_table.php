@@ -16,13 +16,13 @@ class CreateComprasTable extends Migration
     {
         Schema::create('compras', function (Blueprint $table) {
             $table->id();
-            $table->timestamp('hora')->default(DB::raw('CURRENT_TIMESTAMP'));
+            $table->time('hora');
             $table->date('fecha');
-            $table->double('total');
+            $table->double('total')->nullable();
             $table->boolean('estado');
             $table->unsignedBigInteger('establecimiento_id');
             $table->foreign('establecimiento_id')->references('id')->on('establecimientos');
-            $table->unsignedBigInteger('user_id');
+            $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
             //$table->timestamps();
         });

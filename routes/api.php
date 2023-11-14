@@ -10,7 +10,8 @@ use App\Http\Controllers\API\CategoriaApiController;
 use App\Http\Controllers\API\SubCategoriaApiController;
 use App\Http\Controllers\AuthController;
 use App\Http\Controllers\Api\ProductoApiController;
-use App\Http\Controllers\Api\CompraController;
+use App\Http\Controllers\Api\ComprasApiController;
+
 
 
 
@@ -68,3 +69,11 @@ Route::group([
         Route::get('user', [AuthController::class,'user']);
     });
 });
+
+
+Route::get('compras', [ComprasApiController::class, 'index'])->middleware('auth:api');
+Route::get('compras/{compraid}', [ComprasApiController::class, 'productosCompra'])->middleware('auth:api');
+Route::post('compras', [ComprasApiController::class, 'store'])->middleware('auth:api');
+Route::post('compras/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');
+
+

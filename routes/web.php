@@ -6,6 +6,8 @@ use App\Http\Controllers\UsersController;
 use App\Http\Controllers\OfertaController;
 use App\Http\Controllers\ProductoController;
 use App\Http\Controllers\CargaInventarioController;
+use App\Http\Controllers\ComprasController;
+
 
 /*
 |--------------------------------------------------------------------------
@@ -27,8 +29,15 @@ Route::resource('establecimiento',EstablecimientosController::class)->middleware
 
 Route::resource('user',UsersController::class);
 Route::resource('producto', ProductoController::class);
+Route::get('/compras', [App\Http\Controllers\ComprasController::class, 'index'])->name('compras.index');
+Route::get('/compras/create', [App\Http\Controllers\ComprasController::class, 'create'])->name('compras.create');
+Route::post('/compras/store', [App\Http\Controllers\ComprasController::class, 'store'])->name('compras.store');
+Route::match(['get', 'post'], '/compras/consultar', [App\Http\Controllers\ComprasController::class, 'consultar'])->name('compras.consultar');
+Route::post('compras/guardar', [App\Http\Controllers\ComprasController::class, 'guardar'])->name('compras.guardar');
 
-Route::resource('producto', ProductoController::class);
+
+
+
 
 
 
@@ -37,6 +46,7 @@ Auth::routes();
 Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
 Route::resource('oferta',OfertaController::class)->middleware('auth');
 
-Route::get('importe', [App\Http\Controllers\CargaInventarioController::class, 'index'])->name('importe')->middleware('auth');;
-Route::post('importe/importar', [App\Http\Controllers\CargaInventarioController::class, 'importar'])->middleware('auth');;
+Route::get('importe', [App\Http\Controllers\CargaInventarioController::class, 'index'])->name('importe')->middleware('auth');
+Route::post('importe/importar', [App\Http\Controllers\CargaInventarioController::class, 'importar'])->middleware('auth');
+
 
