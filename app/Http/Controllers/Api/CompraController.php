@@ -1,12 +1,13 @@
 <?php
 
-namespace App\Http\Controllers;
+namespace App\Http\Controllers\Api;
 
+use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
-use Maatwebsite\Excel\Facades\Excel;
-use App\Models\Producto;
-use App\Imports\ProductsImport;
-class CargaInventarioController extends Controller
+use Illuminate\Support\Facades\Auth;
+use App\Models\Compra;
+
+class CompraController extends Controller
 {
     /**
      * Display a listing of the resource.
@@ -15,17 +16,8 @@ class CargaInventarioController extends Controller
      */
     public function index()
     {
-        return view('archivoPlano.index');
-    }
-
-    /**
-     * Show the form for creating a new resource.
-     *
-     * @return \Illuminate\Http\Response
-     */
-    public function create()
-    {
-        //
+        $compras = Compra::all();
+        return response()->json($compras,200);
     }
 
     /**
@@ -36,7 +28,16 @@ class CargaInventarioController extends Controller
      */
     public function store(Request $request)
     {
-        //
+        $usuario = Auth::user();
+        $compra = new Compra();
+        $compra->hora = $request->hora;
+        $compra->fecha = $request->fecha;
+        $compra->total = $request->total;
+        $compra->estado = $request->estado;
+        $compra->establecimiento_id = $request->establecimiento_id;
+        $compra->user_id =$request->user_id;
+        $compra->save();
+        return response()->json(['message' => 'Compra creada con éxito']);
     }
 
     /**
@@ -46,17 +47,6 @@ class CargaInventarioController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function show($id)
-    {
-        //
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     *
-     * @param  int  $id
-     * @return \Illuminate\Http\Response
-     */
-    public function edit($id)
     {
         //
     }
@@ -83,14 +73,4 @@ class CargaInventarioController extends Controller
     {
         //
     }
-
-
-    public function importar(Request $request){
-        if($request->hasFile('documento')){
-            $path = $request->file('documento')->getRealPath();
-            Excel::import(new ProductsImport, $path);
-            }
-            return redirect('importe')->with('success', 'All good!');
-        }
-
 }

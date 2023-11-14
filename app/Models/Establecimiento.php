@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use App\Models\User;
 use App\Models\Producto;
+use App\Models\Compra;
 
 
 
@@ -24,8 +25,12 @@ class Establecimiento extends Model
     public function producto(){
         return $this->hasMany(Producto::class,'id_establecimiento');
     }
+    
+    public function compra(){
+        return $this->hasMany(Compra::class,'establecimiento_id');
+    }
 
     protected $fillable = ["Nit", "Estado", "NombreEstablecimiento", "DireccionEstablecimiento","CorreoEstablecimiento",
-    "Lema", "ColorInterfaz", "Imagen"];
+    "Lema", "ColorInterfaz", "Imagen", "Logo"];
     public $timestamps = false;
 }
