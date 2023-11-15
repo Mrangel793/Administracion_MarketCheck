@@ -153,4 +153,6 @@ public function guardar(Request $request)
     return redirect()->route('compras.index')->with('success', 'Compra guardada exitosamente.');
 }
 
+
+
 }
