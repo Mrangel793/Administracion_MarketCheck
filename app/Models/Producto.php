@@ -9,6 +9,9 @@ use App\Models\Categoria;
 use App\Models\Establecimiento;
 use App\Models\SubCategoria;
 use App\Models\Oferta;
+use App\Models\Compra;
+use App\Models\CompraProductos;
+
 
 class Producto extends Model
 {
@@ -23,6 +26,10 @@ class Producto extends Model
     }
     public function subcategoria(){
         return $this->belongsTo(SubCategoria::class,'id_subcategoria');
+    }
+    public function compra(){
+        return $this->belongsToMany(Compra::class,'compras_productos', 'producto_id','compra_id')
+        ->withPivot('id','cantidad', 'precio');
     }
 
     public function ofertas()
@@ -40,6 +47,10 @@ class Producto extends Model
         'precioProducto' => 0, // Puedes definir un valor por defecto apropiado
     ];
     public $timestamps = false;
+
+    
+
+    
 }  
 
 

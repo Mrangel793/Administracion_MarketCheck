@@ -88,11 +88,9 @@ class CargaInventarioController extends Controller
     public function importar(Request $request){
         if($request->hasFile('documento')){
             $path = $request->file('documento')->getRealPath();
-
             Excel::import(new ProductsImport, $path);
             }
             return redirect('importe')->with('success', 'All good!');
-
         }
 
 }

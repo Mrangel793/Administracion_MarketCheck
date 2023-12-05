@@ -20,9 +20,10 @@ class CreateEstablecimientosTable extends Migration
             $table->string('NombreEstablecimiento');
             $table->string('DireccionEstablecimiento');
             $table->string('CorreoEstablecimiento');
-            $table->text('Lema');
-            $table->string('ColorInterfaz');
-            $table->string('Imagen');
+            $table->text('Lema')->nullable();
+            $table->string('ColorInterfaz')->nullable();
+            $table->string('Imagen')->nullable();
+            $table->string('Logo');
             //$table->timestamps();
         });
     }
