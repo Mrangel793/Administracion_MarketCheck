@@ -89,5 +89,6 @@ Route::get('compras', [ComprasApiController::class, 'index'])->middleware('auth:
 Route::get('compras/{compraid}', [ComprasApiController::class, 'productosCompra'])->middleware('auth:api');
 Route::post('compras', [ComprasApiController::class, 'store'])->middleware('auth:api');
 Route::post('compras/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');
+Route::put('compras/{idCompra}/finalizarCompra',[ComprasApiController::class, 'finalizarCompra'])->middleware('auth:api');
 
 
