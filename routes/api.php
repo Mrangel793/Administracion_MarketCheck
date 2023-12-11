@@ -52,14 +52,14 @@ Route::delete('/ofertas/{ofertaId}/productos/{productoId}', [OfertaApiController
 
 
 
-Route::apiResource('establecimiento',EstablecimientoApiController::class)->middleware("auth:api");
+Route::apiResource('establecimiento',EstablecimientoApiController::class);
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::apiResource('rol',RolApiController::class);
 Route::apiResource('categoria',CategoriaApiController::class);
 Route::apiResource('compra',CompraController::class);
 
 Route::apiResource('subcategoria',SubCategoriaApiController::class);
-Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria'])->middleware('auth:api');
+Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria']);
 
 
 Route::prefix('productos')->group(function () {
