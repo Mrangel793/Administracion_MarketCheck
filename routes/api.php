@@ -53,7 +53,7 @@ Route::delete('/ofertas/{ofertaId}/productos/{productoId}', [OfertaApiController
 
 
 Route::apiResource('establecimiento',EstablecimientoApiController::class);
-Route::apiResource('user',UserApiController::class)->middleware("auth:api");
+Route::apiResource('user',UserApiController::class);
 Route::apiResource('rol',RolApiController::class);
 Route::apiResource('categoria',CategoriaApiController::class);
 Route::apiResource('compra',CompraController::class);
@@ -64,9 +64,10 @@ Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::
 
 Route::prefix('productos')->group(function () {
     Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
+    Route::get('/{id}', [ProductoApiController::class, 'show']);
     Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
     Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
-    Route::delete('/{id}', [ProductoApiController::class, 'destroy'])->middleware('auth:api');
+    Route::delete('/{id}', [ProductoApiController::class, 'destroy']);
 });
 
 

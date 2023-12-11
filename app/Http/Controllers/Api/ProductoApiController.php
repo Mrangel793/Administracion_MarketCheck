@@ -15,7 +15,7 @@ class ProductoApiController extends Controller
     {
         $usuario = Auth::user();
         $productos = Producto::where('id_establecimiento', $usuario->establecimiento_id)->get();
-        return response()->json(['productos' => $productos]);
+        return response()->json( $productos);
     }
 
 
@@ -37,6 +37,29 @@ class ProductoApiController extends Controller
         $productos->save();
 
         return response()->json(['message' => 'Producto creado con éxito']);
+    }
+
+    public function show($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        $data = [
+            'id' => $producto->id,
+            'codigoProducto' => $producto->codigoProducto,
+            'nombreProducto' => $producto->nombreProducto,
+            'descripcionProducto' => $producto->descripcionProducto,
+            'precioProducto' => $producto->precioProducto,
+            'numeroStock' => $producto->numeroStock,
+            'estado' => $producto->estado,
+            'id_categoria' => $producto->id_categoria,
+            'id_subcategoria' => $producto->id_subcategoria,
+        ];
+
+        return response()->json($data);
     }
 
     
