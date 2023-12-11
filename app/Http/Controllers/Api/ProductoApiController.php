@@ -28,6 +28,7 @@ class ProductoApiController extends Controller
         $productos->nombreProducto = $request->nombreProducto;
         $productos->descripcionProducto = $request->descripcionProducto;
         $productos->precioProducto = $request->precioProducto;
+        $productos->precioOriginal = $request->precioProducto;
         $productos->numeroStock = $request->numeroStock;
         $productos->estado = $request->estado;
         $productos->id_categoria = $request->id_categoria;
