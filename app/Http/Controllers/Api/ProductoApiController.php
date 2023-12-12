@@ -62,6 +62,34 @@ class ProductoApiController extends Controller
         return response()->json($data);
     }
 
+    public function activate($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        $producto->estado = 1;
+        $producto->update();
+
+        return response()->json(['message' => 'Producto activado con éxito']);
+    }
+
+    public function deactivate($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        $producto->estado = 0;
+        $producto->update();
+
+        return response()->json(['message' => 'Producto desactivado con éxito']);
+    }
+
     
 
     public function update(Request $request, $id)

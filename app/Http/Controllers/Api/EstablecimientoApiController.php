@@ -57,6 +57,34 @@ class EstablecimientoApiController extends Controller
         return response()->json($establecimiento,200);
     }
 
+    public function activate($id)
+    {
+        $establecimiento = Establecimiento::find($id);
+
+        if (!$establecimiento) {
+            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        }
+
+        $establecimiento->Estado = 1;
+        $establecimiento->update();
+
+        return response()->json(['message' => 'Producto activado con éxito']);
+    }
+
+    public function deactivate($id)
+    {
+        $establecimiento = Establecimiento::find($id);
+
+        if (!$establecimiento) {
+            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        }
+
+        $establecimiento->Estado = 0;
+        $establecimiento->update();
+
+        return response()->json(['message' => 'Establecimiento desactivado con éxito']);
+    }
+
     /**
      * Update the specified resource in storage.
      *
