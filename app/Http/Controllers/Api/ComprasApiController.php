@@ -59,14 +59,14 @@ class ComprasApiController extends Controller
     }
 
     public function guardar(Request $request, $idCompra,$productoId){
-    $compra = Compra::find($idCompra);
-    $totalCompra = 0;
-    $producto = Producto::find($productoId);
+        $compra = Compra::find($idCompra);
+        $totalCompra = 0;
+        $producto = Producto::find($productoId);
 
-    if($compra->estado ==1){
-        return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada']);
+        if($compra->estado ==1){
+            return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada']);
 
-    }else{
+        }else{
 
             $compraProducto = new ComprasProductos();
             $compraProducto->producto_id = $producto->id;
@@ -78,13 +78,11 @@ class ComprasApiController extends Controller
             $compraProducto->save();
             $totalCompra += $compraProducto->total;
             $compra->total= $totalCompra;
-            $compra->save();
-            
+            $compra->save();            
         
-    
-    return response()->json(['message' => 'Productos agregados con éxito']);
-    } 
-}
+            return response()->json(['message' => 'Productos agregados con éxito']);
+        } 
+    }
 
 public function finalizarCompra($idCompra)
 {
