@@ -54,7 +54,7 @@ Route::delete('/ofertas/{ofertaId}/productos/{productoId}', [OfertaApiController
 
 
 
-Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
+Route::apiResource('establecimiento',EstablecimientoApiController::class)->middleware("auth:api");
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::apiResource('rol',RolApiController::class);
 Route::apiResource('categoria',CategoriaApiController::class);
