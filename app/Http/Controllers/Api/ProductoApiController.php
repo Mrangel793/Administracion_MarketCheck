@@ -23,20 +23,24 @@ class ProductoApiController extends Controller
     {
         $usuario = Auth::user();
 
-        $productos = new Producto();
-        $productos->codigoProducto = $request->codigoProducto;
-        $productos->nombreProducto = $request->nombreProducto;
-        $productos->descripcionProducto = $request->descripcionProducto;
-        $productos->precioProducto = $request->precioProducto;
-        $productos->precioOriginal = $request->precioProducto;
-        $productos->numeroStock = $request->numeroStock;
-        $productos->estado = $request->estado;
-        $productos->id_categoria = $request->id_categoria;
-        $productos->id_subcategoria = $request->id_subcategoria;
-        $productos->id_establecimiento = $usuario->establecimiento_id;
-        $productos->save();
+        if($usuario->establecimiento_id != null){
+            $productos = new Producto();
+            $productos->codigoProducto = $request->codigoProducto;
+            $productos->nombreProducto = $request->nombreProducto;
+            $productos->descripcionProducto = $request->descripcionProducto;
+            $productos->precioProducto = $request->precioProducto;
+            $productos->precioOriginal = $request->precioProducto;
+            $productos->numeroStock = $request->numeroStock;
+            $productos->estado = $request->estado;
+            $productos->id_categoria = $request->id_categoria;
+            $productos->id_subcategoria = $request->id_subcategoria;
+            $productos->id_establecimiento = $usuario->establecimiento_id;
+            $productos->save();
 
-        return response()->json(['message' => 'Producto creado con éxito']);
+            return response()->json(['message' => 'Producto creado con éxito']);
+        }else{
+            return response()->json(['message' => 'El usuario no posee permisos para crear productos.']);
+        }
     }
 
     public function show($id)

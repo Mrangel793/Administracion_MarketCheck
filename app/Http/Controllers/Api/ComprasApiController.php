@@ -25,7 +25,7 @@ class ComprasApiController extends Controller
     {
         $usuario = Auth::user();
         $compras = Compra::where('establecimiento_id', $usuario->establecimiento_id)->get();
-        return response()->json([$compras, 200]);
+        return response()->json(['purchases'=> $compras, 200]);
     }
 
     public function productosCompra($compraid)
@@ -52,6 +52,7 @@ class ComprasApiController extends Controller
         $compras->total = 0;
         $compras->estado = 0;
         $compras->establecimiento_id = $usuario->establecimiento_id;
+        //$compras->establecimiento_id = $request->establecimiento_id;
         $compras->save();
         session(['compra_id' => $compras->id]);
         return response()->json(['message' => 'Compra creada con éxito']);
