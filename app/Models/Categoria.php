@@ -11,8 +11,6 @@ use App\Models\Producto;
 class Categoria extends Model
 { 
 
-
-
     use HasFactory;
     protected $fillable = ['nombre','imagen'];
     public $timestamps = false;

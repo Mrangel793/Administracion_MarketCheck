@@ -15,7 +15,7 @@ class ProductoApiController extends Controller
     {
         $usuario = Auth::user();
         $productos = Producto::where('id_establecimiento', $usuario->establecimiento_id)->get();
-        return response()->json(['productos' => $productos]);
+        return response()->json( $productos);
     }
 
 
@@ -28,6 +28,7 @@ class ProductoApiController extends Controller
         $productos->nombreProducto = $request->nombreProducto;
         $productos->descripcionProducto = $request->descripcionProducto;
         $productos->precioProducto = $request->precioProducto;
+        $productos->precioOriginal = $request->precioProducto;
         $productos->numeroStock = $request->numeroStock;
         $productos->estado = $request->estado;
         $productos->id_categoria = $request->id_categoria;
@@ -36,6 +37,57 @@ class ProductoApiController extends Controller
         $productos->save();
 
         return response()->json(['message' => 'Producto creado con éxito']);
+    }
+
+    public function show($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        $data = [
+            'id' => $producto->id,
+            'codigoProducto' => $producto->codigoProducto,
+            'nombreProducto' => $producto->nombreProducto,
+            'descripcionProducto' => $producto->descripcionProducto,
+            'precioProducto' => $producto->precioProducto,
+            'numeroStock' => $producto->numeroStock,
+            'estado' => $producto->estado,
+            'id_categoria' => $producto->id_categoria,
+            'id_subcategoria' => $producto->id_subcategoria,
+        ];
+
+        return response()->json($data);
+    }
+
+    public function activate($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        $producto->estado = 1;
+        $producto->update();
+
+        return response()->json(['message' => 'Producto activado con éxito']);
+    }
+
+    public function deactivate($id)
+    {
+        $producto = Producto::find($id);
+
+        if (!$producto) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+        }
+
+        $producto->estado = 0;
+        $producto->update();
+
+        return response()->json(['message' => 'Producto desactivado con éxito']);
     }
 
     
