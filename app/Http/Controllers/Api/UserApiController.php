@@ -37,12 +37,14 @@ class UserApiController extends Controller
 
         $name = $request->input('name');
         $email = $request->input('email');
+        $documento = $request->input('documento');
         $establecimientoId = $request->input('establecimiento_id');
         $rolId = $request->input('rol_id'); 
 
         $user = new User();
         $user->name = $name;
         $user->email = $email;
+        $user->documento = $documento;
         $user->password = Hash::make($name);
         $user->establecimiento_id = $establecimientoId;
         $user->rol_id = $rolId; 
