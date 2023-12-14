@@ -52,7 +52,7 @@ Route::delete('/ofertas/{ofertaId}/productos/{productoId}', [OfertaApiController
 
 
 
-Route::apiResource('establecimiento',EstablecimientoApiController::class)->middleware("auth:api");
+Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::apiResource('rol',RolApiController::class);
 Route::apiResource('categoria',CategoriaApiController::class);
@@ -84,8 +84,9 @@ Route::group([
     });
 });
 
-
+//COMPRAS API CONTROLLER---------------------------------------------------------------------------------------------------
 Route::get('compras', [ComprasApiController::class, 'index'])->middleware('auth:api');
+Route::get('compras/compra/{compraid}', [ComprasApiController::class, 'showCompra'])->middleware('auth:api');
 Route::get('compras/{compraid}', [ComprasApiController::class, 'productosCompra'])->middleware('auth:api');
 Route::post('compras', [ComprasApiController::class, 'store'])->middleware('auth:api');
 Route::post('compras/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');

@@ -60,3 +60,7 @@ Route::get('importe', [App\Http\Controllers\CargaInventarioController::class, 'i
 Route::post('importe/importar', [App\Http\Controllers\CargaInventarioController::class, 'importar'])->middleware('auth');
 
 
+
+Auth::routes();
+
+Route::get('/home', [App\Http\Controllers\HomeController::class, 'index'])->name('home');
