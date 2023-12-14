@@ -24,56 +24,69 @@ class ComprasApiController extends Controller
     public function index()
     {
         $usuario = Auth::user();
-        $compras = Compra::where('establecimiento_id', $usuario->establecimiento_id)->get();
-        return response()->json(['purchases'=> $compras, 200]);
+        if($usuario && isset($usuario->establecimiento_id)){
+            $compras = Compra::where('establecimiento_id', $usuario->establecimiento_id)->get();
+            return response()->json(['purchases'=> $compras, 200]);
+        }else{
+            return response()->json(['message' => 'El Usuario no tiene permisos de visualizar Compras']);
+        }
     }
 
     public function productosCompra($compraid)
     {
         $compra = Compra::find($compraid);
         $compraProducto = ComprasProductos::where('compra_id', $compraid)->get();
-        return response()->json([$compraProducto, 200]);
+        return response()->json(['items'=>$compraProducto, 200]);
     }
+
     /**
      * Store a newly created resource in storage.
      *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
-        $usuario = Auth::user();
-        
-        session()->forget('productos_acumulados');
+    public function store(Request $request){
 
-        $compras = new Compra();
-        $compras->hora = now()->format('H:i:s');;
-        $compras->fecha = Carbon::now();
-        $compras->total = 0;
-        $compras->estado = 0;
-        $compras->establecimiento_id = $usuario->establecimiento_id;
-        //$compras->establecimiento_id = $request->establecimiento_id;
-        $compras->save();
-        session(['compra_id' => $compras->id]);
-        return response()->json(['message' => 'Compra creada con éxito']);
+        session()->forget('productos_acumulados');
+        $usuario = Auth::user();
+
+        if($usuario && isset($usuario->establecimiento_id)){
+            $compra = new Compra();
+            $compra->hora = now()->format('H:i:s');;
+            $compra->fecha = Carbon::now();
+            $compra->total = 0;
+            $compra->estado = 0;
+            $compra->establecimiento_id = $usuario->establecimiento_id;
+            $compra->save();
+            session(['compra_id' => $compra->id]);
+            return response()->json(['message' => 'Compra creada con éxito', 'id'=>$compra->id]);
+        }else{
+            return response()->json(['message' => 'El Usuario no tiene permisos de crear Compras']);
+        }
 
     }
 
+    /**
+     * Store a newly created resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @return \Illuminate\Http\Response
+     */
     public function guardar(Request $request, $idCompra, $productoId){
+        
+        $usuario = Auth::user();
         $compra = Compra::find($idCompra);
-        $totalCompra = 0;
-        $producto = Producto::find($productoId);
 
-        if($compra->estado ==1){
-            return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada']);
+        if($usuario && isset($usuario->rol_id) && $usuario->rol_id!= 1 && $compra->estado != 1){
 
-        }else{
-
+            $totalCompra = 0;
+            $producto = Producto::find($productoId);
             $compraProducto = new ComprasProductos();
+
             $compraProducto->producto_id = $producto->id;
             $compraProducto->compra_id = $compra->id;
             $compraProducto->nombre = $producto->nombreProducto;
-            $compraProducto->cantidad = $request->cantidad;
+            $compraProducto->cantidad = $request->itemsCount;
             $compraProducto->precio = $producto->precioProducto;
             $compraProducto->total = $compraProducto->cantidad * $compraProducto->precio;
             $compraProducto->save();
@@ -82,10 +95,24 @@ class ComprasApiController extends Controller
             $compra->save();            
         
             return response()->json(['message' => 'Productos agregados con éxito']);
+
+        }else if($compra->estado == 1){
+            return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada']);
+
+        }else{
+            throw error;
         } 
     }
 
-    public function finalizarCompra($idCompra)
+
+    /**
+     * Update the specified resource in storage.
+     *
+     * @param  \Illuminate\Http\Request  $request
+     * @param  int  $id
+     * @return \Illuminate\Http\Response
+     */
+    public function finalizarCompra(Request $request, $idCompra)
     {
         $usuario = Auth::user();
 
@@ -128,10 +155,10 @@ class ComprasApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function showCompra($id)
-    {
-        $compra = Compra::find($idCompra);
-        return response()->json(['compra' => $compra, 200]);
+    public function showCompra($id){
+
+        $compra = Compra::find($id);
+        return response()->json(['purchase' => $compra, 200]);
     }
 
     /**

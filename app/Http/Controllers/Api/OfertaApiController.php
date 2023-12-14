@@ -17,8 +17,13 @@ class OfertaApiController extends Controller
     public function index()
     {
         $usuario = Auth::user();
-        $ofertas = Oferta::where('establecimiento_id', $usuario->establecimiento_id)->get();
-        return response()->json(['ofertas' => $ofertas]);
+        if($usuario->establecimiento_id){
+            $ofertas = Oferta::where('establecimiento_id', $usuario->establecimiento_id)->get();
+            return response()->json([$ofertas]);
+        }else{
+            return response()->json(['El usuario no tiene permisos para crear ofertas', 401]);
+        }
+        
     }
 
     public function create()
@@ -49,8 +54,8 @@ class OfertaApiController extends Controller
         return response()->json(['message' => 'Oferta creada con éxito', 'oferta' => $oferta]);
     }
 
-        public function show($id)
-    {
+    public function show($id){
+
         $usuario = Auth::user();
         $oferta = Oferta::find($id);
 
@@ -67,8 +72,8 @@ class OfertaApiController extends Controller
     }
 
 
-        public function activarOferta($ofertaId)
-    {
+    public function activarOferta($ofertaId){
+        
         $oferta = Oferta::find($ofertaId);
 
         if (!$oferta) {
