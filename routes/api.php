@@ -74,6 +74,8 @@ Route::prefix('productos')->group(function () {
     Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
 });
 
+Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword']);
+
 
 Route::group([
     'prefix' => 'auth'
