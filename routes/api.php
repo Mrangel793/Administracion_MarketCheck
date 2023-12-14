@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
+
 Route::put('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activate']);
 Route::put('/establecimiento/deactivate/{id}', [EstablecimientoApiController::class, 'deactivate']);
 
@@ -54,7 +55,7 @@ Route::delete('/ofertas/{ofertaId}/productos/{productoId}', [OfertaApiController
 
 
 
-Route::apiResource('establecimiento',EstablecimientoApiController::class)->middleware("auth:api");
+Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::apiResource('rol',RolApiController::class);
 Route::apiResource('categoria',CategoriaApiController::class);
