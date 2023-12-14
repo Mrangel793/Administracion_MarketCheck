@@ -90,10 +90,12 @@ Route::group([
 });
 
 //COMPRAS API CONTROLLER---------------------------------------------------------------------------------------------------
-Route::get('compras', [ComprasApiController::class, 'index'])/*->middleware('auth:api')*/;
-Route::get('compras/compra/{compraid}', [ComprasApiController::class, 'showCompra'])/*->middleware('auth:api')*/;
+Route::get('compras', [ComprasApiController::class, 'index'])->middleware('auth:api');
+Route::get('compras/compra/{compraid}', [ComprasApiController::class, 'showCompra'])->middleware('auth:api');
 Route::get('compras/{compraid}', [ComprasApiController::class, 'productosCompra'])->middleware('auth:api');
-Route::post('compras', [ComprasApiController::class, 'store'])/*->middleware('auth:api')*/;
+
+Route::post('compras/new', [ComprasApiController::class, 'store'])->middleware('auth:api');
+
 Route::post('compras/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');
 Route::put('compras/{idCompra}/finalizarCompra',[ComprasApiController::class, 'finalizarCompra'])->middleware('auth:api');
 

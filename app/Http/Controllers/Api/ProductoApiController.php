@@ -39,7 +39,7 @@ class ProductoApiController extends Controller
 
             return response()->json(['message' => 'Producto creado con éxito']);
         }else{
-            return response()->json(['message' => 'El usuario no posee permisos para crear productos.']);
+            return response()->json(['message' => 'El usuario no posee permisos para crear productos.',401]);
         }
     }
 
