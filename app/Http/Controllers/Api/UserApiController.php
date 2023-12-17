@@ -73,7 +73,39 @@ class UserApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function update(Request $request, $id)
+    /**
+ * Update the specified resource in storage.
+ *
+ * @param  \Illuminate\Http\Request  $request
+ * @param  int  $id
+ * @return \Illuminate\Http\Response
+ */
+public function update(Request $request, $id)
+{
+    $request->validate([
+        'name' => 'required',
+        'email' => 'required|email|unique:users,email,'.$id,
+        'rol_id' => 'required|numeric',
+    ]);
+
+    $user = User::find($id);
+
+    if (!$user) {
+        return response()->json(['message' => 'Usuario no encontrado'], 404);
+    }
+
+    $user->name = $request->name;
+    $user->email = $request->email;
+    $user->documento = $request->documento;
+    $user->establecimiento_id = $user->establecimiento_id;
+    $user->rol_id = $request->rol_id;
+
+    $user->save();
+
+    return response()->json(['message' => 'Datos actualizados con éxito'], 200);
+}
+
+public function changePassword(Request $request, $id)
 {
     $request->validate([
         'password' => 'required|string|min:8',
@@ -85,11 +117,12 @@ class UserApiController extends Controller
         return response()->json(['message' => 'Usuario no encontrado'], 404);
     }
 
-    $user->password = Hash::make($request->input('password'));
+    $user->password = Hash::make($request->password);
     $user->save();
 
     return response()->json(['message' => 'Contraseña actualizada con éxito'], 200);
 }
+
 
     /**
      * Remove the specified resource from storage.
