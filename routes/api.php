@@ -35,6 +35,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 });
 
 Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
+
 Route::put('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activate']);
 Route::put('/establecimiento/deactivate/{id}', [EstablecimientoApiController::class, 'deactivate']);
 

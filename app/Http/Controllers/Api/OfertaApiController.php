@@ -17,11 +17,11 @@ class OfertaApiController extends Controller
     public function index()
     {
         $usuario = Auth::user();
-        if($usuario->establecimiento_id){
+        if($usuario && isset($usuario->establecimiento_id)){
             $ofertas = Oferta::where('establecimiento_id', $usuario->establecimiento_id)->get();
-            return response()->json([$ofertas]);
+            return response()->json(['ofertas'=> $ofertas]);
         }else{
-            return response()->json(['El usuario no tiene permisos para crear ofertas', 401]);
+            return response()->json(['El usuario no tiene permisos para visualizar ofertas', 401]);
         }
         
     }
