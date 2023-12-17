@@ -4,14 +4,14 @@ namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+
+use Carbon\Carbon;
+
 use App\Models\Compra;
 use App\Models\Producto;
 use App\Models\ComprasProductos;
-use Carbon\Carbon;
 
-
-
-use Illuminate\Support\Facades\Auth;
 
 
 class ComprasApiController extends Controller

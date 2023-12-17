@@ -3,10 +3,14 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
+
 use App\Models\User;
 use App\Models\Establecimiento;
-use Illuminate\Support\Facades\Hash;
 
 class UserApiController extends Controller
 {
@@ -17,8 +21,22 @@ class UserApiController extends Controller
      */
     public function index()
     {
-        $users = User::all();
-        return response()->json($users,200);
+        $usuario = Auth::user();
+
+        if($usuario && isset($usuario->establecimiento_id)){
+            $users = User::where('establecimiento_id', $usuario->establecimiento_id)
+            ->whereNotIn('id', [$usuario->id])
+            ->get();
+
+            return response()->json(['users'=> $users],200);
+        }
+        elseif ($usuario){
+            $users = User::where('rol_id', '!=', 1)->get();
+            return response()->json(['users'=> $users],200);
+        }
+
+        return response()->json(['message'=> 'Por favor inicie Sesion'],401);
+
     }
 
     /**
@@ -35,21 +53,14 @@ class UserApiController extends Controller
             'rol_id' => 'required|numeric', // Validación del rol como un número.
         ]);
 
-        $name = $request->input('name');
-        $email = $request->input('email');
-        $documento = $request->input('documento');
-        $establecimientoId = $request->input('establecimiento_id');
-        $rolId = $request->input('rol_id'); 
-
-        $user = new User();
-        $user->name = $name;
-        $user->email = $email;
-        $user->documento = $documento;
-        $user->password = Hash::make($name);
-        $user->establecimiento_id = $establecimientoId;
-        $user->rol_id = $rolId; 
-
-        $user->save();
+        $user = User::create([
+            'name' => $request-> name,
+            'email' => $request-> email,
+            'documento' => $request-> documento,
+            'establecimiento_id' => $request-> establecimiento_id,
+            'rol_id' => $request-> rol_id,
+            'password' => Hash::make($request-> name)
+        ]);
 
         return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
     }
@@ -62,8 +73,16 @@ class UserApiController extends Controller
      */
     public function show($id)
     {
-        $users = User::find($id);
-        return response()->json($users,200);
+        try {
+            $user= User::FindOrFail($id);
+            return response()->json(['user'=> $user], 200);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error en el servidor'], 500);
+        }
     }
 
     /**
@@ -73,55 +92,58 @@ class UserApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    /**
- * Update the specified resource in storage.
- *
- * @param  \Illuminate\Http\Request  $request
- * @param  int  $id
- * @return \Illuminate\Http\Response
- */
-public function update(Request $request, $id)
-{
-    $request->validate([
-        'name' => 'required',
-        'email' => 'required|email|unique:users,email,'.$id,
-        'rol_id' => 'required|numeric',
-    ]);
+    public function update(Request $request, $id)
+    {
+        $request->validate([
+            'name' => 'required',
+            'email' => 'required|email|unique:users,email,'.$id,
+            'rol_id' => 'required|numeric',
+        ]);
+    
+        try {
+            $user = User::findOrFail($id);
+    
+            $user->update([
+                'name' => $request-> name,
+                'email' => $request-> email,
+                'documento' => $request-> documento,
+                'establecimiento_id' => $request-> establecimiento_id,
+                'rol_id' => $request-> rol_id,
+            ]);
+    
+            return response()->json(['message' => 'Datos actualizados con éxito'], 201);
 
-    $user = User::find($id);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
 
-    if (!$user) {
-        return response()->json(['message' => 'Usuario no encontrado'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar los datos'], 500);
+        }
+        
     }
 
-    $user->name = $request->name;
-    $user->email = $request->email;
-    $user->documento = $request->documento;
-    $user->establecimiento_id = $user->establecimiento_id;
-    $user->rol_id = $request->rol_id;
+    public function changePassword(Request $request, $id)
+    {
+        $request->validate([
+            'password' => 'required|string|min:8',
+        ]);
 
-    $user->save();
+        try {
+            $user = User::findOrFail($id);
+    
+            $user->update([
+                'password' => Hash::make($request-> password)
+            ]);
+    
+            return response()->json(['message' => 'Contraseña actualizada con éxito'], 200);
 
-    return response()->json(['message' => 'Datos actualizados con éxito'], 200);
-}
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
 
-public function changePassword(Request $request, $id)
-{
-    $request->validate([
-        'password' => 'required|string|min:8',
-    ]);
-
-    $user = User::find($id);
-
-    if (!$user) {
-        return response()->json(['message' => 'Usuario no encontrado'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al actualizar la contraseña'], 500);
+        }
     }
-
-    $user->password = Hash::make($request->password);
-    $user->save();
-
-    return response()->json(['message' => 'Contraseña actualizada con éxito'], 200);
-}
 
 
     /**
@@ -131,13 +153,19 @@ public function changePassword(Request $request, $id)
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        $users = User::find($id);
-        if($users){
-            $users->delete();
-            return response()->json($users,200);
-        }else{
-            return response()->json(['Error'=>'Id no encontrado'],404);
+    { 
+        try {
+            $user = User::findOrFail($id);
+    
+            $user->delete();
+    
+            return response()->json(['message' => 'Usuario Eliminado!', 'user'=> $user], 200);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Usuario no encontrado'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al eliminar al usuario'], 500);
         }
     }
 }
