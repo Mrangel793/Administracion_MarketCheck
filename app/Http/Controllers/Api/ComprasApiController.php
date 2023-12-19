@@ -3,17 +3,18 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-
-use Carbon\Carbon;
 
 use App\Models\Compra;
 use App\Models\Producto;
 use App\Models\ComprasProductos;
 
+use Carbon\Carbon;
 
 
+//EN REVISION. HACE FALTA INDEX y STORE DE COMPRAS USUARIO APP
 class ComprasApiController extends Controller
 {
     /**
@@ -23,20 +24,35 @@ class ComprasApiController extends Controller
      */
     public function index()
     {
-        $usuario = Auth::user();
-        if($usuario && isset($usuario->establecimiento_id)){
-            $compras = Compra::where('establecimiento_id', $usuario->establecimiento_id)->get();
-            return response()->json(['purchases'=> $compras, 200]);
+        $user = Auth::user();     
+        if($user && isset($user->establecimiento_id)){ 
+            $purchases = Compra::where('establecimiento_id', $user->establecimiento_id)->get();
+            return response()->json(['purchases'=> $purchases], 200);
         }else{
-            return response()->json(['message' => 'El Usuario no tiene permisos de visualizar Compras']);
+            return response()->json(['message' => 'El Usuario no tiene permisos para visualizar este Contenido'], 403);
         }
     }
 
     public function productosCompra($compraid)
-    {
-        $compra = Compra::find($compraid);
-        $compraProducto = ComprasProductos::where('compra_id', $compraid)->get();
-        return response()->json(['items'=>$compraProducto, 200]);
+    {   
+        $user = Auth::user();
+
+        if($user && isset($user->establecimiento_id)){
+            try {
+                $purchaseItems = ComprasProductos::where('compra_id', $compraid)
+                ->where('establecimiento_id', $user->establecimiento_id)
+                ->findOrFail();
+                return response()->json(['items'=>$purchaseItems], 200);
+    
+            } catch (NotFound $e) {
+                return response()->json(['message' => 'Datos no encontrados'], 404);
+    
+            } catch (\Exception $e) {
+                return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            }
+        }
+        return response()->json(['message' => 'El Usuario no tiene permisos para visualizar este Contenido'], 403);
+
     }
 
     /**
@@ -45,25 +61,25 @@ class ComprasApiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request){
+    public function store(Request $request)
+    {
+        //session()->forget('productos_acumulados');
+        //session(['compra_id' => $compra->id]);
+        $user = Auth::user();
 
-        session()->forget('productos_acumulados');
-        $usuario = Auth::user();
-
-        if($usuario && isset($usuario->establecimiento_id)){
-            $compra = new Compra();
-            $compra->hora = now()->format('H:i:s');;
-            $compra->fecha = Carbon::now();
-            $compra->total = 0;
-            $compra->estado = 0;
-            $compra->establecimiento_id = $usuario->establecimiento_id;
-            $compra->save();
-            session(['compra_id' => $compra->id]);
-            return response()->json(['message' => 'Compra creada con éxito', 'id'=>$compra->id]);
-        }else{
-            return response()->json(['message' => 'El Usuario no tiene permisos de crear Compras']);
+        if($user && isset($user-> establecimiento_id)){
+            $compra = Compra::create([
+                'hora' => now()->format('H:i:s'),
+                'fecha' => Carbon::now(),
+                'total' => 0,
+                'estado' => 0,
+                'establecimiento_id' => $user-> establecimiento_id,
+                'seller_id' => $user-> id
+            ]);   
+            return response()->json(['message' => 'Compra creada con éxito.', 'id'=>$compra->id], 201);
         }
 
+        return response()->json(['message' => 'El Usuario no tiene permisos para realizar esta accion'], 403);   
     }
 
     /**
@@ -72,38 +88,71 @@ class ComprasApiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function guardar(Request $request, $idCompra, $productoId){
-        
-        $usuario = Auth::user();
-        $compra = Compra::find($idCompra);
+    public function guardar(Request $request, $purchaseId, $itemId)
+    {    
+        $user = Auth::user();
 
-        if($usuario && isset($usuario->rol_id) && $usuario->rol_id!= 1 && $compra->estado != 1){
+        try {
+            $purchase = Compra::findOrFail($purchaseId);
+            $product = Producto::findOrFail($itemId);
+            $purchasePrice = 0;
+            
+            if($purchase-> estado == 1){
+                return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada'], 403);
+            }
 
-            $totalCompra = 0;
-            $producto = Producto::find($productoId);
-            $compraProducto = new ComprasProductos();
+            if($product-> numeroStock < $request-> itemsCount){
+                return response()->json(['message' => 'El stock es insuficiente para la transaccion'], 403);
+            }
 
-            $compraProducto->producto_id = $producto->id;
-            $compraProducto->compra_id = $compra->id;
-            $compraProducto->nombre = $producto->nombreProducto;
-            $compraProducto->cantidad = $request->itemsCount;
-            $compraProducto->precio = $producto->precioProducto;
-            $compraProducto->total = $compraProducto->cantidad * $compraProducto->precio;
-            $compraProducto->save();
-            $totalCompra += $compraProducto->total;
-            $compra->total= $totalCompra;
-            $compra->save();            
-        
-            return response()->json(['message' => 'Productos agregados con éxito']);
+            if($user && isset($user-> rol_id) && $user-> rol_id != 1){
+   
+                $purchasePrice= createOrUpdatePurchaseItem($product, $request, $purchaseId, $itemId);
+                
+                $purchase->update([
+                    'total' => $purchasePrice
+                ]);
+            
+                return response()->json(['message' => 'Productos agregados con éxito'], 201);    
+            }
 
-        }else if($compra->estado == 1){
-            return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada']);
+            return response()->json(['message' => 'El Usuario no tiene permisos para realizar esta accion'], 403);   
+            
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Datos no encontrados'], 404);
 
-        }else{
-            throw error;
-        } 
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }      
     }
 
+    private function createOrUpdatePurchaseItem(Producto $product, Request $request, $purchaseId, $itemId){
+
+        $purchaseItem = ComprasProductos::where('compra_id', $purchaseId)->where('producto_id', $itemId)->first();
+
+        if($purchaseItem){
+            $purchaseItemAmount= $purchaseItem-> cantidad + $request-> itemsCount;
+            $purchaseItemPrice= $purchaseItem-> precio * $purchaseItemAmount;
+            
+            $purchaseItem->update([
+                'cantidad' => $purchaseItemAmount,
+                'total' => $purchaseItemPrice
+            ]);
+            return $purchaseItemPrice;
+            
+        }else{   
+            $purchaseItemPrice= $request-> $itemsCount * $product-> precio;
+            $purchaseItem= ComprasProductos::create([
+                'producto_id' => $product-> id,
+                'compra_id' => $purchaseId,
+                'nombre' => $product-> nombreProducto,
+                'cantidad' => $request-> itemsCount,
+                'precio' => $product-> precioProducto,
+                'total' => $purchaseItemPrice
+            ]);
+            return $purchaseItemPrice;
+        }
+    }
 
     /**
      * Update the specified resource in storage.
@@ -112,41 +161,48 @@ class ComprasApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function finalizarCompra(Request $request, $idCompra)
+    public function finalizarCompra(Request $request, $purchaseId)
     {
         $usuario = Auth::user();
+        try {
+            $purchase = Compra::findOrFail($purchaseId);
+            $purchase-> update([
+                'estado' => 1
+            ]);
+            
+            $itemList = $compra-> productos;
+            updateStock($itemList, $purchaseId);
 
-        $compra = Compra::find($idCompra);
+            return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock'], 201);
 
-        if ($compra) {
-            $compra->estado = 1;
-            $compra->save();
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Compra no encontrada'], 404);
 
-            $productosComprados = $compra->productos;
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }     
+    }
+    
+    private function updateStock($itemList, $purchaseId){
+        foreach ($itemList as $item) {
+            $itemId = $item->id;
 
-            foreach ($productosComprados as $productoComprado) {
-                $productoId = $productoComprado->id;
-
-                // Utiliza first() para obtener el primer resultado de la consulta
-                $producto = ComprasProductos::where('producto_id', $productoId)->where('compra_id', $idCompra)->first();
-
-                if ($producto) {
-                    $cantidadComprada = $producto->cantidad;
-
-                    $productoActual = Producto::find($productoId);
-
-                    if ($productoActual) {
-                        $nuevaCantidad = $productoActual->numeroStock - $cantidadComprada;
-
-                        // Asegúrate de que la cantidad no sea negativa
-                        $productoActual->numeroStock = max($nuevaCantidad, 0);
-                        $productoActual->save();
-                    }
+            $product = ComprasProductos::where('producto_id', $itemId)->where('compra_id', $purchaseId)->first();
+    
+            if ($product) {
+                $purchaseItemAmount = $product-> cantidad;
+    
+                $currentProduct = Producto::find($itemId);
+    
+                if ($currentProduct) {
+                    $nuevaCantidad = $currentProduct-> numeroStock - $purchaseItemAmount;
+                    
+                    $currentProduct-> update([
+                        'numeroStock' => max($nuevaCantidad, 0)
+                    ]);
                 }
             }
-            return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock']);
-
-        }
+        }   
     }
 
     /**
@@ -156,9 +212,16 @@ class ComprasApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function showCompra($id){
+        try {
+            $purchase = Compra::FindOrFail($id);
+            return response()->json(['purchase' => $purchase], 200);   
 
-        $compra = Compra::find($id);
-        return response()->json(['purchase' => $compra, 200]);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Compra no encontrada'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }
     }
 
     /**
@@ -181,6 +244,20 @@ class ComprasApiController extends Controller
      */
     public function destroy($id)
     {
-        //
+        try {
+            $purchase = Compra::findOrFail($id);
+
+            if($purchase-> estado === 0){
+                $purchase->delete();
+                return response()->json(['message' => 'Compra Eliminada!', 'purchase'=> $purchase], 200);
+            }
+            return response()->json(['message' => 'No se puede realizar esta accion!'], 403);   
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Compra no encontrada'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+        }
     }
 }

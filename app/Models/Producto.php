@@ -41,8 +41,16 @@ class Producto extends Model
 
 
     use HasFactory;
-    protected $fillable = ['codigoProducto', 'estado', 'precioProducto','precioOriginal' ,'nombreProducto', 'descripcionProducto',
-    'numeroStock','id_categoria', 'id_establecimiento'];
+    protected $fillable = [
+        'codigoProducto', 
+        'estado', 
+        'precioProducto',
+        'precioOriginal',
+        'nombreProducto', 
+        'descripcionProducto',
+        'numeroStock',
+        'id_categoria', 
+        'id_establecimiento'];
     protected $attributes = [
         'precioProducto' => 0, // Puedes definir un valor por defecto apropiado
     ];

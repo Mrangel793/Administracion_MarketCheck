@@ -12,8 +12,15 @@ use App\Models\Oferta_Producto;
 class Oferta extends Model
 {
     use HasFactory;
-    protected $fillable = ['estado', 'fecha_inicio', 'fecha_fin','nombre',
-    'descripcion','imagen','numero_stock', 'establecimiento_id'];
+    protected $fillable = [
+        'estado', 
+        'fecha_inicio', 
+        'fecha_fin',
+        'nombre',
+        'descripcion',
+        'imagen',
+        'numero_stock', 
+        'establecimiento_id'];
     public $timestamps = false;
     
 

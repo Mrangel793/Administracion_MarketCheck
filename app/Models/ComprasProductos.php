@@ -8,7 +8,14 @@ use Illuminate\Database\Eloquent\Model;
 class ComprasProductos extends Model
 {
     use HasFactory;
-    protected $fillable = ['producto_id','compra_id','nombre','cantidad','precio','total'];
+    protected $fillable = [
+        'producto_id',
+        'compra_id',
+        'nombre',
+        'cantidad',
+        'precio',
+        'total'
+    ];
     public $timestamps = false;
 
     public function productos()

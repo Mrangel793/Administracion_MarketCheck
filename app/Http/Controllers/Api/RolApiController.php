@@ -4,8 +4,13 @@ namespace App\Http\Controllers\API;
 
 use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
+
 use App\Models\Rol;
 
+use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
+
+
+//REVISADO <--- REMOVER EN PRODUCCION
 class RolApiController extends Controller
 {
     /**
@@ -15,8 +20,8 @@ class RolApiController extends Controller
      */
     public function index()
     {
-        $roles = Rol::all();
-        return response()->json($roles,200);
+        $rols = Rol::all();
+        return response()->json(['rols'=> $rols],200);
     }
 
     /**
@@ -38,8 +43,16 @@ class RolApiController extends Controller
      */
     public function show($id)
     {
-        $roles = Rol::find($id);
-        return response()->json($roles,200);
+        try {
+            $rol= Rol::FindOrFail($id);
+            return response()->json(['rols'=> $rol], 200);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Rol no encontrado'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }
     }
 
     /**

@@ -2,8 +2,9 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use App\Models\User;
 use App\Models\Producto;
 use App\Models\Compra;
@@ -30,7 +31,17 @@ class Establecimiento extends Model
         return $this->hasMany(Compra::class,'establecimiento_id');
     }
 
-    protected $fillable = ["Nit", "Estado", "NombreEstablecimiento", "DireccionEstablecimiento","CorreoEstablecimiento",
-    "Lema", "ColorInterfaz", "Imagen", "Logo"];
+    protected $fillable =
+    [
+    "Nit", 
+    "Estado", 
+    "NombreEstablecimiento", 
+    "DireccionEstablecimiento",
+    "CorreoEstablecimiento",
+    "Lema", 
+    "ColorInterfaz", 
+    "Imagen", 
+    "Logo"];
+
     public $timestamps = false;
 }

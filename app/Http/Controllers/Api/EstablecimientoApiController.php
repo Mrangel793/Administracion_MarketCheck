@@ -3,13 +3,17 @@
 namespace App\Http\Controllers\Api;
 
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request; 
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Http\Request;
-use App\Models\Establecimiento;
-use App\Models\Rol;
+use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
+
 use App\Models\User;
 use App\Models\Oferta;
+use App\Models\Establecimiento;
 
+//REVISADO <--- REMOVER EN PRODUCCION
 class EstablecimientoApiController extends Controller
 {
     /**
@@ -19,30 +23,40 @@ class EstablecimientoApiController extends Controller
      */
     public function index()
     {
-        $establecimientos = Establecimiento::all();
-        return response()->json($establecimientos,200);
+        $stores = Establecimiento::all();
+        return response()->json(['stores'=> $stores], 200);
     }
 
     /**
-     * Store a newly created resource in storage.
-     *
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
     public function store(Request $request)
     {
- 
-        $establecimiento = Establecimiento::create($request->all());
+        $request->validate([
+            "Nit"=> 'required|numeric', 
+            "Estado"=> 'required', 
+            "NombreEstablecimiento"=> 'required', 
+            "DireccionEstablecimiento"=> 'required',
+            "CorreoEstablecimiento"=> 'required|email|unique:establecimientos',
+            "Imagen"=> 'required' 
+        ]);
+        try {
+            $store= Establecimiento::create($request->all());
+            
+            $user = User::create([
+                'name' => $request-> NombreEstablecimiento,
+                'email' => $request-> CorreoEstablecimiento,            
+                'establecimiento_id' => $store-> id,
+                'rol_id' => 2,
+                'password' => Hash::make($request-> Nit)
+            ]);
 
-        $usuario = new User();
-        $usuario->name = $request->NombreEstablecimiento;
-        $usuario->email = $request->CorreoEstablecimiento;
-        $usuario->password = Hash::make($request->Nit);
-        $usuario->rol_id = 2;
-    
-        $establecimiento->users()->save($usuario);
-    
-        return response()->json(['message' => 'Establecimiento creado con éxito'], 201);
+            return response()->json(['message' => 'Establecimiento creado con éxito'], 201);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }
     }
 
     /**
@@ -53,36 +67,52 @@ class EstablecimientoApiController extends Controller
      */
     public function show($id)
     {
-        $establecimiento = Establecimiento::find($id);
-        return response()->json($establecimiento,200);
+        try {
+            $store = Establecimiento::FindOrFail($id);
+            return response()->json(['store'=> $store], 200);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Tienda no encontrada'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }    
     }
 
     public function activate($id)
     {
-        $establecimiento = Establecimiento::find($id);
+        try {
+            $store = Establecimiento::FindOrFail($id);
 
-        if (!$establecimiento) {
-            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
-        }
+            $store->update([
+                'estado'=> 1    
+            ]);
+            return response()->json(['message' => 'Tienda activada con éxito'], 201);
 
-        $establecimiento->Estado = 1;
-        $establecimiento->update();
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Tienda no encontrada'], 404);
 
-        return response()->json(['message' => 'Producto activado con éxito']);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }   
     }
 
     public function deactivate($id)
     {
-        $establecimiento = Establecimiento::find($id);
+        try {
+            $store = Establecimiento::FindOrFail($id);
+            
+            $store->update([
+                'estado'=> 0    
+            ]);
+            return response()->json(['message' => 'Tienda desactivada con éxito'], 201);
 
-        if (!$establecimiento) {
-            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Tienda no encontrada'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
-
-        $establecimiento->Estado = 0;
-        $establecimiento->update();
-
-        return response()->json(['message' => 'Establecimiento desactivado con éxito']);
     }
 
     /**
@@ -93,13 +123,27 @@ class EstablecimientoApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        $establecimiento = Establecimiento::find($id);
-        if($establecimiento){
-            $establecimiento->update($request->all());
-            return response()->json($establecimiento,200);
-        }else{
-            return response()->json(['Error'=>'Id no encontrado'],404);
+    {  
+        $request->validate([
+            "Nit"=> 'required|numeric', 
+            "Estado"=> 'required', 
+            "NombreEstablecimiento"=> 'required', 
+            "DireccionEstablecimiento"=> 'required',
+            "CorreoEstablecimiento"=> 'required|email|unique:establecimientos',
+            "Imagen"=> 'required' 
+        ]);
+
+        try {
+            $store = Establecimiento::FindOrFail($id);
+            $store->update($request->all());
+
+            return response()->json(['message' => 'Producto activado con éxito', 'store'=> $store],201);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Tienda no encontrada'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
     }
 
@@ -110,27 +154,33 @@ class EstablecimientoApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        $establecimiento = Establecimiento::find($id);
-        if($establecimiento){
-            $establecimiento->delete();
-            return response()->json($establecimiento,200);
-        }else{
-            return response()->json(['Error'=>'Id no encontrado'],404);        }
+    {   
+        try {
+            $store = Establecimiento::findOrFail($id);
+            $store->delete();
+    
+            return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Establecimiento no encontrado'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+        }
     }
 
+    //TODO: Revisar Utilidad??
     public function showOffer($establecimiento_id, $oferta_id)
-{
-   
-    $oferta = Oferta::where('establecimiento_id', $establecimiento_id)
-                   ->where('id', $oferta_id)
-                   ->first();
+    {
+        $oferta = Oferta::where('establecimiento_id', $establecimiento_id)
+                    ->where('id', $oferta_id)
+                    ->first();
 
-    if ($oferta) {
-        return response()->json($oferta, 200);
-    } else {
-        return response()->json(['message' => 'Oferta no encontrada'], 404);
+        if ($oferta) {
+            return response()->json($oferta, 200);
+        } else {
+            return response()->json(['message' => 'Oferta no encontrada'], 404);
+        }
     }
-}
 
 }

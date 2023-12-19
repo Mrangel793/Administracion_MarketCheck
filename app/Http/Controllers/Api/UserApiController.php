@@ -12,6 +12,7 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 use App\Models\User;
 use App\Models\Establecimiento;
 
+//REVISADO <--- REMOVER EN PRODUCCION
 class UserApiController extends Controller
 {
     /**
@@ -20,22 +21,22 @@ class UserApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function index()
-    {
-        $usuario = Auth::user();
+    {    
+        $user= Auth::user();
 
-        if($usuario && isset($usuario->establecimiento_id)){
-            $users = User::where('establecimiento_id', $usuario->establecimiento_id)
-            ->whereNotIn('id', [$usuario->id])
+        if($user && isset($user->establecimiento_id)){
+            $users = User::where('establecimiento_id', $user->establecimiento_id)
+            ->whereNotIn('id', [$user->id])
             ->get();
 
             return response()->json(['users'=> $users],200);
         }
-        elseif ($usuario){
+        elseif ($user){
             $users = User::where('rol_id', '!=', 1)->get();
             return response()->json(['users'=> $users],200);
         }
 
-        return response()->json(['message'=> 'Por favor inicie Sesion'],401);
+        return response()->json(['message'=> 'Por favor inicie sesion'],401);
 
     }
 
@@ -81,7 +82,7 @@ class UserApiController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error en el servidor'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
     }
 
@@ -118,8 +119,7 @@ class UserApiController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al actualizar los datos'], 500);
-        }
-        
+        } 
     }
 
     public function changePassword(Request $request, $id)
@@ -141,7 +141,7 @@ class UserApiController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al actualizar la contraseña'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
         }
     }
 
@@ -156,7 +156,6 @@ class UserApiController extends Controller
     { 
         try {
             $user = User::findOrFail($id);
-    
             $user->delete();
     
             return response()->json(['message' => 'Usuario Eliminado!', 'user'=> $user], 200);
@@ -165,7 +164,7 @@ class UserApiController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al eliminar al usuario'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
         }
     }
 }

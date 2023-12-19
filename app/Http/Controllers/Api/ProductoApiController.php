@@ -2,123 +2,167 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
+use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
+
 use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\SubCategoria;
-use Illuminate\Support\Facades\Auth;
 
+
+//REVISADO <--- REMOVER EN PRODUCCION
 class ProductoApiController extends Controller
 {
     public function index()
     {
-        $usuario = Auth::user();
-        $productos = Producto::where('id_establecimiento', $usuario->establecimiento_id)->get();
-        return response()->json( $productos);
+        $user = Auth::user();
+
+        if($user && isset($user->establecimiento_id)  && $user->establecimiento_id !== null){
+            $products = Producto::where('id_establecimiento', $user->establecimiento_id)->get();
+            return response()->json( ['products'=> $products], 200);           
+        }
+
+        return response()->json( ['message'=> 'El usuario actual no puede obtener esta informacion'], 403);
     }
 
 
     public function store(Request $request)
-    {
-        $usuario = Auth::user();
+    {   
+        $request->validate([ 
+            'codigoProducto' => 'required|numeric',
+            'nombreProducto' => 'required',
+            'descripcionProducto' => 'required',
+            'precioProducto' => 'required|numeric',
+            'numeroStock' => 'required|numeric',
+            'estado' => 'required',
+            'id_categoria' => 'required|numeric',
+            'id_subcategoria' => 'required|numeric',
+        ]);
 
-        if($usuario->establecimiento_id != null){
-            $productos = new Producto();
-            $productos->codigoProducto = $request->codigoProducto;
-            $productos->nombreProducto = $request->nombreProducto;
-            $productos->descripcionProducto = $request->descripcionProducto;
-            $productos->precioProducto = $request->precioProducto;
-            $productos->precioOriginal = $request->precioProducto;
-            $productos->numeroStock = $request->numeroStock;
-            $productos->estado = $request->estado;
-            $productos->id_categoria = $request->id_categoria;
-            $productos->id_subcategoria = $request->id_subcategoria;
-            $productos->id_establecimiento = $usuario->establecimiento_id;
-            $productos->save();
+        $user = Auth::user();
 
-            return response()->json(['message' => 'Producto creado con éxito']);
-        }else{
-            return response()->json(['message' => 'El usuario no posee permisos para crear productos.',401]);
+        if($user && isset($user->establecimiento_id) && $user->establecimiento_id !== null){
+            $product = Producto::create([
+                'codigoProducto' => $request->codigoProducto,
+                'nombreProducto' => $request->nombreProducto,
+                'descripcionProducto' => $request->descripcionProducto,
+                'precioProducto' => $request->precioProducto,
+                'precioOriginal' => $request->precioProducto,
+                'numeroStock' => $request->numeroStock,
+                'estado' => $request->estado,
+                'id_categoria' => $request->id_categoria,
+                'id_subcategoria' => $request->id_subcategoria,
+                'id_establecimiento' => $user->establecimiento_id
+            ]);
+            
+            return response()->json(['message' => 'Producto creado con éxito', 'product'=> $product], 201);
         }
+
+        return response()->json(['message' => 'El usuario no posee permisos para crear productos.'], 401);
     }
 
     public function show($id)
     {
-        $producto = Producto::find($id);
+        try {
+            $product= Producto::FindOrFail($id);
+            return response()->json(['product'=> $product], 200);
 
-        if (!$producto) {
-            return response()->json(['message' => 'Producto no encontrado'], 404);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'No se encontraron resultados'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
-
-        $data = [
-            'id' => $producto->id,
-            'codigoProducto' => $producto->codigoProducto,
-            'nombreProducto' => $producto->nombreProducto,
-            'descripcionProducto' => $producto->descripcionProducto,
-            'precioProducto' => $producto->precioProducto,
-            'numeroStock' => $producto->numeroStock,
-            'estado' => $producto->estado,
-            'id_categoria' => $producto->id_categoria,
-            'id_subcategoria' => $producto->id_subcategoria,
-        ];
-
-        return response()->json($data);
     }
 
     public function activate($id)
     {
-        $producto = Producto::find($id);
+        try {
+            $product= Producto::FindOrFail($id);
 
-        if (!$producto) {
+            $product->update([
+                'estado'=> 1    
+            ]);
+            return response()->json(['message' => 'Producto activado con éxito'], 201);
+
+        } catch (NotFound $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
-        }
 
-        $producto->estado = 1;
-        $producto->update();
-
-        return response()->json(['message' => 'Producto activado con éxito']);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }  
     }
 
     public function deactivate($id)
     {
-        $producto = Producto::find($id);
+        try {
+            $product= Producto::FindOrFail($id);
 
-        if (!$producto) {
+            $product->update([
+                'estado'=> 0    
+            ]);
+            return response()->json(['message' => 'Producto desactivado con éxito'], 201);
+
+        } catch (NotFound $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
-        }
 
-        $producto->estado = 0;
-        $producto->update();
-
-        return response()->json(['message' => 'Producto desactivado con éxito']);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        } 
     }
 
     
 
     public function update(Request $request, $id)
-    {
-        $usuario = Auth::user();
+    {   
+        $request->validate([ 
+            'codigoProducto' => 'required|numeric',
+            'nombreProducto' => 'required',
+            'descripcionProducto' => 'required',
+            'precioProducto' => 'required|numeric',
+            'numeroStock' => 'required|numeric',
+            'estado' => 'required',
+            'id_categoria' => 'required|numeric',
+            'id_subcategoria' => 'required|numeric',
+        ]);
 
-        $producto = Producto::find($id);
-        $producto->codigoProducto = $request->codigoProducto;
-        $producto->nombreProducto = $request->nombreProducto;
-        $producto->descripcionProducto = $request->descripcionProducto;
-        $producto->precioProducto = $request->precioProducto;
-        $producto->numeroStock = $request->numeroStock;
-        $producto->estado = $request->estado;
-        $producto->id_categoria = $request->id_categoria;
-        $producto->id_subcategoria = $request->id_subcategoria;
-        $producto->id_establecimiento = $usuario->establecimiento_id;
-        $producto->update();
+        $user = Auth::user();
 
-        return response()->json(['message' => 'Producto actualizado con éxito']);
+        if($user && isset($user->establecimiento_id) && $user->establecimiento_id !== null){
+            $product = Producto::update([
+                'codigoProducto' => $request->codigoProducto,
+                'nombreProducto' => $request->nombreProducto,
+                'descripcionProducto' => $request->descripcionProducto,
+                'precioProducto' => $request->precioProducto,
+                'numeroStock' => $request->numeroStock,
+                'estado' => $request->estado,
+                'id_categoria' => $request->id_categoria,
+                'id_subcategoria' => $request->id_subcategoria,
+                'id_establecimiento' => $user->establecimiento_id
+            ]);
+            
+            return response()->json(['message' => 'Producto actualizado con éxito'], 201);
+        }
+
+        return response()->json(['message' => 'El usuario no posee permisos para actualizar productos.'], 403);
     }
 
     public function destroy($id)
     {
-        $producto = Producto::find($id);
-        $producto->delete();
-        return response()->json(['message' => 'Producto eliminado con éxito']);
+        try {
+            $product = Producto::findOrFail($id);
+            $product->delete();
+    
+            return response()->json(['message' => 'Producto Eliminado!', 'product'=> $product], 200);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Producto no encontrado'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+        }
     }
 }

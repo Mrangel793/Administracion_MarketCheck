@@ -14,7 +14,16 @@ use App\Models\CompraProductos;
 class Compra extends Model
 {
     use HasFactory;
-    protected $fillable = ['hora','fecha','total','estado','establecimiento_id','user_id'];
+    protected $fillable = [
+        'hora',
+        'fecha',
+        'total',
+        'estado',
+        'establecimiento_id',
+        'user_id',
+        'seller_id'
+    ];
+
     public $timestamps = false;
 
     public function establecimiento(){
@@ -25,6 +34,10 @@ class Compra extends Model
         return $this->belongsTo(User::class,'user_id');
     }
 
+    public function seller(){
+        return $this->belongsTo(User::class,'seller_id');
+    }
+    
     public function productos(){
         return $this->belongsToMany(Producto::class,'compras_productos', 'compra_id', 'producto_id')
             ->withPivot('id','cantidad', 'precio');
