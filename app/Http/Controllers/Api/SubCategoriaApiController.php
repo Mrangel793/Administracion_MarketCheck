@@ -21,7 +21,7 @@ class SubCategoriaApiController extends Controller
     public function index()
     {
         $subcategorias = SubCategoria::all();
-        return response()->json(['sub_categories'=> $subcategorias], 200);
+        return response()->json(['subcategories'=> $subcategorias], 200);
     } 
 
     public function indexporCategoria($categoria_id)

@@ -26,7 +26,7 @@ class Oferta extends Model
 
 
     public function establecimiento(){
-        return $this->belongsTo(Establecimiento::class,'id_establecimiento');
+        return $this->belongsTo(Establecimiento::class,'establecimiento_id');
     }
 
     public function productos()

@@ -2,302 +2,321 @@
 
 namespace App\Http\Controllers\Api;
 
-use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
-use App\Models\Oferta;
-use App\Models\Categoria;
+
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Storage;
-use Illuminate\Support\Facades\Auth;
-use App\Models\Establecimiento;
+
+use App\Models\Oferta;
 use App\Models\Producto;
+use App\Models\Categoria;
+use App\Models\Establecimiento;
 use App\Models\Oferta_Producto;
 
+//TODO: EN REVISION, FALTA INDEX, SHOW PARA APP
 class OfertaApiController extends Controller
 {
     public function index()
     {
-        $usuario = Auth::user();
-        if($usuario && isset($usuario->establecimiento_id)){
-            $ofertas = Oferta::where('establecimiento_id', $usuario->establecimiento_id)->get();
-            return response()->json(['ofertas'=> $ofertas]);
-        }else{
-            return response()->json(['El usuario no tiene permisos para visualizar ofertas', 401]);
+        $user = Auth::user();
+        if($user && isset($user-> establecimiento_id)){
+            $offers = Oferta::where('establecimiento_id', $user-> establecimiento_id)->get();
+            return response()->json(['offers'=> $offers]);
         }
-        
-    }
-
-    public function create()
-    {
-        $categorias = Categoria::all();
-        return response()->json(['categorias' => $categorias]);
+        return response()->json(['message'=> 'El usuario no tiene permisos para visualizar este Contenido'], 403);
     }
 
 
     public function store(Request $request)
     {
-        $usuario = Auth::user();
- 
-    
-        $oferta = new Oferta();
-        $oferta->fecha_inicio = $request->fecha_inicio;
-        $oferta->fecha_fin = $request->fecha_fin;
-        $oferta->nombre = $request->nombre;
-        $oferta->descripcion = $request->descripcion;
-        $oferta->numero_stock = $request->numero_stock;
-        $oferta->estado = $request->estado;
-        $oferta->establecimiento_id = $usuario->establecimiento_id;
-        
-        $oferta->imagen = $request->imagen;
-    
-        $oferta->save();
-    
-        return response()->json(['message' => 'Oferta creada con éxito', 'oferta' => $oferta]);
+        $user = Auth::user();
+        if($user && isset($user-> establecimiento_id)){
+            
+            $offer = Oferta::create([
+                'fecha_inicio' => $request->fecha_inicio,
+                'fecha_fin' => $request->fecha_fin,
+                'nombre' => $request-> nombre,
+                'descripcion' => $request-> descripcion,
+                'numero_stock' => $request-> numero_stock,
+                'estado' => $request-> estado,
+                'establecimiento_id' => $user-> establecimiento_id,
+                'imagen' => $request-> imagen
+            ]);
+            return response()->json(['message' => 'Oferta creada con éxito', 'offer' => $offer], 201);
+        }
+
+        return response()->json(['message' => 'El usuario no tiene permisos para visualizar este Contenido'], 403);
     }
 
-    public function show($id){
 
-        $usuario = Auth::user();
-        $oferta = Oferta::find($id);
+    public function show($id){   
+        try {    
+            $user = Auth::user();
+            $offert = Oferta::findOrFail($id);
+        
+            if ($offert-> establecimiento_id !== $user-> establecimiento_id) {
+                return response()->json(['message' => 'No tienes permiso para ver esta oferta.'], 403);
+            }
+            return response()->json(['offer' => $offert], 200);
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
-        }
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'La oferta no existe.'], 404);
 
-    
-        if ($oferta->establecimiento_id !== $usuario->establecimiento_id) {
-            return response()->json(['error' => 'No tienes permiso para ver esta oferta.'], 403);
-        }
-
-        return response()->json(['oferta' => $oferta]);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        } 
     }
 
 
     public function activarOferta($ofertaId){
+        try {    
+            $offer = Oferta::findOrFail($ofertaId);
+
+            $offerItems = $offer-> productos; 
         
-        $oferta = Oferta::find($ofertaId);
-
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
-        }
-
-        $productosOferta = $oferta->productos; 
-    
-            foreach ($productosOferta as $producto) {
-                $precioOferta = $producto->pivot->precio_oferta; 
-      
-                if ($producto->precioProducto !== null) {
-                    $producto->precioProducto = $precioOferta;
-                    $producto->update();
+                foreach ($offerItems as $item) {
+                    $offerPrice = $item->pivot->precio_oferta; 
+        
+                    if ($item->precioProducto !== null) {
+                        $item->update([
+                            'precioProducto' => $offerPrice
+                        ]);
+                    }
                 }
-            }
 
-        $oferta->estado = 1; 
-        $oferta->save();
+            $offer->update([
+                'estado' => 1
+            ]);
+            return response()->json(['message' => 'Oferta activada con éxito', 'offer' => $offer]);    
 
-        return response()->json(['message' => 'Oferta activada con éxito', 'oferta' => $oferta]);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'La oferta no existe.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        } 
     }
+
 
     public function desactivarOferta($ofertaId)
     {
-        $oferta = Oferta::find($ofertaId);
+        try {    
+            $offer = Oferta::findOrFail($ofertaId);
 
-        $productosOferta = $oferta->productos;
+            $offerItems = $offer-> productos; 
+        
+                foreach ($offerItems as $item) {
+                    $item->update([
+                        'precioProducto' => $item-> precioOriginal
+                    ]);      
+                }
 
+            $offer->update([
+                'estado' => 0
+        ]);
+        return response()->json(['message' => 'Oferta desactivada.', 'offer' => $offer]);    
 
-       foreach ($productosOferta as $producto) {
-           $producto->precioProducto = $producto->precioOriginal;
-           $producto->save();
-       }
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'La oferta no existe.'], 404);
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
-        }
-
-        $oferta->estado = 0; // Desactiva la oferta
-        $oferta->save();
-
-      return response()->json(['message' => 'Oferta desactivada con éxito', 'oferta' => $oferta]);
+        } catch (\Exception $e) {
+            return response()->json(['message'=> 'Error al procesar la solicitud'], 500);
+        } 
     }
-
    
 
     public function guardarProductos(Request $request, $ofertaId)
     {
-        $oferta = Oferta::find($ofertaId);
+        try {    
+            $offer = Oferta::findOrFail($ofertaId);
+            $productId = $request-> producto_id;
+            $percent = $request-> porcentaje;
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
-        }
+            $product = Producto::find($productId);  
+            if(!$product){
+                return response()->json(['message' => 'No se encontró el Producto.'], 404);
+            } 
 
-        $porcentaje = $request->input('porcentaje');
-        $productoId = $request->input('producto_id');
-        $producto = Producto::find($productoId);
+            $discountPrice = $product-> precioProducto - ($product-> precioProducto * $percent / 100);
 
-        if (!$producto) {
-            return response()->json(['error' => 'El producto no existe.'], 404);
-        }
-
+            $offerItem = Oferta_Producto::create([
+                'id_producto' => $productId,
+                'id_oferta' => $offer-> id,
+                'porcentaje' => $percent,
+                'precio_oferta' => $discountPrice
+            ]);
     
-        $precioDescuento = $producto->precioProducto - ($producto->precioProducto * $porcentaje / 100);
-
+            if ($offer-> estado === 1) {
+                $product->update([
+                    'precioProducto' => $discountPrice
+                ]);
+            }
     
-        $ofertaProducto = new Oferta_Producto();
-        $ofertaProducto->id_producto = $productoId;
-        $ofertaProducto->id_oferta = $oferta->id;
-        $ofertaProducto->porcentaje = $porcentaje;
-        $ofertaProducto->precio_oferta = $precioDescuento;
-        $ofertaProducto->save();
+            return response()->json(['message' => "$product-> nombreProducto agregado con éxito a la oferta", 'oferta_producto' => $offerItem], 200);
 
-        if ($oferta->estado === 1) {
-            $producto->precioProducto = $precioDescuento;
-            $producto->save();
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'No se encontró la oferta.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=> 'Error al procesar la solicitud'], 500);
         }
-
-
-        return response()->json(['message' => "$producto->nombreProducto agregado con éxito a la oferta", 'oferta_producto' => $ofertaProducto]);
     }
 
-
-
-    public function edit($id)
-    {
-        $categorias = Categoria::all();
-        $oferta = Oferta::find($id);
-        return response()->json(['oferta' => $oferta, 'categorias' => $categorias]);
-    }
 
     public function update(Request $request, $id)
     {
-        $oferta = Oferta::find($id);
+        try {    
+            $offer = Oferta::findOrFail($id);
+    
+            $offer->update([
+                'fecha_inicio' => $request-> fecha_inicio,
+                'fecha_fin' => $request-> fecha_fin,
+                'nombre' => $request-> nombre,
+                'descripcion' => $request-> descripcion,
+                'numero_stock' => $request-> numero_stock,
+                'estado' => $request-> estado,
+                'imagen' => $request-> imagen
+            ]);
+    
+            return response()->json(['message' => 'Oferta actualizada con éxito.'], 200); 
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'No se encontró la oferta.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=> 'Error al procesar la solicitud'], 500);
         }
-
-        $oferta->fecha_inicio = $request->fecha_inicio;
-        $oferta->fecha_fin = $request->fecha_fin;
-        $oferta->nombre = $request->nombre;
-        $oferta->descripcion = $request->descripcion;
-        $oferta->numero_stock = $request->numero_stock;
-        $oferta->estado = $request->estado;
-        $oferta->imagen = $request->imagen;
-
-        $oferta->save();
-
-        return response()->json(['message' => 'Oferta actualizada con éxito.']);
     }
 
-        public function editarPorcentaje(Request $request, $ofertaId, $productoId)
+    //TODO: SE PUEDE MEJORAR HACIENDO MODULAR LA LOGICA
+    public function editarPorcentaje(Request $request, $ofertaId, $productoId)
     {
-        $oferta = Oferta::find($ofertaId);
+        try {    
+            $offer = Oferta::findOrFail($ofertaId);
+    
+            $product = Producto::find($productoId);
+            if (!$product) {
+                return response()->json(['message' => 'No se encontró el producto.'], 404);
+            }
+    
+            $user = Auth::user();
+            if ($offer-> establecimiento_id !== $user-> establecimiento_id || $product-> id_establecimiento !== $user-> establecimiento_id) {
+                return response()->json(['message' => 'No tienes permiso para editar el porcentaje de este producto en la oferta.'], 403);
+            }
+    
+            $request->validate([
+                'porcentaje' => 'required|numeric|min:0|max:100',
+            ]);
+            $percent = $request-> porcentaje;
+    
+            $precioDescuento = $product-> precioOriginal - ($product-> precioOriginal * $percent / 100);
+    
+            $offerItem = Oferta_Producto::where('id_oferta', $offer-> id)
+            ->where('id_producto', $product-> id)
+            ->first();
+    
+            if (!$offerItem) {
+                return response()->json(['message' => 'El producto no está asociado a la oferta.'], 400);
+            }
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
+            $offerItem->update([
+                'porcentaje' => $percent,
+                'precio_oferta' => $precioDescuento
+            ]);
+
+    
+            if ($offer-> estado === 1) {
+                $product->update([
+                    'precioProducto' => $precioDescuento
+                ]);
+            }
+    
+            return response()->json(['message' => 'Porcentaje del producto actualizado con éxito.', 'oferta_producto' => $ofertaProducto]);
+            
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'La oferta no existe.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
-
-        $producto = Producto::find($productoId);
-
-        if (!$producto) {
-            return response()->json(['error' => 'El producto no existe.'], 404);
-        }
-
-        $usuario = Auth::user();
-        if ($oferta->establecimiento_id !== $usuario->establecimiento_id || $producto->id_establecimiento !== $usuario->establecimiento_id) {
-            return response()->json(['error' => 'No tienes permiso para editar el porcentaje de este producto en la oferta.'], 403);
-        }
-
-        $request->validate([
-            'porcentaje' => 'required|numeric|min:0|max:100',
-        ]);
-
-        $porcentaje = $request->input('porcentaje');
-
-        $precioDescuento = $producto->precioOriginal - ($producto->precioOriginal * $porcentaje / 100);
-
-        $ofertaProducto = Oferta_Producto::where('id_oferta', $oferta->id)
-    ->where('id_producto', $producto->id)
-    ->first();
-
-        if (!$ofertaProducto) {
-            return response()->json(['error' => 'El producto no está asociado a la oferta.'], 400);
-        }
-
-
-        $ofertaProducto->porcentaje = $porcentaje;
-        $ofertaProducto->precio_oferta = $precioDescuento;
-        $ofertaProducto->save();
-
-        if ($oferta->estado === 1) {
-            $producto->precioProducto = $precioDescuento;
-            $producto->save();
-        }
-
-        return response()->json(['message' => 'Porcentaje del producto actualizado con éxito.', 'oferta_producto' => $ofertaProducto]);
     }
 
-        public function productosOferta($ofertaId)
+
+    public function productosOferta($offerId)
     {
-        $oferta = Oferta::find($ofertaId);
+        try {    
+            $offer = Oferta::findOrFail($offerId);
+            $offerItems = $offer-> productos;
+    
+            return response()->json(['offerItems' => $offerItems], 200);  
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'No se encontró la oferta.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
-
-        $productosOferta = $oferta->productos;
-
-        return response()->json(['productos_oferta' => $productosOferta]);
     }   
 
-        public function eliminarProducto($ofertaId, $productoId)
+
+    public function eliminarProducto($offerId, $productId)
     {
-        $oferta = Oferta::find($ofertaId);
+        try {    
+            $offer = Oferta::findOrFail($offerId);
+    
+            $product = Producto::find($productId);
+            if (!$product) {
+                return response()->json(['message' => 'No se encontró el producto.'], 404);
+            }
+    
+            $user = Auth::user();
+            if ($offer-> establecimiento_id !== $user-> establecimiento_id || $product-> id_establecimiento !== $user-> establecimiento_id) {
+                return response()->json(['message' => 'No tienes permiso para eliminar este producto de la oferta.'], 403);
+            }
+    
+            $offer->productos()->detach($product-> id);
+            $product->update([
+                'precioProducto' => $product-> precioOriginal
+            ]);
+    
+            return response()->json(['message' => 'Producto eliminado de la oferta con éxito']);
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'No se encontró la oferta.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
-
-        $producto = Producto::find($productoId);
-
-        if (!$producto) {
-            return response()->json(['error' => 'El producto no existe.'], 404);
-        }
-
-        $usuario = Auth::user();
-        if ($oferta->establecimiento_id !== $usuario->establecimiento_id || $producto->id_establecimiento !== $usuario->establecimiento_id) {
-            return response()->json(['error' => 'No tienes permiso para eliminar este producto de la oferta.'], 403);
-        }
-
-        $oferta->productos()->detach($producto->id);
-
-        $producto->precioProducto = $producto->precioOriginal;
-        $producto->save();
-
-        return response()->json(['message' => 'Producto eliminado de la oferta con éxito']);
     }
 
     public function destroy($id)
     {
-        $oferta = Oferta::find($id);
+        try {    
+            $offer = Oferta::findOrFail($id);
+    
+            $user = Auth::user();
+            if ($offer-> establecimiento_id !== $user-> establecimiento_id) {
+                return response()->json(['message' => 'No tienes permiso para eliminar esta oferta.'], 403);
+            }
+    
+            $offerItems = $offer-> productos;
+            foreach ($offerItems as $item) {
+                $item->update([
+                    'precioProducto' => $item-> precioOriginal
+                ]);
+            }
+            $offer->productos()->detach();
+            $offer->delete();
+    
+            return response()->json(['message' => 'Oferta eliminada con éxito.']);
+            
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'No se encontró la oferta.'], 404);
 
-        if (!$oferta) {
-            return response()->json(['error' => 'La oferta no existe.'], 404);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
-
-        $usuario = Auth::user();
-        if ($oferta->establecimiento_id !== $usuario->establecimiento_id) {
-            return response()->json(['error' => 'No tienes permiso para eliminar esta oferta.'], 403);
-        }
-
-        $productosOferta = $oferta->productos;
-        foreach ($productosOferta as $producto) {
-            $producto->precioProducto = $producto->precioOriginal;
-            $producto->save();
-        }
-
-        $oferta->productos()->detach();
-        $oferta->delete();
-
-        return response()->json(['message' => 'Oferta eliminada con éxito.']);
     }
 
 }

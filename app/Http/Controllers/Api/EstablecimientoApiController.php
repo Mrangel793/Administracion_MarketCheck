@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 
 use App\Models\User;
@@ -39,10 +40,22 @@ class EstablecimientoApiController extends Controller
             "NombreEstablecimiento"=> 'required', 
             "DireccionEstablecimiento"=> 'required',
             "CorreoEstablecimiento"=> 'required|email|unique:establecimientos',
-            "Imagen"=> 'required' 
+            "Imagen"=> 'required', 
+            "Logo"=> 'required' 
         ]);
+
         try {
-            $store= Establecimiento::create($request->all());
+            $store= Establecimiento::create([
+                "Nit" => $request-> Nit, 
+                "Estado" => $request-> Estado, 
+                "NombreEstablecimiento" => $request-> NombreEstablecimiento, 
+                "DireccionEstablecimiento" => $request-> DireccionEstablecimiento,
+                "CorreoEstablecimiento" => $request-> CorreoEstablecimiento,
+                "Lema" => $request-> Lema, 
+                "ColorInterfaz" => $request-> ColorInterfaz, 
+                "Imagen" => $request-> Imagen, 
+                "Logo" => $request-> Logo
+            ]);
             
             $user = User::create([
                 'name' => $request-> NombreEstablecimiento,
@@ -157,6 +170,20 @@ class EstablecimientoApiController extends Controller
     {   
         try {
             $store = Establecimiento::findOrFail($id);
+            $image= $store->Imagen;
+            if($image) Storage::delete("public/images/$image");
+            $logo= $store->Logo;
+            if($logo) Storage::delete("public/images/$logo");
+
+
+            /*$users= User::where('establecimiento_id', $store->id)->get();
+
+            if($users){
+                foreach($users as $user){
+                    $user->delete();
+                }
+            }*/
+
             $store->delete();
     
             return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);

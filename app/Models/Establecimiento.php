@@ -6,8 +6,9 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use App\Models\User;
-use App\Models\Producto;
+use App\Models\Image;
 use App\Models\Compra;
+use App\Models\Producto;
 
 
 
@@ -15,12 +16,25 @@ class Establecimiento extends Model
 { 
     use HasFactory;
 
+    protected static function boot()
+    {
+        parent::boot();
+        // Evento que se ejecuta antes de eliminar un Establecimiento
+        static::deleting(function ($establecimiento) {
+            $establecimiento->users()->delete();
+            $establecimiento->oferta()->delete();
+            $establecimiento->producto()->delete();
+            $establecimiento->compra()->delete();
+            //$establecimiento->image()->delete();
+        });
+    }
+
     public function users(){
         return $this->hasMany(User::class,'establecimiento_id');
     }
 
     public function oferta(){
-        return $this->hasMany(Oferta::class,'id_establecimiento');
+        return $this->hasMany(Oferta::class,'establecimiento_id'); 
     }
 
     public function producto(){
@@ -29,6 +43,10 @@ class Establecimiento extends Model
     
     public function compra(){
         return $this->hasMany(Compra::class,'establecimiento_id');
+    }
+
+    public function image(){
+        return $this->hasMany(Image::class,'establecimiento_id');
     }
 
     protected $fillable =
@@ -41,7 +59,8 @@ class Establecimiento extends Model
     "Lema", 
     "ColorInterfaz", 
     "Imagen", 
-    "Logo"];
+    "Logo"
+    ];
 
     public $timestamps = false;
 }

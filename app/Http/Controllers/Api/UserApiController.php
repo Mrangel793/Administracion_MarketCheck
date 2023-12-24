@@ -29,14 +29,14 @@ class UserApiController extends Controller
             ->whereNotIn('id', [$user->id])
             ->get();
 
-            return response()->json(['users'=> $users],200);
+            return response()->json(['users'=> $users], 200);
         }
         elseif ($user){
             $users = User::where('rol_id', '!=', 1)->get();
-            return response()->json(['users'=> $users],200);
+            return response()->json(['users'=> $users], 200);
         }
 
-        return response()->json(['message'=> 'Por favor inicie sesion'],401);
+        return response()->json(['message'=> 'Por favor inicie sesion'], 401);
 
     }
 
@@ -130,7 +130,6 @@ class UserApiController extends Controller
 
         try {
             $user = User::findOrFail($id);
-    
             $user->update([
                 'password' => Hash::make($request-> password)
             ]);

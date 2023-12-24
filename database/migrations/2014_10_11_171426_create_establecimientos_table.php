@@ -22,9 +22,14 @@ class CreateEstablecimientosTable extends Migration
             $table->string('CorreoEstablecimiento');
             $table->text('Lema')->nullable();
             $table->string('ColorInterfaz')->nullable();
-            $table->string('Imagen')->nullable();
-            $table->string('Logo');
-            //$table->timestamps();
+            $table->bigInteger('Logo')->nullable();
+            $table->bigInteger('Imagen')->nullable();
+            
+           /* $table->foreignId('image_id')->nullable();
+            $table->foreign('image_id')->references('id')->on('images');
+
+            $table->foreignId('logo_id')->nullable();
+            $table->foreign('logo_id')->references('id')->on('images');*/
         });
     }
 

@@ -10,7 +10,12 @@ class Oferta_Producto extends Model
 {
     protected $table = 'oferta_productos';
 
-    protected $fillable = ['id_producto', 'id_oferta', 'porcentaje', 'precio_oferta'];
+    protected $fillable = [
+        'id_producto', 
+        'id_oferta', 
+        'porcentaje', 
+        'precio_oferta'
+    ];
 
     public $timestamps = false;
 

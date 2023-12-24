@@ -42,8 +42,8 @@ class CategoriaApiController extends Controller
     public function show($id)
     {
         try {
-            $categories = Categoria::findOrFail($id);
-            return response()->json(['categories'=>$categories], 200);
+            $categorie = Categoria::findOrFail($id);
+            return response()->json(['categorie'=>$categorie], 200);
 
         } catch (NotFound $e) {
             return response()->json(['message'=> 'No encontraron resultados'], 404);

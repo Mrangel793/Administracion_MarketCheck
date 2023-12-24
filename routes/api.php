@@ -2,16 +2,17 @@
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Route;
-use App\Http\Controllers\Api\OfertaApiController;
-use App\Http\Controllers\Api\EstablecimientoApiController;
-use App\Http\Controllers\Api\UserApiController;
+
+use App\Http\Controllers\AuthController;
 use App\Http\Controllers\API\RolApiController;
+use App\Http\Controllers\Api\UserApiController;
+use App\Http\Controllers\Api\ImageApiController;
+use App\Http\Controllers\Api\OfertaApiController;
+use App\Http\Controllers\Api\ComprasApiController;
+use App\Http\Controllers\Api\ProductoApiController;
 use App\Http\Controllers\API\CategoriaApiController;
 use App\Http\Controllers\API\SubCategoriaApiController;
-use App\Http\Controllers\AuthController;
-use App\Http\Controllers\Api\ProductoApiController;
-use App\Models\Oferta;
-use App\Http\Controllers\Api\ComprasApiController;
+use App\Http\Controllers\Api\EstablecimientoApiController;
 
 
 
@@ -39,6 +40,8 @@ Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [Establec
 Route::put('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activate']);
 Route::put('/establecimiento/deactivate/{id}', [EstablecimientoApiController::class, 'deactivate']);
 
+Route::post('/establecimiento/images', [EstablecimientoApiController::class, 'storeImage']);
+
 
 Route::get('/ofertas', [OfertaApiController::class, 'index'])->middleware('auth:api');
 Route::post('/ofertas', [OfertaApiController::class, 'store'])->middleware('auth:api');
@@ -56,10 +59,16 @@ Route::delete('/ofertas/{ofertaId}/productos/{productoId}', [OfertaApiController
 
 
 Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
+
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
+
 Route::apiResource('rol',RolApiController::class);
+
 Route::apiResource('categoria',CategoriaApiController::class);
+
 Route::apiResource('compra',CompraController::class);
+
+Route::apiResource('images', ImageApiController::class);
 
 Route::apiResource('subcategoria',SubCategoriaApiController::class);
 Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria']);
@@ -93,13 +102,16 @@ Route::group([
 });
 
 //COMPRAS API CONTROLLER---------------------------------------------------------------------------------------------------
-Route::get('compras', [ComprasApiController::class, 'index'])->middleware('auth:api');
-Route::get('compras/compra/{compraid}', [ComprasApiController::class, 'showCompra'])->middleware('auth:api');
-Route::get('compras/{compraid}', [ComprasApiController::class, 'productosCompra'])->middleware('auth:api');
 
-Route::post('compras/new', [ComprasApiController::class, 'store'])->middleware('auth:api');
+Route::prefix('compras')->group(function () {
+    Route::get('/', [ComprasApiController::class, 'index'])->middleware('auth:api');
+    Route::get('/compra/{compraid}', [ComprasApiController::class, 'showCompra'])->middleware('auth:api');
+    Route::get('/{compraid}', [ComprasApiController::class, 'productosCompra'])->middleware('auth:api');
 
-Route::post('compras/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');
-Route::put('compras/{idCompra}/finalizarCompra',[ComprasApiController::class, 'finalizarCompra'])->middleware('auth:api');
+    Route::post('/new', [ComprasApiController::class, 'store'])->middleware('auth:api');
 
+    Route::post('/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');
+    Route::put('/{idCompra}/finalizarCompra',[ComprasApiController::class, 'finalizarCompra'])->middleware('auth:api');
+    Route::delete('/{idCompra}',[ComprasApiController::class, 'destroy'])->middleware('auth:api');
+});
 
