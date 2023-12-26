@@ -25,7 +25,6 @@ class OfertaController extends Controller
      {
          $usuario = Auth::user();
          $ofertas = Oferta::where('establecimiento_id', $usuario->establecimiento_id)->get();
-     
          return view('ofertas.index', compact('ofertas'));
      }
 
@@ -75,7 +74,7 @@ class OfertaController extends Controller
                 }
         $ofertas->save();
         $nuevaOferta = $ofertas; // Asigna la oferta recién creada a $nuevaOferta
-        return view('ofertas.create', ['nuevaOferta' => $nuevaOferta]);
+        return view('ofertas.create', ['nuevaOferta' => $nuevaOferta, 'categorias' => $categorias]);
         
        
     }
@@ -94,7 +93,6 @@ class OfertaController extends Controller
     public function activarOferta($ofertaId)
     {
         $oferta = Oferta::find($ofertaId);
-    
         if (!$oferta) {
             return redirect()->route('oferta.index')->with('error', 'La oferta no existe.');
         }

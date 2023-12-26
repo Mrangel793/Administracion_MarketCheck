@@ -19,6 +19,7 @@ class EstablecimientoApiController extends Controller
      */
     public function index()
     {
+        $usuario = Auth::user();
         $establecimientos = Establecimiento::all();
         return response()->json($establecimientos,200);
     }

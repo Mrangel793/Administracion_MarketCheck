@@ -36,6 +36,11 @@
                     <small class="text-danger">*{{$message}}</small><br>
                     @enderror
                 </div>
+                <select class="form-select mt-3" name="categorias" >
+                    @foreach($categorias as $categoria)
+                    <option value="{{$categoria->id}}">{{$categoria->nombre}}</option>
+                    @endforeach
+                </select>
                 
                 <select class="form-select mt-3" name="estado" >
                     <option value="1">Activo</option>
