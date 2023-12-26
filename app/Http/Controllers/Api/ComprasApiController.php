@@ -24,15 +24,15 @@ class ComprasApiController extends Controller
     public function index()
     {
         $usuario = Auth::user();
-        $compra = Compra::where('establecimiento_id', $usuario->establecimiento_id)->get();
-        return response()->json(['compra' => $compra]);
+        $compras = Compra::where('establecimiento_id', $usuario->establecimiento_id)->get();
+        return response()->json([$compras, 200]);
     }
 
     public function productosCompra($compraid)
     {
         $compra = Compra::find($compraid);
         $compraProducto = ComprasProductos::where('compra_id', $compraid)->get();
-        return response()->json(['compra' => $compraProducto]);
+        return response()->json([$compraProducto, 200]);
     }
     /**
      * Store a newly created resource in storage.
@@ -50,7 +50,7 @@ class ComprasApiController extends Controller
         $compras->hora = now()->format('H:i:s');;
         $compras->fecha = Carbon::now();
         $compras->total = 0;
-        $compras->estado =0;
+        $compras->estado = 0;
         $compras->establecimiento_id = $usuario->establecimiento_id;
         $compras->save();
         session(['compra_id' => $compras->id]);
@@ -58,7 +58,7 @@ class ComprasApiController extends Controller
 
     }
 
-    public function guardar(Request $request, $idCompra,$productoId){
+    public function guardar(Request $request, $idCompra, $productoId){
         $compra = Compra::find($idCompra);
         $totalCompra = 0;
         $producto = Producto::find($productoId);
@@ -84,46 +84,42 @@ class ComprasApiController extends Controller
         } 
     }
 
-public function finalizarCompra($idCompra)
-{
-    $usuario = Auth::user();
+    public function finalizarCompra($idCompra)
+    {
+        $usuario = Auth::user();
 
-    $compra = Compra::find($idCompra);
+        $compra = Compra::find($idCompra);
 
-    if ($compra) {
-        $compra->estado = 1;
-        $compra->save();
+        if ($compra) {
+            $compra->estado = 1;
+            $compra->save();
 
-        $productosComprados = $compra->productos;
+            $productosComprados = $compra->productos;
 
-        foreach ($productosComprados as $productoComprado) {
-            $productoId = $productoComprado->id;
+            foreach ($productosComprados as $productoComprado) {
+                $productoId = $productoComprado->id;
 
-            // Utiliza first() para obtener el primer resultado de la consulta
-            $producto = ComprasProductos::where('producto_id', $productoId)->where('compra_id', $idCompra)->first();
+                // Utiliza first() para obtener el primer resultado de la consulta
+                $producto = ComprasProductos::where('producto_id', $productoId)->where('compra_id', $idCompra)->first();
 
-            if ($producto) {
-                $cantidadComprada = $producto->cantidad;
+                if ($producto) {
+                    $cantidadComprada = $producto->cantidad;
 
-                $productoActual = Producto::find($productoId);
+                    $productoActual = Producto::find($productoId);
 
-                if ($productoActual) {
-                    $nuevaCantidad = $productoActual->numeroStock - $cantidadComprada;
+                    if ($productoActual) {
+                        $nuevaCantidad = $productoActual->numeroStock - $cantidadComprada;
 
-                    // Asegúrate de que la cantidad no sea negativa
-                    $productoActual->numeroStock = max($nuevaCantidad, 0);
-                    $productoActual->save();
+                        // Asegúrate de que la cantidad no sea negativa
+                        $productoActual->numeroStock = max($nuevaCantidad, 0);
+                        $productoActual->save();
+                    }
                 }
             }
+            return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock']);
+
         }
-        return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock']);
-
     }
-}
-
-    
-
-    
 
     /**
      * Display the specified resource.
@@ -131,9 +127,10 @@ public function finalizarCompra($idCompra)
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function show($id)
+    public function showCompra($id)
     {
-        //
+        $compra = Compra::find($idCompra);
+        return response()->json(['compra' => $compra, 200]);
     }
 
     /**
