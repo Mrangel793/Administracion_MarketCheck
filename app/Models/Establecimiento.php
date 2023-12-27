@@ -8,16 +8,14 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use App\Models\User;
 use App\Models\Image;
 use App\Models\Compra;
+use App\Models\Oferta;
 use App\Models\Producto;
 
 
-
-class Establecimiento extends Model
-{ 
+class Establecimiento extends Model{ 
     use HasFactory;
 
-    protected static function boot()
-    {
+    protected static function boot(){
         parent::boot();
         // Evento que se ejecuta antes de eliminar un Establecimiento
         static::deleting(function ($establecimiento) {
@@ -25,7 +23,7 @@ class Establecimiento extends Model
             $establecimiento->oferta()->delete();
             $establecimiento->producto()->delete();
             $establecimiento->compra()->delete();
-            //$establecimiento->image()->delete();
+            $establecimiento->images()->delete();
         });
     }
 
@@ -45,22 +43,22 @@ class Establecimiento extends Model
         return $this->hasMany(Compra::class,'establecimiento_id');
     }
 
-    public function image(){
+    public function images(){
         return $this->hasMany(Image::class,'establecimiento_id');
     }
 
-    protected $fillable =
-    [
-    "Nit", 
-    "Estado", 
-    "NombreEstablecimiento", 
-    "DireccionEstablecimiento",
-    "CorreoEstablecimiento",
-    "Lema", 
-    "ColorInterfaz", 
-    "Imagen", 
-    "Logo"
+    protected $fillable =[
+        "Nit", 
+        "Estado", 
+        "NombreEstablecimiento", 
+        "DireccionEstablecimiento",
+        "CorreoEstablecimiento",
+        "Lema", 
+        "ColorInterfaz", 
+        "Imagen", 
+        "Logo"
     ];
 
     public $timestamps = false;
+
 }

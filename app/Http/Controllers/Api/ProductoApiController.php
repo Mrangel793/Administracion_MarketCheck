@@ -20,8 +20,8 @@ class ProductoApiController extends Controller
     {
         $user = Auth::user();
 
-        if($user && isset($user->establecimiento_id)  && $user->establecimiento_id !== null){
-            $products = Producto::where('id_establecimiento', $user->establecimiento_id)->get();
+        if($user && isset($user-> establecimiento_id)){
+            $products = Producto::where('id_establecimiento', $user-> establecimiento_id)->get();
             return response()->json( ['products'=> $products], 200);           
         }
 
@@ -44,18 +44,18 @@ class ProductoApiController extends Controller
 
         $user = Auth::user();
 
-        if($user && isset($user->establecimiento_id) && $user->establecimiento_id !== null){
+        if($user && isset($user-> establecimiento_id)){
             $product = Producto::create([
-                'codigoProducto' => $request->codigoProducto,
-                'nombreProducto' => $request->nombreProducto,
-                'descripcionProducto' => $request->descripcionProducto,
-                'precioProducto' => $request->precioProducto,
-                'precioOriginal' => $request->precioProducto,
-                'numeroStock' => $request->numeroStock,
-                'estado' => $request->estado,
-                'id_categoria' => $request->id_categoria,
-                'id_subcategoria' => $request->id_subcategoria,
-                'id_establecimiento' => $user->establecimiento_id
+                'codigoProducto' => $request-> codigoProducto,
+                'nombreProducto' => $request-> nombreProducto,
+                'descripcionProducto' => $request-> descripcionProducto,
+                'precioProducto' => $request-> precioProducto,
+                'precioOriginal' => $request-> precioProducto,
+                'numeroStock' => $request-> numeroStock,
+                'estado' => $request-> estado,
+                'id_categoria' => $request-> id_categoria,
+                'id_subcategoria' => $request-> id_subcategoria,
+                'id_establecimiento' => $user-> establecimiento_id
             ]);
             
             return response()->json(['message' => 'Producto creado con éxito', 'product'=> $product], 201);
@@ -131,17 +131,17 @@ class ProductoApiController extends Controller
 
         $user = Auth::user();
 
-        if($user && isset($user->establecimiento_id) && $user->establecimiento_id !== null){
+        if($user && isset($user-> establecimiento_id)){
             $product = Producto::update([
-                'codigoProducto' => $request->codigoProducto,
-                'nombreProducto' => $request->nombreProducto,
-                'descripcionProducto' => $request->descripcionProducto,
-                'precioProducto' => $request->precioProducto,
-                'numeroStock' => $request->numeroStock,
-                'estado' => $request->estado,
-                'id_categoria' => $request->id_categoria,
-                'id_subcategoria' => $request->id_subcategoria,
-                'id_establecimiento' => $user->establecimiento_id
+                'codigoProducto' => $request-> codigoProducto,
+                'nombreProducto' => $request-> nombreProducto,
+                'descripcionProducto' => $request-> descripcionProducto,
+                'precioProducto' => $request-> precioProducto,
+                'numeroStock' => $request-> numeroStock,
+                'estado' => $request-> estado,
+                'id_categoria' => $request-> id_categoria,
+                'id_subcategoria' => $request-> id_subcategoria,
+                'id_establecimiento' => $user-> establecimiento_id
             ]);
             
             return response()->json(['message' => 'Producto actualizado con éxito'], 201);
@@ -154,7 +154,7 @@ class ProductoApiController extends Controller
     {
         try {
             $product = Producto::findOrFail($id);
-            $product->delete();
+            $product-> delete();
     
             return response()->json(['message' => 'Producto Eliminado!', 'product'=> $product], 200);
 

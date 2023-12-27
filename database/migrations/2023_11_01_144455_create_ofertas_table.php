@@ -20,7 +20,7 @@ class CreateOfertasTable extends Migration
             $table->date('fecha_fin');
             $table->string('nombre');
             $table->string('descripcion');
-            $table->string('imagen');
+            $table->bigInteger('imagen')->nullable();
             $table->integer('numero_stock');
            
 

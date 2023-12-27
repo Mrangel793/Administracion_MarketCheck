@@ -24,9 +24,9 @@ class UserApiController extends Controller
     {    
         $user= Auth::user();
 
-        if($user && isset($user->establecimiento_id)){
-            $users = User::where('establecimiento_id', $user->establecimiento_id)
-            ->whereNotIn('id', [$user->id])
+        if($user && isset($user-> establecimiento_id)){
+            $users = User::where('establecimiento_id', $user-> establecimiento_id)
+            ->whereNotIn('id', [$user-> id])
             ->get();
 
             return response()->json(['users'=> $users], 200);
@@ -51,7 +51,7 @@ class UserApiController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
-            'rol_id' => 'required|numeric', // Validación del rol como un número.
+            'rol_id' => 'required|numeric',
         ]);
 
         $user = User::create([

@@ -10,7 +10,8 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 use App\Models\Categoria;
 
 
-//REVISADO - PENDIENTE STORE & DESTROY
+//REVISADO
+//TODO: PENDIENTE STORE, UPDATE & DESTROY
 class CategoriaApiController extends Controller
 {
     /**
@@ -30,7 +31,7 @@ class CategoriaApiController extends Controller
      */
     public function store(Request $request)
     {
-        // EL SUPER - ADMIN DEBE PODER CREAR
+        //TODO: EL SUPER - ADMIN DEBE PODER CREAR
     }
 
     /**
@@ -63,7 +64,7 @@ class CategoriaApiController extends Controller
      */
     public function update(Request $request, $id)
     {
-        //
+        //TODO: EL SUPER - ADMIN DEBE PODER ACTUALIZAR SIEMPRE Y CUANDO NO TENGA REGISTROS ASOCIADOS
     }
 
     /**
@@ -74,6 +75,6 @@ class CategoriaApiController extends Controller
      */
     public function destroy($id)
     {
-        // CREAR <-- SE EVALUA QUE NO SE PUEDA ELIMINAR SI TIENE SUB-CATEGORIAS RELACIONADAS
+        //TODO: CREAR <-- SE EVALUA QUE NO SE PUEDA ELIMINAR SI TIENE SUB-CATEGORIAS RELACIONADAS
     }
 }

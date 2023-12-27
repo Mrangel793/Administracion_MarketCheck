@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 
 use App\Models\User;
+use App\Models\Image;
 use App\Models\Oferta;
 use App\Models\Establecimiento;
 
@@ -39,9 +40,7 @@ class EstablecimientoApiController extends Controller
             "Estado"=> 'required', 
             "NombreEstablecimiento"=> 'required', 
             "DireccionEstablecimiento"=> 'required',
-            "CorreoEstablecimiento"=> 'required|email|unique:establecimientos',
-            "Imagen"=> 'required', 
-            "Logo"=> 'required' 
+            "CorreoEstablecimiento"=> 'required|email|unique:establecimientos', 
         ]);
 
         try {
@@ -53,8 +52,8 @@ class EstablecimientoApiController extends Controller
                 "CorreoEstablecimiento" => $request-> CorreoEstablecimiento,
                 "Lema" => $request-> Lema, 
                 "ColorInterfaz" => $request-> ColorInterfaz, 
-                "Imagen" => $request-> Imagen, 
-                "Logo" => $request-> Logo
+                //"Imagen" => $request-> Imagen, 
+                //"Logo" => $request-> Logo
             ]);
             
             $user = User::create([
@@ -65,7 +64,7 @@ class EstablecimientoApiController extends Controller
                 'password' => Hash::make($request-> Nit)
             ]);
 
-            return response()->json(['message' => 'Establecimiento creado con éxito'], 201);
+            return response()->json(['message' => 'Establecimiento creado con éxito', 'id'=> $store->id], 201);
 
         } catch (\Exception $e) {
             return response()->json(['message'=>'Error al procesar la solicitud'], 500);
@@ -142,21 +141,46 @@ class EstablecimientoApiController extends Controller
             "Estado"=> 'required', 
             "NombreEstablecimiento"=> 'required', 
             "DireccionEstablecimiento"=> 'required',
-            "CorreoEstablecimiento"=> 'required|email|unique:establecimientos',
-            "Imagen"=> 'required' 
+            "CorreoEstablecimiento"=> 'required',
         ]);
 
         try {
             $store = Establecimiento::FindOrFail($id);
             $store->update($request->all());
 
-            return response()->json(['message' => 'Producto activado con éxito', 'store'=> $store],201);
+            return response()->json(['message' => 'Actualizacion éxitosa', 'store'=> $store], 201);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Tienda no encontrada'], 404);
 
         } catch (\Exception $e) {
             return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+        }
+    }
+
+    public function updateImageField(Request $request, $id)
+    {  
+        try {
+            $store = Establecimiento::FindOrFail($id);
+            $logo= $request->input('Logo');
+            $image= $request->input('Imagen');
+            if($logo){
+                $store->update([
+                    'Logo' => $logo
+                ]);
+            }
+            if($image){
+                $store->update([
+                    'Imagen' => $image
+                ]);
+            }
+            return response()->json(['message' => 'Actualizacion éxitosa.', 'L'=>$logo , 'I'=>$image],201);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Tienda no encontrada.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud.'], 500);
         }
     }
 
@@ -170,23 +194,17 @@ class EstablecimientoApiController extends Controller
     {   
         try {
             $store = Establecimiento::findOrFail($id);
-            $image= $store->Imagen;
-            if($image) Storage::delete("public/images/$image");
-            $logo= $store->Logo;
-            if($logo) Storage::delete("public/images/$logo");
+            $images= Image::where('establecimiento_id', $store->id)->get();
+            foreach ($images as $image) {
+                $path= $image->imagePath;
+                if($path) Storage::delete("public/images/$path");    
+            }
+            //TODO: Faltaria imagenes de ofertas relacionada al establecimiento
 
 
-            /*$users= User::where('establecimiento_id', $store->id)->get();
-
-            if($users){
-                foreach($users as $user){
-                    $user->delete();
-                }
-            }*/
-
-            $store->delete();
+           $store->delete();
     
-            return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);
+            return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store, 'images'=> $images], 200);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Establecimiento no encontrado'], 404);

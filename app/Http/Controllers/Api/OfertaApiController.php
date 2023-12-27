@@ -8,17 +8,17 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth; 
 use Illuminate\Support\Facades\Storage;
 
+use App\Models\Image;
 use App\Models\Oferta;
 use App\Models\Producto;
 use App\Models\Categoria;
 use App\Models\Establecimiento;
 use App\Models\Oferta_Producto;
 
-//TODO: EN REVISION, FALTA INDEX, SHOW PARA APP
+//TODO: REVISADO, FALTA INDEX, SHOW PARA APP
 class OfertaApiController extends Controller
 {
-    public function index()
-    {
+    public function index(){
         $user = Auth::user();
         if($user && isset($user-> establecimiento_id)){
             $offers = Oferta::where('establecimiento_id', $user-> establecimiento_id)->get();
@@ -28,11 +28,19 @@ class OfertaApiController extends Controller
     }
 
 
-    public function store(Request $request)
-    {
+    public function store(Request $request){   
+        $request->validate([
+            'fecha_inicio' => 'required',
+            'fecha_fin' => 'required',
+            'nombre' => 'required',
+            'descripcion' => 'required',
+            'numero_stock' => 'required',
+            'estado' => 'required',
+            'establecimiento_id' => 'required'
+        ]);
+
         $user = Auth::user();
         if($user && isset($user-> establecimiento_id)){
-            
             $offer = Oferta::create([
                 'fecha_inicio' => $request->fecha_inicio,
                 'fecha_fin' => $request->fecha_fin,
@@ -41,7 +49,7 @@ class OfertaApiController extends Controller
                 'numero_stock' => $request-> numero_stock,
                 'estado' => $request-> estado,
                 'establecimiento_id' => $user-> establecimiento_id,
-                'imagen' => $request-> imagen
+                'image' => null,
             ]);
             return response()->json(['message' => 'Oferta creada con éxito', 'offer' => $offer], 201);
         }
@@ -53,43 +61,62 @@ class OfertaApiController extends Controller
     public function show($id){   
         try {    
             $user = Auth::user();
-            $offert = Oferta::findOrFail($id);
+            $offer = Oferta::findOrFail($id);
         
-            if ($offert-> establecimiento_id !== $user-> establecimiento_id) {
+            if ($offer-> establecimiento_id !== $user-> establecimiento_id) {
                 return response()->json(['message' => 'No tienes permiso para ver esta oferta.'], 403);
             }
-            return response()->json(['offer' => $offert], 200);
+            return response()->json(['offer' => $offer], 200);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'La oferta no existe.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud :('], 500);
         } 
     }
 
 
-    public function activarOferta($ofertaId){
+    public function activateOrDesactivateOffer($ofertaId){
         try {    
             $offer = Oferta::findOrFail($ofertaId);
+            $offerItems = $offer-> productos;
+            $option= $offer-> estado;
 
-            $offerItems = $offer-> productos; 
-        
-                foreach ($offerItems as $item) {
-                    $offerPrice = $item->pivot->precio_oferta; 
-        
-                    if ($item->precioProducto !== null) {
-                        $item->update([
-                            'precioProducto' => $offerPrice
-                        ]);
+            switch ($option) {
+                case 0:
+                    foreach ($offerItems as $item) {
+                        $offerPrice = $item->pivot->precio_oferta; 
+            
+                        if ($item->precioProducto !== null) {
+                            $item->update([
+                                'precioProducto' => $offerPrice
+                            ]);
+                        }
                     }
-                }
 
-            $offer->update([
-                'estado' => 1
-            ]);
-            return response()->json(['message' => 'Oferta activada con éxito', 'offer' => $offer]);    
+                    $offer->update([
+                        'estado' => 1
+                    ]);
+                    return response()->json(['message' => 'Oferta activada.', 'offer' => $offer]);
 
+                case 1:
+                    foreach ($offerItems as $item) {
+                        $item->update([
+                            'precioProducto' => $item-> precioOriginal
+                        ]);      
+                    }
+
+                    $offer->update([
+                        'estado' => 0
+                    ]);
+                    return response()->json(['message' => 'Oferta desactivada.', 'offer' => $offer]);    
+                
+                default:
+                    return response()->json(['message' => 'Estado de oferta incorrecto.'], 400);
+                    break;
+            }
+                
         } catch (NotFound $e) {
             return response()->json(['message' => 'La oferta no existe.'], 404);
 
@@ -99,46 +126,38 @@ class OfertaApiController extends Controller
     }
 
 
-    public function desactivarOferta($ofertaId)
-    {
-        try {    
-            $offer = Oferta::findOrFail($ofertaId);
-
-            $offerItems = $offer-> productos; 
-        
-                foreach ($offerItems as $item) {
-                    $item->update([
-                        'precioProducto' => $item-> precioOriginal
-                    ]);      
-                }
-
-            $offer->update([
-                'estado' => 0
+    public function guardarProductos(Request $request, $offerId){
+        $user = Auth::user();
+        $request->validate([
+            'percent' => 'required|numeric|min:1|max:99',
         ]);
-        return response()->json(['message' => 'Oferta desactivada.', 'offer' => $offer]);    
-
-        } catch (NotFound $e) {
-            return response()->json(['message' => 'La oferta no existe.'], 404);
-
-        } catch (\Exception $e) {
-            return response()->json(['message'=> 'Error al procesar la solicitud'], 500);
-        } 
-    }
-   
-
-    public function guardarProductos(Request $request, $ofertaId)
-    {
         try {    
-            $offer = Oferta::findOrFail($ofertaId);
-            $productId = $request-> producto_id;
-            $percent = $request-> porcentaje;
+            $offer = Oferta::findOrFail($offerId);
+            $productId = $request-> product;
+            $percent = $request-> percent;
 
             $product = Producto::find($productId);  
             if(!$product){
                 return response()->json(['message' => 'No se encontró el Producto.'], 404);
-            } 
+            }
 
-            $discountPrice = $product-> precioProducto - ($product-> precioProducto * $percent / 100);
+            if ($offer-> establecimiento_id !== $user-> establecimiento_id || $product-> id_establecimiento !== $user-> establecimiento_id) {
+                return response()->json(['message' => 'No tienes permiso para crear o editar ofertas.'], 403);
+            }
+            $discountPrice = $product-> precioOriginal - ($product-> precioOriginal * $percent / 100);
+
+            $offerItem = Oferta_Producto::where('id_oferta', $offer-> id)
+            ->where('id_producto', $product-> id)
+            ->first();
+    
+            if ($offerItem) {
+                $offerItem->update([
+                    'porcentaje' => $percent,
+                    'precio_oferta' => $discountPrice
+                ]);
+                $result= $this-> editProductPrice($offer, $product, $discountPrice);
+                return response()->json(['message' => 'Oferta actualizado con éxito.', 'oferta_producto' => $offerItem, 'result' => $result]);
+            }
 
             $offerItem = Oferta_Producto::create([
                 'id_producto' => $productId,
@@ -147,13 +166,9 @@ class OfertaApiController extends Controller
                 'precio_oferta' => $discountPrice
             ]);
     
-            if ($offer-> estado === 1) {
-                $product->update([
-                    'precioProducto' => $discountPrice
-                ]);
-            }
-    
-            return response()->json(['message' => "$product-> nombreProducto agregado con éxito a la oferta", 'oferta_producto' => $offerItem], 200);
+            $result= $this-> editProductPrice($offer, $product, $discountPrice);
+
+            return response()->json(['message' => "Producto agregado con éxito a la oferta", 'oferta_producto' => $offerItem, 'result' => $result], 200);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
@@ -163,9 +178,17 @@ class OfertaApiController extends Controller
         }
     }
 
+    private function editProductPrice(Oferta $offer, Producto $product, $discountPrice){                    
+        if ($offer-> estado === 1) {
+            $product->update([
+                'precioProducto' => $discountPrice
+            ]);
+            return true;
+        }
+        return false;
+    }
 
-    public function update(Request $request, $id)
-    {
+    public function update(Request $request, $id){
         try {    
             $offer = Oferta::findOrFail($id);
     
@@ -176,10 +199,9 @@ class OfertaApiController extends Controller
                 'descripcion' => $request-> descripcion,
                 'numero_stock' => $request-> numero_stock,
                 'estado' => $request-> estado,
-                'imagen' => $request-> imagen
             ]);
     
-            return response()->json(['message' => 'Oferta actualizada con éxito.'], 200); 
+            return response()->json(['message' => 'Oferta actualizada con éxito.', 'offer'=> $offer], 201); 
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
@@ -189,62 +211,27 @@ class OfertaApiController extends Controller
         }
     }
 
-    //TODO: SE PUEDE MEJORAR HACIENDO MODULAR LA LOGICA
-    public function editarPorcentaje(Request $request, $ofertaId, $productoId)
-    {
-        try {    
-            $offer = Oferta::findOrFail($ofertaId);
-    
-            $product = Producto::find($productoId);
-            if (!$product) {
-                return response()->json(['message' => 'No se encontró el producto.'], 404);
-            }
-    
-            $user = Auth::user();
-            if ($offer-> establecimiento_id !== $user-> establecimiento_id || $product-> id_establecimiento !== $user-> establecimiento_id) {
-                return response()->json(['message' => 'No tienes permiso para editar el porcentaje de este producto en la oferta.'], 403);
-            }
-    
-            $request->validate([
-                'porcentaje' => 'required|numeric|min:0|max:100',
-            ]);
-            $percent = $request-> porcentaje;
-    
-            $precioDescuento = $product-> precioOriginal - ($product-> precioOriginal * $percent / 100);
-    
-            $offerItem = Oferta_Producto::where('id_oferta', $offer-> id)
-            ->where('id_producto', $product-> id)
-            ->first();
-    
-            if (!$offerItem) {
-                return response()->json(['message' => 'El producto no está asociado a la oferta.'], 400);
-            }
+    public function updateImageField(Request $request, $id){  
+        try {
+            $offer = Oferta::FindOrFail($id);
+            $image= $request->input('imagen');
 
-            $offerItem->update([
-                'porcentaje' => $percent,
-                'precio_oferta' => $precioDescuento
-            ]);
-
-    
-            if ($offer-> estado === 1) {
-                $product->update([
-                    'precioProducto' => $precioDescuento
+            if($image){
+                $offer->update([
+                    'imagen' => $image
                 ]);
             }
-    
-            return response()->json(['message' => 'Porcentaje del producto actualizado con éxito.', 'oferta_producto' => $ofertaProducto]);
-            
+            return response()->json(['message' => 'Actualizacion éxitosa.', 'I'=>$image],201);
+
         } catch (NotFound $e) {
-            return response()->json(['message' => 'La oferta no existe.'], 404);
+            return response()->json(['message' => 'Tienda no encontrada.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud.'], 500);
         }
     }
 
-
-    public function productosOferta($offerId)
-    {
+    public function productosOferta($offerId){
         try {    
             $offer = Oferta::findOrFail($offerId);
             $offerItems = $offer-> productos;
@@ -299,6 +286,12 @@ class OfertaApiController extends Controller
             if ($offer-> establecimiento_id !== $user-> establecimiento_id) {
                 return response()->json(['message' => 'No tienes permiso para eliminar esta oferta.'], 403);
             }
+
+            $imageId= $offer-> imagen;
+            
+            $image= Image::find($imageId);
+            $path= $image->imagePath;
+            if($path) Storage::delete("public/images/$path");
     
             $offerItems = $offer-> productos;
             foreach ($offerItems as $item) {

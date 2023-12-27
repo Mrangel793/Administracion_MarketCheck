@@ -2,23 +2,26 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\SubCategoria;
-use App\Models\Oferta;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use App\Models\Producto;
+use App\Models\SubCategoria;
 
-class Categoria extends Model
-{ 
+use App\Models\Oferta;//->???
 
+class Categoria extends Model{ 
     use HasFactory;
-    protected $fillable = ['nombre','imagen'];
+
+    protected $fillable = [
+        'nombre',
+        'imagen'
+    ];
     public $timestamps = false;
     
     public function subcategorias(){
         return $this->hasMany(SubCategoria::class,'categoria_id');
     }
-    
 
     public function producto(){
         return $this->hasMany(Producto::class,'id_categoria');

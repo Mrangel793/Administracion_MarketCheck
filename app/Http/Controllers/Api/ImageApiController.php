@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Storage;
 use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 
 use App\Models\Image;
+use App\Models\Establecimiento;
 
 class ImageApiController extends Controller
 {
@@ -19,59 +20,121 @@ class ImageApiController extends Controller
 
     
     public function store(Request $request)
-    {
+    {   
+        $option= $request->input('option');
+        $storeId= null;
+        $offerId= null;
+
+        switch ($option) {
+            case 'store':
+                $storeId= $request->input('id');
+                break;
+
+            case 'offer':
+                $offerId= $request->input('id');
+                break;
+
+            case 'update':
+                return $this->updateImage($request, $request->input('id'));        
+
+            default:
+            return response()->json(['message' => 'No se proporcionó datos validos.'], 400); 
+                break;
+        }
+        
         if ($request->hasFile('image')) {
             $image = $request->file('image');
 
             $path = $image->store('public/images');
             $imageName = basename($path);
+
             $newImage=Image::create([
-                'imagePath' => $path,
-                'establecimiento_id' => $request->input('store_id'),
+                'imagePath' => $imageName,
+                'establecimiento_id' => $storeId,
+                'oferta_id' => $offerId 
             ]);
         
-            return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $path], 201);
+            return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $newImage->id], 201);
         }
 
-        return response()->json(['message' => 'No se proporcionó ningún archivo de imagen'], 400);
+        return response()->json(['message' => 'No se proporcionó ningún archivo de imagen', 'path' => null]);
     }
 
+    private function updateImage(Request $request, $imageId){
+        try {    
+            $imageInstance = Image::findOrFail($imageId);
     
+            if ($request-> hasFile('image')) {
+                $path= $imageInstance->imagePath;
+                if($path) Storage::delete("public/images/$path");
+    
+                $image = $request->file('image');
+    
+                $path = $image->store('public/images');
+                $imageName = basename($path);
+    
+                $imageInstance->update([
+                    'imagePath' => $imageName, 
+                ]);
+            
+                return response()->json(['message' => 'Imagen actualizada con éxito'], 201);
+            }else{
+                return response()->json(['message' => 'No se proporcionó ningún archivo de imagen']);
+            }
+    
+            } catch (NotFound $e) {
+                return response()->json(['message' => 'Imagen no encontrada.'], 404);
+    
+            } catch (\Exception $e) {
+                return response()->json(['message'=>'Error al procesar la solicitud.'], 500);
+            }
+    }
 
-    public function show($path)
+
+    public function show($id)
     {
-        $rutaArchivo = "public/images/$path"; 
+        try {
+            $image= Image::findOrFail($id);
+            $path= $image->imagePath;
+    
+            $rutaArchivo = "public/images/$path"; 
+    
+            if (Storage::exists($rutaArchivo)) {
 
-        if (Storage::exists($rutaArchivo)) {
+                return response()->download(public_path(Storage::url('public/images/'.$path)), $path);
+            }
+    
+            return response()->json(['mensaje' => 'Archivo no encontrado'], 404);
+            
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Imagen no encontrada'], 404);
 
-            return response()->download(public_path(Storage::url('public/images/'.$path)), $path);
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
         }
-
-        return response()->json(['mensaje' => 'Archivo no encontrado'], 404);
     }
 
     public function update(Request $request, $id)
     {
-        $image = Image::find($id);
-        if ($image) {
-            // Actualizar la imagen o sus propiedades según sea necesario
-            $image->image = $request->file('image')->get();
-            $image->save();
-
-            return response()->json(['message' => 'Imagen actualizada con éxito'], 200);
-        } else {
-            return response()->json(['message' => 'Imagen no encontrada'], 404);
-        }
+    
     }
 
     public function destroy($id)
-    {
-        $image = Image::find($id);
-        if ($image) {
+    {   
+        try {
+            $image = Image::findOrFail($id); 
+            $path= $image->imagePath;
+            if($path) Storage::delete("public/images/$path");
+            
             $image->delete();
             return response()->json(['message' => 'Imagen eliminada con éxito'], 200);
-        } else {
+
+        } catch (NotFound $e) {
             return response()->json(['message' => 'Imagen no encontrada'], 404);
+            
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+            
         }
     }
 }

@@ -2,18 +2,19 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
-use App\Models\Establecimiento;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use App\Models\User;
 use App\Models\Producto;
+use App\Models\Establecimiento;
+
 use App\Models\CompraProductos;
 
 
-
-class Compra extends Model
-{
+class Compra extends Model{
     use HasFactory;
+
     protected $fillable = [
         'hora',
         'fecha',
@@ -26,16 +27,16 @@ class Compra extends Model
 
     public $timestamps = false;
 
-    public function establecimiento(){
-        return $this->belongsTo(Establecimiento::class,'establecimiento_id');
-    }
-
     public function user(){
         return $this->belongsTo(User::class,'user_id');
     }
 
     public function seller(){
         return $this->belongsTo(User::class,'seller_id');
+    }
+
+    public function establecimiento(){
+        return $this->belongsTo(Establecimiento::class,'establecimiento_id');
     }
     
     public function productos(){

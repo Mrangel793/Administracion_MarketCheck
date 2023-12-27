@@ -16,13 +16,12 @@ class Image extends Model
     protected $fillable =
     [
         'imagePath',
-        'created',
         'establecimiento_id',
         'oferta_id'
          
     ];
 
-    public $timestamps = false;
+    public $timestamps = true;
 
     public function establecimiento(){
         return $this->belongsTo(Establecimiento::class,'establecimiento_id'); 
@@ -30,8 +29,6 @@ class Image extends Model
 
     public function oferta(){
         return $this->belongsTo(Oferta::class,'oferta_id'); 
-    }
-
-    
+    } 
     
 }

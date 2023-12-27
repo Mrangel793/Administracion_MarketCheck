@@ -83,26 +83,32 @@ class ComprasApiController extends Controller
             $purchase = Compra::findOrFail($purchaseId);
             $product = Producto::findOrFail($itemId);
             $purchasePrice = 0;
+            $stock= $product-> numeroStock;
             
             if($purchase-> estado === 1){
                 return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada'], 403);
             }
 
-            if($product-> numeroStock < $request-> itemsCount){
-                $stock=$product-> numeroStock;
-                $message=sprintf('El stock es insuficiente para la transaccion. Stock(%s)',$stock);
-                return response()->json(['message' => $message], 403);
+            if($stock < $request-> itemsCount){
+                return response()->json(['message' => "El stock es insuficiente para la transaccion. Stock disponible($stock)"], 403);
             }
 
             if($user && isset($user-> rol_id) && $user-> rol_id != 1){
-   
-                $purchaseItemPrice= $this->createOrUpdatePurchaseItem($product, $request-> itemsCount, $purchaseId, $itemId);
+
+                $purchaseItemPrice= $this-> createOrUpdatePurchaseItem($product, $request-> itemsCount, $purchaseId, $itemId, $stock);
+                if($purchaseItemPrice === null){
+                    return response()->json(['message' => "El stock es insuficiente para la transaccion. Stock disponible($stock)"], 403);
+                } 
+                if($purchaseItemPrice === 0){
+                    return response()->json(['message' => "La cantidad minima es 1."], 400);
+                }
+
                 $purchaseTotal= $purchaseItemPrice + $purchase-> total;
                 $purchase->update([
                     'total' => $purchaseTotal
                 ]);
             
-                return response()->json(['message' => 'Productos agregados.'], 201);    
+                return response()->json(['message' => 'Compra actualizada.'], 201);    
             }
 
             return response()->json(['message' => 'El Usuario no tiene permisos para realizar esta accion'], 403);   
@@ -112,15 +118,22 @@ class ComprasApiController extends Controller
 
         } catch (\Exception $e) {
             return response()->json(['message'=>'Error al procesar la solicitud'], 500);
-        }      
+        }  
     }
 
-    private function createOrUpdatePurchaseItem(Producto $product, $itemsCount, $purchaseId, $itemId){
-
+    private function createOrUpdatePurchaseItem(Producto $product, $itemsCount, $purchaseId, $itemId, $stock)
+    {
         $purchaseItem = ComprasProductos::where('compra_id', $purchaseId)->where('producto_id', $itemId)->first();
 
         if($purchaseItem){
-            $purchaseItemAmount= $purchaseItem-> cantidad + $itemsCount;
+            if($itemsCount < 0){
+                $purchaseItemAmount= $itemsCount + $purchaseItem-> cantidad;
+                if($purchaseItemAmount <= 0) return 0;
+            }else{
+                $purchaseItemAmount= $purchaseItem-> cantidad + $itemsCount; 
+                if($stock < $purchaseItemAmount) return null;
+            }
+
             $purchaseItemPrice= $purchaseItem-> precio * $purchaseItemAmount;
             
             $purchaseItem->update([
@@ -155,12 +168,16 @@ class ComprasApiController extends Controller
         try {
             $purchase = Compra::findOrFail($purchaseId);
             /* DEPENDE SI SE VA A REUTILIZAR PARA MOVIL
+            
             $user = Auth::user();
             if(!$user || $purchase-> establecimiento_id !== $user-> establecimiento_id){
                 return response()->json(['message' => 'El Usuario no tiene permisos para realizar esta accion'], 403);       
             }*/
 
             $itemList = $purchase-> productos;
+            if($itemList->count() < 1){
+                return response()->json(['message' => 'No se puede procesar la solicitud. No hay productos.'], 400);
+            }
             $stockUpdate= $this->updateStock($itemList, $purchaseId);
             
             $purchase-> update([
@@ -245,6 +262,40 @@ class ComprasApiController extends Controller
                 $purchase->delete();
 
                 return response()->json(['message' => 'Compra Eliminada!', 'purchase'=> $purchase], 200);
+            }
+            return response()->json(['message' => 'No se puede realizar esta accion!'], 403);   
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Compra no encontrada'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+        }
+    }
+
+    public function destroyPurchaseItem($purchaseId, $itemId)
+    {   
+        try {
+            $purchase = Compra::findOrFail($purchaseId);
+
+            if($purchase-> estado === 0){      
+                $product = ComprasProductos::where('producto_id', $itemId)->where('compra_id', $purchaseId)->first();
+                if($product){        
+                    $product->delete();
+
+                    $total= 0;
+                    $purchaseItems= ComprasProductos::where('compra_id', $purchaseId)->get();
+
+                    foreach ($purchaseItems as $item) {
+                        $total+= $item-> total;
+                    }
+                    $purchase->update([
+                        'total'=> $total
+                    ]);
+
+                    return response()->json(['message' => 'Producto eliminado!', 'Item'=> $product], 200);
+                }
+
             }
             return response()->json(['message' => 'No se puede realizar esta accion!'], 403);   
 

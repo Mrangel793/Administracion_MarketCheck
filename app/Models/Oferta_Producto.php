@@ -2,12 +2,14 @@
 
 namespace App\Models;
 
-use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Factories\HasFactory;
+
 use App\Models\Oferta;
 
-class Oferta_Producto extends Model
-{
+class Oferta_Producto extends Model{
+    use HasFactory;
+
     protected $table = 'oferta_productos';
 
     protected $fillable = [
@@ -21,6 +23,5 @@ class Oferta_Producto extends Model
 
     protected $primaryKey = null;
     public $incrementing = false;
-
-    use HasFactory;
+    
 }
