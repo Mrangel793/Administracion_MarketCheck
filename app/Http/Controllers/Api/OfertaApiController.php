@@ -288,11 +288,12 @@ class OfertaApiController extends Controller
             }
 
             $imageId= $offer-> imagen;
-            
             $image= Image::find($imageId);
-            $path= $image->imagePath;
-            if($path) Storage::delete("public/images/$path");
-    
+            if($image){
+                $path= $image->imagePath;
+                if($path) Storage::delete("public/images/$path");
+            }       
+            
             $offerItems = $offer-> productos;
             foreach ($offerItems as $item) {
                 $item->update([
@@ -308,7 +309,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud >:('], 500);
         }
     }
 

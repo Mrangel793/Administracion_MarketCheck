@@ -19,11 +19,11 @@ class Establecimiento extends Model{
         parent::boot();
         // Evento que se ejecuta antes de eliminar un Establecimiento
         static::deleting(function ($establecimiento) {
-            $establecimiento->users()->delete();
-            $establecimiento->oferta()->delete();
-            $establecimiento->producto()->delete();
             $establecimiento->compra()->delete();
+            $establecimiento->oferta()->delete();
             $establecimiento->images()->delete();
+            $establecimiento->producto()->delete();
+            $establecimiento->users()->delete();
         });
     }
 

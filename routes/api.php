@@ -34,11 +34,10 @@ use App\Http\Controllers\Api\EstablecimientoApiController;
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 });
-
+Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
 Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
 
-Route::put('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activate']);
-Route::put('/establecimiento/deactivate/{id}', [EstablecimientoApiController::class, 'deactivate']);
+Route::get('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore']);
 Route::put('/establecimiento/images/{id}', [EstablecimientoApiController::class, 'updateImageField']);
 
 //OFERTAS API CONTROLLER---------------------------------------------------------------------------------------------------
@@ -60,10 +59,6 @@ Route::prefix('ofertas')->group(function () {
     
 });
 
-
-
-
-Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
 
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 

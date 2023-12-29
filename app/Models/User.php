@@ -45,6 +45,10 @@ class User extends Authenticatable
         return $this->hasMany(Compra::class,'user_id');
     }
 
+    public function seller(){
+        return $this->hasMany(Compra::class,'seller_id');
+    }
+
     /**
      * The attributes that should be hidden for serialization.
      *
