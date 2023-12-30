@@ -15,7 +15,12 @@ use App\Models\SubCategoria;
 
 //REVISADO <--- REMOVER EN PRODUCCION
 class ProductoApiController extends Controller
-{
+{   
+    public function productsByStoreMobileApp($id){
+        $products = Producto::where('id_establecimiento', $id)->where('estado', 1)->get();
+        return response()->json( ['products'=> $products], 200);            
+    }
+
     public function index()
     {
         $user = Auth::user();
@@ -65,16 +70,23 @@ class ProductoApiController extends Controller
     }
 
     public function show($id)
-    {
+    {   
+        $user = Auth::user();
         try {
             $product= Producto::FindOrFail($id);
+
+            if($user && isset($user-> rol_id) && $user-> rol_id === 4){
+                if($product-> estado === 0){
+                    return response()->json(['message'=> 'El producto no se encuentra disponible.'], 404);
+                } 
+            }    
             return response()->json(['product'=> $product], 200);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontraron resultados'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -92,7 +104,7 @@ class ProductoApiController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }  
     }
 
@@ -110,7 +122,7 @@ class ProductoApiController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         } 
     }
 
@@ -162,7 +174,7 @@ class ProductoApiController extends Controller
             return response()->json(['message' => 'Producto no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 }

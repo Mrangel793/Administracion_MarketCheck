@@ -37,13 +37,15 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
 Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
 
-Route::get('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore']);
-Route::put('/establecimiento/images/{id}', [EstablecimientoApiController::class, 'updateImageField']);
+Route::get('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore']); //<--- AUTENTICABLE???
+Route::put('/establecimiento/images/{id}', [EstablecimientoApiController::class, 'updateImageField']); //<--- AUTENTICABLE???
 
 //OFERTAS API CONTROLLER---------------------------------------------------------------------------------------------------
 
 Route::prefix('ofertas')->group(function () {
-    
+    Route::get('/mobile-app', [OfertaApiController::class, 'offersMobileApp']);
+    Route::get('/show-offer/{id}', [OfertaApiController::class, 'showOfferMobileApp']); //<--- AUTENTICABLE???
+
     Route::get('/', [OfertaApiController::class, 'index'])->middleware('auth:api');
     Route::post('/', [OfertaApiController::class, 'store'])->middleware('auth:api');
     Route::get('/{id}', [OfertaApiController::class, 'show'])->middleware('auth:api');
@@ -61,32 +63,31 @@ Route::prefix('ofertas')->group(function () {
 
 
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
+Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword']); //<--- AUTENTICABLE???
 
-Route::apiResource('rol',RolApiController::class);
+Route::apiResource('rol',RolApiController::class); //<--- AUTENTICABLE???
 
-Route::apiResource('categoria',CategoriaApiController::class);
+Route::apiResource('categoria',CategoriaApiController::class); //<--- AUTENTICABLE???
 
-Route::apiResource('compra',CompraController::class);
+Route::apiResource('compra',CompraController::class); //<--- AUTENTICABLE???
 
 Route::apiResource('images', ImageApiController::class);
 
-
-Route::apiResource('subcategoria',SubCategoriaApiController::class);
-Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria']);
+Route::apiResource('subcategoria',SubCategoriaApiController::class); //<--- AUTENTICABLE???
+Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria']); //<--- AUTENTICABLE???
 
 
 Route::prefix('productos')->group(function () {
+    Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])/*->middleware('auth:api')*/;
+
     Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
-    Route::get('/{id}', [ProductoApiController::class, 'show']);
+    Route::get('/{id}', [ProductoApiController::class, 'show'])->middleware('auth:api');
     Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
     Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
-    Route::delete('/{id}', [ProductoApiController::class, 'destroy']);
-    Route::put('/activate/{id}', [ProductoApiController::class, 'activate']);
+    Route::delete('/{id}', [ProductoApiController::class, 'destroy'])->middleware('auth:api'); 
+    Route::put('/activate/{id}', [ProductoApiController::class, 'activate']); //<--- AUTENTICABLE??? SOLO UNA FUNCION
     Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
 });
-
-Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword']);
-
 
 Route::group([
     'prefix' => 'auth'
@@ -105,13 +106,16 @@ Route::group([
 //COMPRAS API CONTROLLER---------------------------------------------------------------------------------------------------
 
 Route::prefix('compras')->group(function () {
+    Route::get('/mobile-app', [ComprasApiController::class, 'purchasesMobileApp'])->middleware('auth:api');
+    Route::post('/new-purchase', [ComprasApiController::class, 'newPurchaseMobileApp'])->middleware('auth:api');
+
     Route::get('/', [ComprasApiController::class, 'index'])->middleware('auth:api');
     Route::get('/compra/{compraid}', [ComprasApiController::class, 'showCompra'])->middleware('auth:api');
     Route::get('/{compraid}', [ComprasApiController::class, 'productosCompra'])->middleware('auth:api');
 
     Route::post('/new', [ComprasApiController::class, 'store'])->middleware('auth:api');
-
     Route::post('/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');
+
     Route::put('/{idCompra}/finalizarCompra',[ComprasApiController::class, 'finalizarCompra'])->middleware('auth:api');
     Route::delete('/{idCompra}',[ComprasApiController::class, 'destroy'])->middleware('auth:api');
     Route::delete('/{idCompra}/item{itemId}',[ComprasApiController::class, 'destroyPurchaseItem'])->middleware('auth:api');

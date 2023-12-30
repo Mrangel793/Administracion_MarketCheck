@@ -82,7 +82,7 @@ class UserApiController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -118,7 +118,7 @@ class UserApiController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al actualizar los datos'], 500);
+            return response()->json(['message' => 'Error al actualizar los datos', 'error'=> $e], 500);
         } 
     }
 
@@ -140,7 +140,7 @@ class UserApiController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -163,7 +163,7 @@ class UserApiController extends Controller
             return response()->json(['message' => 'Usuario no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 }

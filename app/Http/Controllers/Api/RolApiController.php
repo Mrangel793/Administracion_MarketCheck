@@ -51,7 +51,7 @@ class RolApiController extends Controller
             return response()->json(['message' => 'Rol no encontrado'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 

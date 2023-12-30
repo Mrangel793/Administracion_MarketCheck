@@ -86,7 +86,7 @@ class ImageApiController extends Controller
                 return response()->json(['message' => 'Imagen no encontrada.'], 404);
     
             } catch (\Exception $e) {
-                return response()->json(['message'=>'Error al procesar la solicitud.'], 500);
+                return response()->json(['message'=>'Error al procesar la solicitud.', 'error'=> $e], 500);
             }
     }
 
@@ -110,7 +110,7 @@ class ImageApiController extends Controller
             return response()->json(['message' => 'Imagen no encontrada'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -133,7 +133,7 @@ class ImageApiController extends Controller
             return response()->json(['message' => 'Imagen no encontrada'], 404);
             
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
             
         }
     }

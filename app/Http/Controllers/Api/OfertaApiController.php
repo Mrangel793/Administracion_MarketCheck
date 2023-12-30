@@ -15,9 +15,32 @@ use App\Models\Categoria;
 use App\Models\Establecimiento;
 use App\Models\Oferta_Producto;
 
-//TODO: REVISADO, FALTA INDEX, SHOW PARA APP
+//TODO: REVISADO
 class OfertaApiController extends Controller
-{
+{   
+    public function offersMobileApp(){
+        $offers = Oferta::where('estado', 1)->get();
+        return response()->json(['offers'=> $offers]);
+    }
+
+    public function showOfferMobileApp($id){   
+        try {    
+            $user = Auth::user();
+            $offer = Oferta::findOrFail($id);
+            if($offer-> estado !== 1){
+                return response()->json(['message' => 'La oferta no se encuentra disponible'], 404);
+            }
+            return response()->json(['offer' => $offer], 200);
+
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'La oferta no existe.'], 404);
+
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
+        } 
+    }
+
+
     public function index(){
         $user = Auth::user();
         if($user && isset($user-> establecimiento_id)){
@@ -72,7 +95,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'La oferta no existe.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud :('], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         } 
     }
 
@@ -121,7 +144,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'La oferta no existe.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         } 
     }
 
@@ -174,7 +197,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=> 'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=> 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -207,7 +230,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=> 'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=> 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -227,7 +250,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'Tienda no encontrada.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud.'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud.', 'error'=> $e], 500);
         }
     }
 
@@ -242,7 +265,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }   
 
@@ -273,7 +296,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -309,7 +332,7 @@ class OfertaApiController extends Controller
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud >:('], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 

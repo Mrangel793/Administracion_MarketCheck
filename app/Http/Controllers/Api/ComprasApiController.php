@@ -14,7 +14,7 @@ use App\Models\ComprasProductos;
 use Carbon\Carbon;
 
 
-//EN REVISION. HACE FALTA INDEX y STORE DE COMPRAS USUARIO APP <--- ELIMINAR EN PRODUCCION
+//EN REVISION. DEFINIR SI STORE DE APP VA A MANEJAR LA MISMA LOGICA **IMPORTANTE** <--- ELIMINAR EN PRODUCCION
 class ComprasApiController extends Controller
 {
     /**
@@ -22,6 +22,40 @@ class ComprasApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
+
+     public function purchasesMobileApp()
+    {
+        $user = Auth::user();     
+        if($user && isset($user-> id)){ 
+            $purchases = Compra::where('user_id', $user-> id)->get();
+            return response()->json(['purchases'=> $purchases], 200);
+        }
+        return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+        
+    } 
+
+    public function newPurchaseMobileApp(Request $request){
+        $request->validate([
+            'establecimiento' => 'required'
+        ]);
+    
+        $user = Auth::user();
+
+        if($user && isset($user-> id)){
+            $compra = Compra::create([
+                'hora' => now()->format('H:i:s'),
+                'fecha' => Carbon::now(),
+                'total' => 0,
+                'estado' => 0,
+                'establecimiento_id' => $request-> establecimiento,
+                'user_id' => $user-> id
+            ]);   
+            return response()->json(['message' => 'Compra creada con éxito.', 'id'=> $compra-> id], 201);
+        }
+
+        return response()->json(['message' => 'Error al procesar la solicitud'], 500);   
+    }
+
     public function index()
     {
         $user = Auth::user();     
@@ -40,7 +74,7 @@ class ComprasApiController extends Controller
             return response()->json(['items'=>$purchaseItems], 200);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=> 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -50,8 +84,7 @@ class ComprasApiController extends Controller
      * @param  \Illuminate\Http\Request  $request
      * @return \Illuminate\Http\Response
      */
-    public function store(Request $request)
-    {
+    public function store(Request $request){
         $user = Auth::user();
 
         if($user && isset($user-> establecimiento_id)){
@@ -117,7 +150,7 @@ class ComprasApiController extends Controller
             return response()->json(['message' => 'Datos no encontrados'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }  
     }
 
@@ -189,7 +222,7 @@ class ComprasApiController extends Controller
             return response()->json(['message' => 'Compra no encontrada'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }     
     }
     
@@ -230,7 +263,7 @@ class ComprasApiController extends Controller
             return response()->json(['message' => 'Compra no encontrada'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud'], 500);
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -269,7 +302,7 @@ class ComprasApiController extends Controller
             return response()->json(['message' => 'Compra no encontrada'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 
@@ -303,7 +336,7 @@ class ComprasApiController extends Controller
             return response()->json(['message' => 'Compra no encontrada'], 404);
 
         } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }
 }
