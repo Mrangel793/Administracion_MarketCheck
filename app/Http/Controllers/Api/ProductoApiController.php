@@ -33,6 +33,33 @@ class ProductoApiController extends Controller
         return response()->json( ['message'=> 'El usuario actual no puede obtener esta informacion'], 403);
     }
 
+    public function getUncategorizedProducts()
+    {
+        $products = Producto::where('id_categoria', null)->get();
+        return response()->json( ['products'=> $products], 200); 
+
+    }
+
+    public function updateProductCategories(Request $request)
+{
+    try {
+        $categoryId = $request->input('category_id');
+        $subcategoryId = $request->input('subcategory_id');
+
+        if (!$categoryId || !$subcategoryId) {
+            return response()->json(['message' => 'Faltan parámetros en la solicitud'], 400);
+        }
+
+        // Actualizar todas las filas en la tabla de productos con las nuevas categorías y subcategorías
+        Product::update(['category_id' => $categoryId, 'subcategory_id' => $subcategoryId]);
+
+        return response()->json(['message' => 'Categorías asignadas correctamente a todos los productos'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al procesar la solicitud', 'error' => $e->getMessage()], 500);
+    }
+}
+
+    
 
     public function store(Request $request)
     {   
@@ -140,27 +167,38 @@ class ProductoApiController extends Controller
             'id_categoria' => 'required|numeric',
             'id_subcategoria' => 'required|numeric',
         ]);
-
+    
         $user = Auth::user();
-
-        if($user && isset($user-> establecimiento_id)){
-            $product = Producto::update([
-                'codigoProducto' => $request-> codigoProducto,
-                'nombreProducto' => $request-> nombreProducto,
-                'descripcionProducto' => $request-> descripcionProducto,
-                'precioProducto' => $request-> precioProducto,
-                'numeroStock' => $request-> numeroStock,
-                'estado' => $request-> estado,
-                'id_categoria' => $request-> id_categoria,
-                'id_subcategoria' => $request-> id_subcategoria,
-                'id_establecimiento' => $user-> establecimiento_id
-            ]);
-            
-            return response()->json(['message' => 'Producto actualizado con éxito'], 201);
+    
+        if ($user && isset($user->establecimiento_id)) {
+            try {
+                $product = Producto::findOrFail($id);
+    
+                $product->update([
+                    'codigoProducto' => $request->codigoProducto,
+                    'nombreProducto' => $request->nombreProducto,
+                    'descripcionProducto' => $request->descripcionProducto,
+                    'precioProducto' => $request->precioProducto,
+                    'numeroStock' => $request->numeroStock,
+                    'estado' => $request->estado,
+                    'id_categoria' => $request->id_categoria,
+                    'id_subcategoria' => $request->id_subcategoria,
+                    'id_establecimiento' => $user->establecimiento_id
+                ]);
+    
+                return response()->json(['message' => 'Producto actualizado con éxito'], 200);
+    
+            } catch (NotFound $e) {
+                return response()->json(['message' => 'Producto no encontrado'], 404);
+    
+            } catch (\Exception $e) {
+                return response()->json(['message' => 'Error al procesar la solicitud', 'error' => $e], 500);
+            }
         }
-
+    
         return response()->json(['message' => 'El usuario no posee permisos para actualizar productos.'], 403);
     }
+    
 
     public function destroy($id)
     {
