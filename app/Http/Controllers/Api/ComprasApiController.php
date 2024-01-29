@@ -88,6 +88,7 @@ class ComprasApiController extends Controller
         ->whereIn('compra_id', function ($query) use ($userEstablishmentId) {
             $query->select('id')
                 ->from('compras')
+                ->where('estado',1)
                 ->where('establecimiento_id', $userEstablishmentId);
         })
         ->groupBy('producto_id', 'nombre')
@@ -96,10 +97,7 @@ class ComprasApiController extends Controller
         ->get();
 
     return response()->json(['topSellingProducts' => $topSellingProducts]);
-}
-
-
-
+    }
 
     public function getDailySales(Request $request)
     {
@@ -110,10 +108,42 @@ class ComprasApiController extends Controller
     
         $totalVentasDelDia = Compra::where('establecimiento_id', $userEstablishmentId)
             ->whereDate('fecha', $fechaActual->toDateString())
+            ->where('estado',1)
             ->sum('total');
     
         return response()->json(['totalVentasDelDia' => $totalVentasDelDia, 'diaActual' => $diaActual]);
     }
+
+
+
+public function getSalesLast10Months(Request $request)
+{
+    $userEstablishmentId = $request->user()->establecimiento_id;
+    $today = now();
+    $last10MonthsSales = [];
+
+    for ($i = 1; $i <= 10; $i++) {
+        $monthStartDate = $today->copy()->subMonthsNoOverflow($i)->startOfMonth();
+        $monthEndDate = $today->copy()->subMonthsNoOverflow($i)->endOfMonth();
+
+        // Configura la localización para strftime
+        setlocale(LC_TIME, 'es_ES.utf8', 'es_ES', 'es');
+
+        $totalSales = Compra::where('establecimiento_id', $userEstablishmentId)
+            ->whereBetween('fecha', [$monthStartDate, $monthEndDate])
+            ->where('estado', 1)
+            ->sum('total');
+
+        $last10MonthsSales[] = [
+            'month' => strftime('%B %Y', $monthStartDate->timestamp), // Formato completo del mes y año
+            'total_sales' => $totalSales,
+        ];
+    }
+
+    return response()->json(['last_10_months_sales' => $last10MonthsSales], 200);
+}
+
+
     
     
 
@@ -127,6 +157,7 @@ class ComprasApiController extends Controller
 
     $monthlySales = Compra::where('establecimiento_id', $userEstablishmentId)
         ->whereBetween('fecha', [$startOfMonth, $endOfMonth])
+        ->where('estado',1)
         ->sum('total');
 
     return response()->json(['ventas del mes' => $monthlySales]);
@@ -143,6 +174,7 @@ class ComprasApiController extends Controller
 
         $annualSales = Compra::where('establecimiento_id', $userEstablishmentId)
             ->whereBetween('fecha', [$startOfYear, $endOfYear])
+            ->where('estado',1)
             ->sum('total');
 
         return response()->json(['annualSales' => $annualSales]);

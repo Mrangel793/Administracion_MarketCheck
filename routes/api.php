@@ -38,7 +38,6 @@ Route::post('importe/importar', [CargaInventarioApiController::class, 'importar'
 
 Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
-    Route::put('productos/{id}/assign-categories', [ProductoApiController::class, 'updateProductCategories']);
 
 });
 Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
@@ -98,6 +97,7 @@ Route::prefix('productos')->group(function () {
     Route::delete('/{id}', [ProductoApiController::class, 'destroy']); 
     Route::put('/activate/{id}', [ProductoApiController::class, 'activate']); //<--- AUTENTICABLE??? SOLO UNA FUNCION
     Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
+    Route::put('products/{productId}/assign-categories', [ProductController::class, 'assignCategories']);
 
 });
 
@@ -139,6 +139,7 @@ Route::prefix('compras')->group(function () {
     Route::get('/sales/monthly', [ComprasApiController::class, 'getMonthlySales'])->middleware('auth:api');
     Route::get('/sales/yearly', [ComprasApiController::class, 'getAnnualSales'])->middleware('auth:api');
     Route::get('/sales/topProducts', [ComprasApiController::class, 'getTopSellingProducts'])->middleware('auth:api');
+    Route::get('/sales/getSalesLast10Months', [ComprasApiController::class, 'getSalesLast10Months'])->middleware('auth:api');
 
 });
 

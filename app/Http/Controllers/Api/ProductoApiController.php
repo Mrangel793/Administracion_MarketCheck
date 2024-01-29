@@ -40,24 +40,21 @@ class ProductoApiController extends Controller
 
     }
 
-    public function updateProductCategories(Request $request)
-{
-    try {
-        $categoryId = $request->input('category_id');
-        $subcategoryId = $request->input('subcategory_id');
+    public function assignCategories(Request $request, $productId)
+    {
+        $product = Product::findOrFail($productId);
 
-        if (!$categoryId || !$subcategoryId) {
-            return response()->json(['message' => 'Faltan parámetros en la solicitud'], 400);
-        }
+        $categoryIds = $request->input('category_ids', []);
 
-        // Actualizar todas las filas en la tabla de productos con las nuevas categorías y subcategorías
-        Product::update(['category_id' => $categoryId, 'subcategory_id' => $subcategoryId]);
+        // Limpiamos las categorías anteriores del producto
+        DB::table('category_product')->where('product_id', $product->id)->delete();
 
-        return response()->json(['message' => 'Categorías asignadas correctamente a todos los productos'], 200);
-    } catch (\Exception $e) {
-        return response()->json(['message' => 'Error al procesar la solicitud', 'error' => $e->getMessage()], 500);
+        // Asignamos las nuevas categorías
+        $product->categories()->attach($categoryIds);
+
+        return $product;
     }
-}
+
 
     
 
