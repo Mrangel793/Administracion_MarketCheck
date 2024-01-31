@@ -20,6 +20,7 @@ class CreateComprasTable extends Migration
             $table->date('fecha');
             $table->double('total')->nullable();
             $table->boolean('estado');
+            $table->integer('pin');
             $table->unsignedBigInteger('establecimiento_id');
             $table->foreign('establecimiento_id')->references('id')->on('establecimientos');
 

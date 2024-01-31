@@ -143,6 +143,25 @@ public function getSalesLast10Months(Request $request)
     return response()->json(['last_10_months_sales' => $last10MonthsSales], 200);
 }
 
+public function getPurchasePin($pin) {
+    $user = Auth::user();
+
+    if ($user && isset($user->establecimiento_id)) {
+        $purchases = Compra::where('establecimiento_id', $user->establecimiento_id)
+                           ->where('pin', $pin)
+                           ->get();
+
+        if ($purchases->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron compras con el PIN proporcionado.'], 404);
+        }
+
+        return response()->json(['purchases' => $purchases], 200);
+    }
+
+    return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
+}
+
+
 
     
     
@@ -196,6 +215,7 @@ public function getSalesLast10Months(Request $request)
                 'fecha' => Carbon::now(),
                 'total' => 0,
                 'estado' => 0,
+                'pin' => mt_rand(100000,999999),
                 'establecimiento_id' => $user-> establecimiento_id,
                 'seller_id' => $user-> id
             ]);   

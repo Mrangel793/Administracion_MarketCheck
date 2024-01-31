@@ -140,6 +140,7 @@ Route::prefix('compras')->group(function () {
     Route::get('/sales/yearly', [ComprasApiController::class, 'getAnnualSales'])->middleware('auth:api');
     Route::get('/sales/topProducts', [ComprasApiController::class, 'getTopSellingProducts'])->middleware('auth:api');
     Route::get('/sales/getSalesLast10Months', [ComprasApiController::class, 'getSalesLast10Months'])->middleware('auth:api');
+    Route::get('/sales/getPurchasePin/{pin}',[ComprasApiController::class, 'getPurchasePin'])->middleware('auth:api');
 
 });
 

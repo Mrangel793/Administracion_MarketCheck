@@ -20,6 +20,7 @@ class Compra extends Model{
         'fecha',
         'total',
         'estado',
+        'pin',
         'establecimiento_id',
         'user_id',
         'seller_id'
