@@ -29,7 +29,6 @@ class Oferta extends Model{
         'nombre',
         'descripcion',
         'imagen',
-        'numero_stock', 
         'establecimiento_id'
     ];
     public $timestamps = false;
