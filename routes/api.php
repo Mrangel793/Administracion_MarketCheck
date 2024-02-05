@@ -40,6 +40,7 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
     return $request->user();
 
 });
+
 Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
 Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
 
@@ -97,8 +98,7 @@ Route::prefix('productos')->group(function () {
     Route::delete('/{id}', [ProductoApiController::class, 'destroy']); 
     Route::put('/activate/{id}', [ProductoApiController::class, 'activate']); //<--- AUTENTICABLE??? SOLO UNA FUNCION
     Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
-    Route::post('check-duplicate-barcode', [ProductoApiController::class, 'checkDuplicateBarcode']);
-
+    Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
 });
 
 

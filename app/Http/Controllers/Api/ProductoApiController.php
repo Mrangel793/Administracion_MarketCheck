@@ -40,6 +40,28 @@ class ProductoApiController extends Controller
 
     }
 
+    public function getProductsfilter($searchTerm) {
+        $user = Auth::user();
+    
+        if ($user && isset($user->establecimiento_id)) {
+            $products = Producto::where('id_establecimiento', $user->establecimiento_id)
+                               ->where(function ($query) use ($searchTerm) {
+                                   $query->where('nombreProducto',$searchTerm )
+                                         ->orWhere('codigoProducto', $searchTerm );
+                               })
+                               ->get();
+    
+            if ($products->isEmpty()) {
+                return response()->json(['message' => 'No se encontraron productos con el término proporcionado.'], 404);
+            }
+    
+            return response()->json(['products' => $products], 200);
+        }
+    
+        return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
+    }
+    
+
     
     public function store(Request $request)
 {   
