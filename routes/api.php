@@ -97,7 +97,7 @@ Route::prefix('productos')->group(function () {
     Route::delete('/{id}', [ProductoApiController::class, 'destroy']); 
     Route::put('/activate/{id}', [ProductoApiController::class, 'activate']); //<--- AUTENTICABLE??? SOLO UNA FUNCION
     Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
-    Route::put('products/{productId}/assign-categories', [ProductController::class, 'assignCategories']);
+    Route::post('check-duplicate-barcode', [ProductoApiController::class, 'checkDuplicateBarcode']);
 
 });
 
