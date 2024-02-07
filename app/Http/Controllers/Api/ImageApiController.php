@@ -46,23 +46,37 @@ class ImageApiController extends Controller
             $image = $request->file('image');
 
             $path = $image->store('public/images');
-            $imageName = basename($path);
+            $imagePath = basename($path);
 
-            $newImage=Image::create([
-                'imagePath' => $imageName,
+           /*$newImage=Image::create([
+                'imagePath' => $imagePath,
                 'establecimiento_id' => $storeId,
                 'oferta_id' => $offerId 
-            ]);
+            ]);*/
         
-            return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $newImage->id], 201);
+            return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $imagePath], 201);
         }
 
         return response()->json(['message' => 'No se proporcionó ningún archivo de imagen', 'path' => null]);
     }
 
-    private function updateImage(Request $request, $imageId){
-        try {    
-            $imageInstance = Image::findOrFail($imageId);
+    private function updateImage(Request $request, $imagePath){
+        try {     
+            if ($request-> hasFile('image')) {
+                if($imagePath){
+                    Storage::delete("public/images/$imagePath");
+                }else{
+                    return response()->json(['message' => 'No se proporcionó el path de la imagen actual'], 400);
+                }
+    
+                $image = $request->file('image');
+    
+                $path = $image->store('public/images');
+                $newImagePath = basename($path);
+            
+                return response()->json(['message' => 'Imagen actualizada con éxito', "path"=> $newImagePath], 201);
+            //ANTIGUO
+           /* $imageInstance = Image::findOrFail($imageId);
     
             if ($request-> hasFile('image')) {
                 $path= $imageInstance->imagePath;
@@ -77,7 +91,7 @@ class ImageApiController extends Controller
                     'imagePath' => $imageName, 
                 ]);
             
-                return response()->json(['message' => 'Imagen actualizada con éxito'], 201);
+                return response()->json(['message' => 'Imagen actualizada con éxito'], 201);*/
             }else{
                 return response()->json(['message' => 'No se proporcionó ningún archivo de imagen']);
             }
