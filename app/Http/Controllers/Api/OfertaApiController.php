@@ -57,7 +57,6 @@ class OfertaApiController extends Controller
             'fecha_fin' => 'required',
             'nombre' => 'required',
             'descripcion' => 'required',
-            'numero_stock' => 'required',
             'estado' => 'required',
             'establecimiento_id' => 'required'
         ]);
@@ -69,7 +68,6 @@ class OfertaApiController extends Controller
                 'fecha_fin' => $request->fecha_fin,
                 'nombre' => $request-> nombre,
                 'descripcion' => $request-> descripcion,
-                'numero_stock' => $request-> numero_stock,
                 'estado' => $request-> estado,
                 'establecimiento_id' => $user-> establecimiento_id,
                 'image' => null,
@@ -220,7 +218,6 @@ class OfertaApiController extends Controller
                 'fecha_fin' => $request-> fecha_fin,
                 'nombre' => $request-> nombre,
                 'descripcion' => $request-> descripcion,
-                'numero_stock' => $request-> numero_stock,
                 'estado' => $request-> estado,
             ]);
     

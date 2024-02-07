@@ -21,7 +21,6 @@ class CreateOfertasTable extends Migration
             $table->string('nombre');
             $table->string('descripcion');
             $table->bigInteger('imagen')->nullable();
-            $table->integer('numero_stock');
            
 
             $table->foreignId('establecimiento_id');

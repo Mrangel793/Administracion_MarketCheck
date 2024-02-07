@@ -51,7 +51,7 @@ class Producto extends Model{
         'id_subcategoria'
     ];
     protected $attributes = [
-        'precioProducto' => 0, // Puedes definir un valor por defecto apropiado
+        'precioProducto' => 0, 
     ];
     public $timestamps = false;
 

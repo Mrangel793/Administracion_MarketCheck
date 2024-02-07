@@ -62,7 +62,6 @@ class OfertaController extends Controller
         $ofertas ->fecha_fin = $request->fecha_fin;
         $ofertas ->nombre = $request->nombre;
         $ofertas ->descripcion = $request->descripcion;
-        $ofertas ->numero_stock = $request->numero_stock;
         $ofertas ->estado = $request->estado;
         $ofertas ->establecimiento_id = $usuario->establecimiento_id;
         
