@@ -309,10 +309,9 @@ class OfertaApiController extends Controller
 
             $path= $offer-> imagen;
             //$image= Image::find($imageId);
-            if($path){
-                //$path= $image->imagePath;
-                if($path) Storage::delete("public/images/$path");
-            }       
+            
+            if($path) Storage::delete("public/images/$path");
+                   
             
             $offerItems = $offer-> productos;
             foreach ($offerItems as $item) {

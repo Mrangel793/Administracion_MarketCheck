@@ -132,7 +132,8 @@ class ImageApiController extends Controller
             if($imagePath) Storage::delete("public/images/$imagePath");
             
            // $image->delete();
-            return response()->json(['message' => 'Imagen eliminada con éxito'], 201);
+            return response()->json(['message' => 'Imagen eliminada con éxito'], 201      
+        );
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Imagen no encontrada'], 404);
