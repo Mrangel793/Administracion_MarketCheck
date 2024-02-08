@@ -307,12 +307,11 @@ class OfertaApiController extends Controller
                 return response()->json(['message' => 'No tienes permiso para eliminar esta oferta.'], 403);
             }
 
-            $imageId= $offer-> imagen;
-            $image= Image::find($imageId);
-            if($image){
-                $path= $image->imagePath;
-                if($path) Storage::delete("public/images/$path");
-            }       
+            $path= $offer-> imagen;
+            //$image= Image::find($imageId);
+            
+            if($path) Storage::delete("public/images/$path");
+                   
             
             $offerItems = $offer-> productos;
             foreach ($offerItems as $item) {
