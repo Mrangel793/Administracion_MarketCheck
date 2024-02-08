@@ -187,13 +187,43 @@ class EstablecimientoApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
-    public function destroy($id)
-    {   
-
+    public function destroy($id){      
         try {
             $store = Establecimiento::findOrFail($id);
 
-            $images= Image::where('establecimiento_id', $store-> id)->get();
+            $imagePath= $store-> Imagen;
+            $logoPath= $store-> Logo;
+
+           if($imagePath) Storage::delete("public/images/$imagePath");
+           if($logoPath) Storage::delete("public/images/$logoPath");
+                
+            
+
+            $offers = Oferta::where('establecimiento_id', $store-> id)->get();
+            if($offers->isNotEmpty()){
+                foreach ($offers as $offer) {             
+                    $path= $offer->imagen;
+                    if($path) Storage::delete("public/images/$path");    
+                    
+                    $offer->productos()->detach();
+                    $offer->delete();
+                }
+            }
+
+            $purchases = Compra::where('establecimiento_id', $store-> id)->get();
+            if($purchases->isNotEmpty()){
+                foreach ($purchases as $purchase) {
+                    $purchase->productos()->detach();
+                    $purchase->delete();
+                }
+            }
+
+            $store->delete();
+
+            return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);
+
+            //ANTIGUO
+            /*$images= Image::where('establecimiento_id', $store-> id)->get();
             foreach ($images as $image) {
                 $path= $image->imagePath;
                 if($path) Storage::delete("public/images/$path");    
@@ -211,20 +241,7 @@ class EstablecimientoApiController extends Controller
                     $offer->productos()->detach();
                     $offer->delete();
                 }
-            }
-
-            $purchases = Compra::where('establecimiento_id', $store-> id)->get();
-            if($purchases->isNotEmpty()){
-                foreach ($purchases as $purchase) {
-                    $purchase->productos()->detach();
-                    $purchase->delete();
-                }
-            }
-
-            $store->delete();
-    
-            return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);
-
+            }*/
         } catch (NotFound $e) {
             return response()->json(['message' => 'Establecimiento no encontrado'], 404);
 

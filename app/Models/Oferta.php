@@ -19,7 +19,7 @@ class Oferta extends Model{
         // Evento que se ejecuta antes de eliminar un Establecimiento
         static::deleting(function ($offer) {
             $offer->productos()->delete();
-            $offer->images()->delete();
+            //$offer->images()->delete();
         });
     }
     protected $fillable = [
@@ -43,8 +43,8 @@ class Oferta extends Model{
         ->withPivot('precio_oferta', 'porcentaje');
     }
 
-    public function images(){
+   /* public function images(){
         return $this->hasMany(Image::class,'oferta_id');
-    }
+    }*/
         
 }

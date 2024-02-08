@@ -20,7 +20,7 @@ class CreateOfertasTable extends Migration
             $table->date('fecha_fin');
             $table->string('nombre');
             $table->string('descripcion');
-            $table->bigInteger('imagen')->nullable();
+            $table->string('imagen')->nullable();
            
 
             $table->foreignId('establecimiento_id');
