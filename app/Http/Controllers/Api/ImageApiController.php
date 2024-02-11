@@ -95,14 +95,23 @@ class ImageApiController extends Controller
     {
         try {
             $image= Image::findOrFail($id);
-            $path= $image->imagePath;
+            $path = $image->imagePath;
+
+            $rutaArchivo = "public/images/$path";
+
+            if (Storage::exists($rutaArchivo)) {
+                
+                $imageUrl = Storage::url("public/images/$path");
+                return response()->json(['image_url' => $imageUrl], 200);
+            }
+            /*$path= $image->imagePath;
     
             $rutaArchivo = "public/images/$path"; 
     
             if (Storage::exists($rutaArchivo)) {
 
                 return response()->download(public_path(Storage::url('public/images/'.$path)), $path);
-            }
+            }*/
     
             return response()->json(['mensaje' => 'Archivo no encontrado'], 404);
             
