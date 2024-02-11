@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Auth;
 
 use App\Models\Compra;
@@ -78,6 +79,127 @@ class ComprasApiController extends Controller
         }
     }
 
+    public function getTopSellingProducts(Request $request)
+{
+    $userEstablishmentId = $request->user()->establecimiento_id;
+
+    $topSellingProducts = DB::table('compras_productos')
+        ->select('producto_id', DB::raw('SUM(cantidad) as total_quantity'), 'nombre')
+        ->whereIn('compra_id', function ($query) use ($userEstablishmentId) {
+            $query->select('id')
+                ->from('compras')
+                ->where('estado',1)
+                ->where('establecimiento_id', $userEstablishmentId);
+        })
+        ->groupBy('producto_id', 'nombre')
+        ->orderByDesc('total_quantity')
+        ->limit(10)
+        ->get();
+
+    return response()->json(['topSellingProducts' => $topSellingProducts]);
+    }
+
+    public function getDailySales(Request $request)
+    {
+        $userEstablishmentId = $request->user()->establecimiento_id; 
+    
+        $fechaActual = Carbon::now();
+        $diaActual = $fechaActual->day;
+    
+        $totalVentasDelDia = Compra::where('establecimiento_id', $userEstablishmentId)
+            ->whereDate('fecha', $fechaActual->toDateString())
+            ->where('estado',1)
+            ->sum('total');
+    
+        return response()->json(['totalVentasDelDia' => $totalVentasDelDia, 'diaActual' => $diaActual]);
+    }
+
+
+
+public function getSalesLast10Months(Request $request)
+{
+    $userEstablishmentId = $request->user()->establecimiento_id;
+    $today = now();
+    $last10MonthsSales = [];
+
+    for ($i = 1; $i <= 10; $i++) {
+        $monthStartDate = $today->copy()->subMonthsNoOverflow($i)->startOfMonth();
+        $monthEndDate = $today->copy()->subMonthsNoOverflow($i)->endOfMonth();
+
+        // Configura la localización para strftime
+        setlocale(LC_TIME, 'es_ES.utf8', 'es_ES', 'es');
+
+        $totalSales = Compra::where('establecimiento_id', $userEstablishmentId)
+            ->whereBetween('fecha', [$monthStartDate, $monthEndDate])
+            ->where('estado', 1)
+            ->sum('total');
+
+        $last10MonthsSales[] = [
+            'month' => strftime('%B %Y', $monthStartDate->timestamp), // Formato completo del mes y año
+            'total_sales' => $totalSales,
+        ];
+    }
+
+    return response()->json(['last_10_months_sales' => $last10MonthsSales], 200);
+}
+
+public function getPurchasePin($pin) {
+    $user = Auth::user();
+
+    if ($user && isset($user->establecimiento_id)) {
+        $purchases = Compra::where('establecimiento_id', $user->establecimiento_id)
+                           ->where('pin', $pin)
+                           ->get();
+
+        if ($purchases->isEmpty()) {
+            return response()->json(['message' => 'No se encontraron compras con el PIN proporcionado.'], 404);
+        }
+
+        return response()->json(['purchases' => $purchases], 200);
+    }
+
+    return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
+}
+
+
+
+    
+    
+
+    public function getMonthlySales(Request $request)
+{
+    $userEstablishmentId = $request->user()->establecimiento_id;
+
+    $today = now();
+    $startOfMonth = $today->firstOfMonth()->toDateString();
+    $endOfMonth = $today->endOfMonth()->toDateString();
+
+    $monthlySales = Compra::where('establecimiento_id', $userEstablishmentId)
+        ->whereBetween('fecha', [$startOfMonth, $endOfMonth])
+        ->where('estado',1)
+        ->sum('total');
+
+    return response()->json(['ventas del mes' => $monthlySales]);
+}
+
+
+    public function getAnnualSales(Request $request)
+    {
+        $userEstablishmentId = $request->user()->establecimiento_id;
+
+        $today = now();
+        $startOfYear = $today->firstOfYear()->toDateString();
+        $endOfYear = $today->endOfYear()->toDateString();
+
+        $annualSales = Compra::where('establecimiento_id', $userEstablishmentId)
+            ->whereBetween('fecha', [$startOfYear, $endOfYear])
+            ->where('estado',1)
+            ->sum('total');
+
+        return response()->json(['annualSales' => $annualSales]);
+    }
+
+
     /**
      * Store a newly created resource in storage.
      *
@@ -93,6 +215,7 @@ class ComprasApiController extends Controller
                 'fecha' => Carbon::now(),
                 'total' => 0,
                 'estado' => 0,
+                'pin' => mt_rand(100000,999999),
                 'establecimiento_id' => $user-> establecimiento_id,
                 'seller_id' => $user-> id
             ]);   

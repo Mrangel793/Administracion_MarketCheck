@@ -22,47 +22,52 @@ class ImageApiController extends Controller
     public function store(Request $request)
     {   
         $option= $request->input('option');
-        $storeId= null;
-        $offerId= null;
-
+        //$storeId= null;
+        //$offerId= null;
         switch ($option) {
-            case 'store':
-                $storeId= $request->input('id');
-                break;
 
-            case 'offer':
-                $offerId= $request->input('id');
-                break;
+            case 'storage':                
+                if ($request->hasFile('image')) {
+                    $image = $request->file('image');
+        
+                    $path = $image->store('public/images');
+                    $imagePath = basename($path);
+                    return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $imagePath], 201);
+                }
+                return response()->json(['message' => 'No se proporcionó ningún archivo de imagen', 'path' => null]);
 
             case 'update':
-                return $this->updateImage($request, $request->input('id'));        
+                return $this->updateImage($request, $request->input('imagePath'));        
 
             default:
             return response()->json(['message' => 'No se proporcionó datos validos.'], 400); 
                 break;
         }
-        
-        if ($request->hasFile('image')) {
-            $image = $request->file('image');
-
-            $path = $image->store('public/images');
-            $imageName = basename($path);
-
-            $newImage=Image::create([
-                'imagePath' => $imageName,
+            //ANTIGUO
+           /*$newImage=Image::create([
+                'imagePath' => $imagePath,
                 'establecimiento_id' => $storeId,
                 'oferta_id' => $offerId 
-            ]);
-        
-            return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $newImage->id], 201);
-        }
-
-        return response()->json(['message' => 'No se proporcionó ningún archivo de imagen', 'path' => null]);
+            ]);*/
     }
 
-    private function updateImage(Request $request, $imageId){
-        try {    
-            $imageInstance = Image::findOrFail($imageId);
+    private function updateImage(Request $request, $imagePath){
+        try {     
+            if ($request-> hasFile('image')) {
+                if($imagePath){
+                    Storage::delete("public/images/$imagePath");
+                }else{
+                    return response()->json(['message' => 'No se proporcionó el path de la imagen actual'], 400);
+                }
+    
+                $image = $request->file('image');
+    
+                $path = $image->store('public/images');
+                $newImagePath = basename($path);
+            
+                return response()->json(['message' => 'Imagen actualizada con éxito', "path"=> $newImagePath], 201);
+            //ANTIGUO
+           /* $imageInstance = Image::findOrFail($imageId);
     
             if ($request-> hasFile('image')) {
                 $path= $imageInstance->imagePath;
@@ -77,7 +82,7 @@ class ImageApiController extends Controller
                     'imagePath' => $imageName, 
                 ]);
             
-                return response()->json(['message' => 'Imagen actualizada con éxito'], 201);
+                return response()->json(['message' => 'Imagen actualizada con éxito'], 201);*/
             }else{
                 return response()->json(['message' => 'No se proporcionó ningún archivo de imagen']);
             }
@@ -91,27 +96,15 @@ class ImageApiController extends Controller
     }
 
 
-    public function show($id)
+    public function show($imagePath)
     {
         try {
-            $image= Image::findOrFail($id);
-            $path = $image->imagePath;
-
-            $rutaArchivo = "public/images/$path";
-
+            $rutaArchivo = "public/images/$imagePath"; 
+    
             if (Storage::exists($rutaArchivo)) {
-                
-                $imageUrl = Storage::url("public/images/$path");
-                return response()->json(['image_url' => $imageUrl], 200);
+                $imageUrl=Storage::url("public/images/$path");
+                return response()->json(['image_url'=>$imageUrl,200]);
             }
-            /*$path= $image->imagePath;
-    
-            $rutaArchivo = "public/images/$path"; 
-    
-            if (Storage::exists($rutaArchivo)) {
-
-                return response()->download(public_path(Storage::url('public/images/'.$path)), $path);
-            }*/
     
             return response()->json(['mensaje' => 'Archivo no encontrado'], 404);
             
@@ -128,15 +121,16 @@ class ImageApiController extends Controller
     
     }
 
-    public function destroy($id)
+    public function destroy($imagePath)
     {   
         try {
-            $image = Image::findOrFail($id); 
-            $path= $image->imagePath;
-            if($path) Storage::delete("public/images/$path");
+            /*$image = Image::findOrFail($id); 
+            $path= $image->imagePath;*/
+            if($imagePath) Storage::delete("public/images/$imagePath");
             
-            $image->delete();
-            return response()->json(['message' => 'Imagen eliminada con éxito'], 200);
+           // $image->delete();
+            return response()->json(['message' => 'Imagen eliminada con éxito'], 201      
+        );
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Imagen no encontrada'], 404);

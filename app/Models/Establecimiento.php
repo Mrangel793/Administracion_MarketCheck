@@ -6,10 +6,10 @@ use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 
 use App\Models\User;
-use App\Models\Image;
 use App\Models\Compra;
 use App\Models\Oferta;
 use App\Models\Producto;
+//use App\Models\Image;
 
 
 class Establecimiento extends Model{ 
@@ -21,9 +21,9 @@ class Establecimiento extends Model{
         static::deleting(function ($establecimiento) {
             $establecimiento->compra()->delete();
             $establecimiento->oferta()->delete();
-            $establecimiento->images()->delete();
             $establecimiento->producto()->delete();
             $establecimiento->users()->delete();
+            //$establecimiento->images()->delete();
         });
     }
 
@@ -43,9 +43,9 @@ class Establecimiento extends Model{
         return $this->hasMany(Compra::class,'establecimiento_id');
     }
 
-    public function images(){
+    /*public function images(){
         return $this->hasMany(Image::class,'establecimiento_id');
-    }
+    }*/
 
     protected $fillable =[
         "Nit", 

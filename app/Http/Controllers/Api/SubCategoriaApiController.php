@@ -28,7 +28,7 @@ class SubCategoriaApiController extends Controller
     public function indexporCategoria($categoria_id)
     {
         try {
-            $subcategorias = SubCategoria::where('categoria_id', $categoria_id)->findOrFail();
+            $subcategorias = SubCategoria::where('categoria_id', $categoria_id)->get();
             return response()->json(['sub_categories'=>$subcategorias], 200);
 
         } catch (NotFound $e) {
