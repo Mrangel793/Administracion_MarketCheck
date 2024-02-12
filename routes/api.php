@@ -1,6 +1,7 @@
 <?php
 
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
@@ -87,18 +88,25 @@ Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::
 
 
 Route::prefix('productos')->group(function () {
-    Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])/*->middleware('auth:api')*/;
 
-    Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
-    Route::get('/uncategorized', [ProductoApiController::class, 'getUncategorizedProducts']);
+    $user = Auth::user();
+    if($user && isset($user->rol_id)){
 
-    Route::get('/{id}', [ProductoApiController::class, 'show']);
-    Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
-    Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
-    Route::delete('/{id}', [ProductoApiController::class, 'destroy']); 
-    Route::put('/activate/{id}', [ProductoApiController::class, 'activate']); //<--- AUTENTICABLE??? SOLO UNA FUNCION
-    Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
-    Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
+        Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])->middleware('auth:api');
+
+        if($user->rol_id != 4){
+            Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
+            Route::get('/uncategorized', [ProductoApiController::class, 'getUncategorizedProducts']);
+        
+            Route::get('/{id}', [ProductoApiController::class, 'show']);
+            Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
+            Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
+            Route::delete('/{id}', [ProductoApiController::class, 'destroy']); 
+            Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); //<--- SOLO UNA FUNCION
+            Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
+            Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
+        }
+    }
 });
 
 
