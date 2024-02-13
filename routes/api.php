@@ -32,6 +32,8 @@ use App\Http\Controllers\Api\CargaInventarioApiController;
 |
 */
 
+Auth::routes(['verify' => true]);
+
 Route::get('api/importe', [CargaInventarioApiController::class, 'index'])->name('api.importe.index')->middleware('auth:api');
 Route::post('importe/importar', [CargaInventarioApiController::class, 'importar'])->name('api.importe.importar')->middleware('auth:api');
 

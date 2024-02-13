@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
 
 
 class AuthController extends Controller
@@ -27,13 +28,16 @@ class AuthController extends Controller
         $email = $request->input('email');
         $establecimientoId = $request->input('establecimiento_id');
         
-        User::create([
+        $user=User::create([
             'name' => $name,
             'email' => $email,
             'password' => Hash::make($name),
             'establecimiento_id' => $establecimientoId,
             'rol_id'=>2
         ]);
+
+        event(new Registered($user));
+        
     }
   
     /**
@@ -41,6 +45,7 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
+        $this->middleware(['auth','verified']);
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -55,7 +60,6 @@ class AuthController extends Controller
             ], 401);
 
         $user = $request->user();
-        if($user->rol_id != 4){
             $tokenResult = $user->createToken('Personal Access Token');   
             $token = $tokenResult->token;
 
@@ -69,7 +73,7 @@ class AuthController extends Controller
                 'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
                 'user'=>$user 
             ]);
-        }
+        
         return response()->json([
             'message' => 'Unauthorized'], 401);
     }

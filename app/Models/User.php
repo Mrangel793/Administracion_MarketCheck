@@ -15,7 +15,7 @@ use Laravel\Passport\HasApiTokens;
 
 
 
-class User extends Authenticatable
+class User extends Authenticatable implements MustVerifyEmail
 {
     use HasApiTokens, HasFactory, Notifiable;
 
@@ -48,6 +48,11 @@ class User extends Authenticatable
     public function seller(){
         return $this->hasMany(Compra::class,'seller_id');
     }
+
+    public function sendEmailVerificationNotification()
+{
+    $this->notify(new CustomVerifyEmail());
+}
 
     /**
      * The attributes that should be hidden for serialization.
