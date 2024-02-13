@@ -71,6 +71,7 @@ Route::prefix('ofertas')->group(function () {
     
 });
 
+Route::apiResource('user/mobile-app',[UserApiController::class, 'addUserMovil']);
 
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword']); //<--- AUTENTICABLE???
@@ -90,11 +91,11 @@ Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::
 Route::prefix('productos')->group(function () {
 
     $user = Auth::user();
-    if($user && isset($user->rol_id)){
+  
 
         Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])->middleware('auth:api');
 
-        if($user->rol_id != 4){
+        
             Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
             Route::get('/uncategorized', [ProductoApiController::class, 'getUncategorizedProducts']);
         
@@ -105,8 +106,8 @@ Route::prefix('productos')->group(function () {
             Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); //<--- SOLO UNA FUNCION
             Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
             Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
-        }
-    }
+        
+    
 });
 
 
