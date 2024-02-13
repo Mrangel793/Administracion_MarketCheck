@@ -21,30 +21,6 @@ class UserApiController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function addUserMovil(Request $request){
-         $request->validate([
-             'name' => 'required',
-             'documento' => 'required|numeric',
-             'email' => 'required|email|unique:users',
-             'password' => 'required|min:6',
-         ]);
- 
-         $user = User::create([
-             'name' => $request-> name,
-             'documento' => $request-> documento,
-             'email' => $request-> email,
-             'establecimiento_id' => null,
-             'rol_id' => $request-> rol_id,
-             'password' => Hash::make($request-> password)
-         ]);
- 
-         return response()->json(['message' => 'Usuario creado con éxito. Por favor revise la confirmacion en su correo.'], 201);
-     }
-
-
-
-
-
     public function index()
     {    
         $user= Auth::user();

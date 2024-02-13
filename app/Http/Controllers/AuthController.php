@@ -1,10 +1,10 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
 
@@ -37,8 +37,48 @@ class AuthController extends Controller
         ]);
 
         event(new Registered($user));
+
+       /* $user = $request->user();
+            $tokenResult = $user->createToken('Personal Access Token');   
+            $token = $tokenResult->token;
+
+            if ($request->remember_me)
+                $token->expires_at = Carbon::now()->addWeeks(1);
+            $token->save();
+    
+            return response()->json([
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
+                'user'=>$user 
+            ]);*/
+
+
         
     }
+
+    public function addUserMovil(Request $request){
+        $request->validate([
+            'name' => 'required',
+            'documento' => 'required|numeric',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $request-> name,
+            'documento' => $request-> documento,
+            'email' => $request-> email,
+            'establecimiento_id' => null,
+            'rol_id' => 4,
+            'password' => Hash::make($request-> password)
+        ]);
+
+        event(new Registered($user));
+
+        return response()->json(['message' => 'Usuario creado con éxito. Por favor revise la confirmacion en su correo.'], 201);
+    }
+
   
     /**
      * Inicio de sesión y creación de token
@@ -66,13 +106,14 @@ class AuthController extends Controller
             if ($request->remember_me)
                 $token->expires_at = Carbon::now()->addWeeks(1);
             $token->save();
-    
+           // if($user->email_verified_at !=Null){
             return response()->json([
                 'access_token' => $tokenResult->accessToken,
                 'token_type' => 'Bearer',
                 'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
                 'user'=>$user 
             ]);
+        //}
         
         return response()->json([
             'message' => 'Unauthorized'], 401);

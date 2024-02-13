@@ -7,7 +7,10 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request; 
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Storage;
+
 use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 
 use App\Models\User;
@@ -64,6 +67,7 @@ class EstablecimientoApiController extends Controller
                 'rol_id' => 2,
                 'password' => Hash::make($request-> Nit)
             ]);
+            event(new Registered($user));
 
             return response()->json(['message' => 'Establecimiento creado con éxito', 'id'=> $store-> id], 201);
 

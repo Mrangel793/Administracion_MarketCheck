@@ -227,11 +227,21 @@ class ProductoApiController extends Controller
 
     public function destroy($id)
     {
+        $user = Auth::user();
+
+
         try {
+
             $product = Producto::findOrFail($id);
-            $product-> delete();
+            
+            
+            if ($product->id_establecimiento != $user->establecimiento_id) {
+                return response()->json(['error' => 'No tienes permisos para eliminar este producto.'], 403);
+            }
+            
+            $product->delete();
     
-            return response()->json(['message' => 'Producto Eliminado!', 'product'=> $product], 200);
+            return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 200);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
@@ -239,5 +249,6 @@ class ProductoApiController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
+  
     }
 }
