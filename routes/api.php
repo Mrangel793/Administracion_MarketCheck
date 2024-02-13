@@ -71,10 +71,11 @@ Route::prefix('ofertas')->group(function () {
     
 });
 
-Route::apiResource('user/mobile-app',[UserApiController::class, 'addUserMovil']);
+//USER CRUD ---------------------------------------------------------------------//
 
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword']); //<--- AUTENTICABLE???
+//-------------------------------------------------------------------------------**--//
 
 Route::apiResource('rol',RolApiController::class); //<--- AUTENTICABLE???
 
@@ -127,7 +128,7 @@ Route::group([
     });
 });
 
-//COMPRAS API CONTROLLER---------------------------------------------------------------------------------------------------
+//COMPRAS API CONTROLLER--------------------------------------------------------------------------------------------------- 
 
 Route::prefix('compras')->group(function () {
     Route::get('/mobile-app', [ComprasApiController::class, 'purchasesMobileApp'])->middleware('auth:api');
