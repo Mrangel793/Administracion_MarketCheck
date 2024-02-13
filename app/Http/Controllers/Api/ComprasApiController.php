@@ -24,7 +24,7 @@ class ComprasApiController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function purchasesMobileApp()
+     public function purchasesMobileApp() 
     {
         $user = Auth::user();     
         if($user && isset($user-> id)){ 
@@ -37,7 +37,7 @@ class ComprasApiController extends Controller
 
     public function newPurchaseMobileApp(Request $request){
         $request->validate([
-            'establecimiento' => 'required'
+            'establecimiento_id' => 'required'
         ]);
     
         $user = Auth::user();
@@ -48,10 +48,11 @@ class ComprasApiController extends Controller
                 'fecha' => Carbon::now(),
                 'total' => 0,
                 'estado' => 0,
-                'establecimiento_id' => $request-> establecimiento,
+                'pin' => mt_rand(100000,999999),
+                'establecimiento_id' => $request-> establecimiento_id,
                 'user_id' => $user-> id
             ]);   
-            return response()->json(['message' => 'Compra creada con éxito.', 'id'=> $compra-> id], 201);
+            return response()->json(['message' => 'Compra creada con éxito.', 'pin'=> $compra-> pin], 201);
         }
 
         return response()->json(['message' => 'Error al procesar la solicitud'], 500);   
@@ -208,7 +209,7 @@ public function getPurchasePin($pin) {
      */
     public function store(Request $request){
         $user = Auth::user();
-
+        //TODO: VALIDAR QUE NO SEA ADMIN
         if($user && isset($user-> establecimiento_id)){
             $compra = Compra::create([
                 'hora' => now()->format('H:i:s'),

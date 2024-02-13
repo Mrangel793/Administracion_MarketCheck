@@ -99,9 +99,6 @@ class ImageApiController extends Controller
     public function show($imagePath)
     {
         try {
-            /*$image= Image::findOrFail($id);
-            $path= $image->imagePath;*/
-    
             $rutaArchivo = "public/images/$imagePath"; 
     
             if (Storage::exists($rutaArchivo)) {
