@@ -1,16 +1,8 @@
 @extends('layouts.app')
 
-<div class="row justify-content-center">
-    <div class="col-md-12 d-flex">
-        <div class="col-md-6 color-background">
-            <div class="d-flex justify-content-center align-items-center" style="height: 100%;">
-                <img class="logo2" src="{{ asset('images/logoMarket.png') }}" alt="Market Check">
-            </div>
-        </div>
-
         <div class="col-md-6">
         <div class="card inicio">
-        <div class="card-header text-center negrita color-background2">{{ __('INICIA SESION') }}</div>
+        <div class="card-header text-center negrita color-background2">{{ __('VERIFICA TU CORREO') }}</div>
 
 <div class="card-body ">
     <form method="POST" action="{{ route('login') }}">
@@ -45,13 +37,10 @@
         </div>
 
         <div class="row mb-3">
-            <div class="col-md-6 offset-md-4">
+            <div class="">
                 <div class="form-check">
                     <input class="form-check-input" type="checkbox" name="remember" id="remember" {{ old('remember') ? 'checked' : '' }}>
 
-                    <label class="form-check-label negrita" for="remember">
-                        {{ __('Recuerdame') }}
-                    </label>
                 </div>
             </div>
         </div>
@@ -59,20 +48,12 @@
         <div class="row mb-0 text-center">
     <div class="col-md-12">
         <button type="submit" class="btn btn-primary">
-            {{ __('Ingresar') }}
+            {{ __('Verificar') }}
         </button>
     </div>
 </div>
 
-@if (Route::has('password.request'))
-    <div class="row mb-3 text-center">
-        <div class="col-md-12">
-            <a class="btn btn-link" href="{{ route('password.request') }}">
-                {{ __('¿Olvidaste tu contraseña?') }}
-            </a>
-        </div>
-    </div>
-@endif
+
 
             </div>
         </div>

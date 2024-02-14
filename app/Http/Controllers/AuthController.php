@@ -36,7 +36,7 @@ class AuthController extends Controller
             'rol_id'=>2
         ]);
 
-        event(new Registered($user));
+        $user->sendEmailVerificationNotification();
 
        /* $user = $request->user();
             $tokenResult = $user->createToken('Personal Access Token');   
