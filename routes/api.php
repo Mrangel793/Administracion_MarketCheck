@@ -121,7 +121,7 @@ Route::group([
     Route::post('mobile-app',[AuthController::class, 'addUserMovil']);
   
     Route::group([
-      'middleware' => 'auth:api'
+      'middleware' => ['auth:api','verified']
     ], function() {
         Route::get('logout', [AuthController::class,'logout']);
         Route::get('user', [AuthController::class,'user']);

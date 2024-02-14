@@ -74,7 +74,7 @@ class AuthController extends Controller
             'password' => Hash::make($request-> password)
         ]);
 
-        event(new Registered($user));
+        $user->sendEmailVerificationNotification();
 
         return response()->json(['message' => 'Usuario creado con éxito. Por favor revise la confirmacion en su correo.'], 201);
     }
@@ -99,20 +99,28 @@ class AuthController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
 
-        $user = $request->user();
-            $tokenResult = $user->createToken('Personal Access Token');   
-            $token = $tokenResult->token;
 
-            if ($request->remember_me)
-                $token->expires_at = Carbon::now()->addWeeks(1);
-            $token->save();
-           // if($user->email_verified_at !=Null){
-            return response()->json([
-                'access_token' => $tokenResult->accessToken,
-                'token_type' => 'Bearer',
-                'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
-                'user'=>$user 
-            ]);
+            $user = $request->user();
+
+            if ($user->email_verified_at!=NULL) {
+                $tokenResult = $user->createToken('Personal Access Token');   
+                $token = $tokenResult->token;
+
+                if ($request->remember_me)
+                    $token->expires_at = Carbon::now()->addWeeks(1);
+                $token->save();
+                // if($user->email_verified_at !=Null){
+                return response()->json([
+                    'access_token' => $tokenResult->accessToken,
+                    'token_type' => 'Bearer',
+                    'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
+                    'user'=>$user 
+                ]);
+            }
+
+
+            
+        
         //}
         
         return response()->json([
