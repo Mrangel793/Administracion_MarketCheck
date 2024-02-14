@@ -63,13 +63,7 @@ class UserApiController extends Controller
             'establecimiento_id' => $request->establecimiento_id,
             'rol_id' => $request->rol_id,
             'password' => Hash::make($request->name),
-            'email_verified_at' => now(), // Marcar como verificado inmediatamente
         ]);
-    
-        // Asegurémonos de que el usuario tenga un establecimiento antes de enviar la notificación
-        if ($user->establecimiento_id) {
-            $user->sendEmailVerificationNotification();
-        }
     
         return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
     }
