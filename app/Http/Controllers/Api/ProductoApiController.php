@@ -37,7 +37,6 @@ class ProductoApiController extends Controller
     public function getProductsfilter($searchTerm) {
         $user = Auth::user();
     
-        if ($user && isset($user->establecimiento_id)&&($user->rol_id==2||$user->rol_id==3)) {
             $products = Producto::where('id_establecimiento', $user->establecimiento_id)
                                ->where(function ($query) use ($searchTerm) {
                                    $query->where('nombreProducto',$searchTerm )
@@ -50,7 +49,7 @@ class ProductoApiController extends Controller
             }
     
             return response()->json(['products' => $products], 200);
-        }
+        
     
         return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
     }
@@ -59,6 +58,10 @@ class ProductoApiController extends Controller
     
     public function store(Request $request)
 {   
+
+    $user = Auth::user();
+
+
     $request->validate([ 
         'codigoProducto' => 'required|numeric',
         'nombreProducto' => 'required',
@@ -70,9 +73,7 @@ class ProductoApiController extends Controller
         'id_subcategoria' => 'required|numeric',
     ]);
 
-    $user = Auth::user();
 
-    if($user && isset($user->establecimiento_id)&&($user->rol_id==2||$user->rol_id==3)){
         $existingProduct = Producto::where('codigoProducto', $request->codigoProducto)
                                     ->where('id_establecimiento', $user->establecimiento_id)
                                     ->first();
@@ -95,9 +96,8 @@ class ProductoApiController extends Controller
         ]);
 
         return response()->json(['message' => 'Producto creado con éxito', 'product' => $product], 201);
-    }
+    
 
-    return response()->json(['message' => 'El usuario no posee permisos para crear productos.'], 401);
 }
 
     public function show($id)
@@ -124,7 +124,6 @@ class ProductoApiController extends Controller
     public function activate($id)
      {
         $user = Auth::user();
-         if($user && isset($user->establecimiento_id)&&($user->rol_id==2||$user->rol_id==3)){
          
          try {
              $product= Producto::FindOrFail($id);
@@ -141,14 +140,13 @@ class ProductoApiController extends Controller
              return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
          }  
     
-        }
+        
         return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
  }
 
     public function deactivate($id)
     {
         $user = Auth::user();
-        if($user && isset($user->establecimiento_id)&&($user->rol_id==2||$user->rol_id==3)){
          try {
              $product= Producto::FindOrFail($id);
  
@@ -163,7 +161,7 @@ class ProductoApiController extends Controller
          } catch (\Exception $e) {
               return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
          } 
-        }
+        
         return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
     }
 
