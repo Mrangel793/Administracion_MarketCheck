@@ -102,9 +102,9 @@ Route::prefix('productos')->group(function () {
     Route::get('/{id}', [ProductoApiController::class, 'show']);
     Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
     Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
-    Route::delete('/{id}', [ProductoApiController::class, 'destroy']); 
+    Route::delete('/{id}', [ProductoApiController::class, 'destroy'])->middleware('auth:api'); 
     Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); //<--- SOLO UNA FUNCION
-    Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate']);
+    Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate'])->middleware('auth:api'); 
     Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
           
 });

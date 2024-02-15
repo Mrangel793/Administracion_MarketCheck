@@ -64,7 +64,7 @@ class UserApiController extends Controller
             'rol_id' => $request->rol_id,
             'password' => Hash::make($request->name),
         ]);
-    
+        $user->sendEmailVerificationNotification();    
         return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
     }
     
