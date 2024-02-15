@@ -33,6 +33,8 @@ use App\Http\Controllers\Api\CargaInventarioApiController;
 |
 */
 
+Auth::routes(['verify' => true]);
+
 Route::get('api/importe', [CargaInventarioApiController::class, 'index'])->name('api.importe.index')->middleware('auth:api');
 Route::post('importe/importar', [CargaInventarioApiController::class, 'importar'])->name('api.importe.importar')->middleware('auth:api');
 
@@ -115,9 +117,10 @@ Route::group([
 ], function () {
     Route::post('login', [AuthController::class,'login']);
     Route::post('signup', [AuthController::class,'signUp']);
+    Route::post('mobile-app',[AuthController::class, 'addUserMovil']);
   
     Route::group([
-      'middleware' => 'auth:api'
+      'middleware' => ['auth:api','verified']
     ], function() {
         Route::get('logout', [AuthController::class,'logout']);
         Route::get('user', [AuthController::class,'user']);

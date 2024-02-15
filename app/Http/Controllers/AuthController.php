@@ -1,11 +1,12 @@
 <?php
 
 namespace App\Http\Controllers;
-
-use Illuminate\Http\Request;
-use App\Models\User;
 use Carbon\Carbon;
+use App\Models\User;
+use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Auth\Events\Registered;
 
 
 class AuthController extends Controller
@@ -27,20 +28,64 @@ class AuthController extends Controller
         $email = $request->input('email');
         $establecimientoId = $request->input('establecimiento_id');
         
-        User::create([
+        $user=User::create([
             'name' => $name,
             'email' => $email,
             'password' => Hash::make($name),
             'establecimiento_id' => $establecimientoId,
             'rol_id'=>2
         ]);
+
+        $user->sendEmailVerificationNotification();
+
+       /* $user = $request->user();
+            $tokenResult = $user->createToken('Personal Access Token');   
+            $token = $tokenResult->token;
+
+            if ($request->remember_me)
+                $token->expires_at = Carbon::now()->addWeeks(1);
+            $token->save();
+    
+            return response()->json([
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
+                'user'=>$user 
+            ]);*/
+
+
+        
     }
+
+    public function addUserMovil(Request $request){
+        $request->validate([
+            'name' => 'required',
+            'documento' => 'required|numeric',
+            'email' => 'required|email|unique:users',
+            'password' => 'required|min:6',
+        ]);
+
+        $user = User::create([
+            'name' => $request-> name,
+            'documento' => $request-> documento,
+            'email' => $request-> email,
+            'establecimiento_id' => null,
+            'rol_id' => 4,
+            'password' => Hash::make($request-> password)
+        ]);
+
+        $user->sendEmailVerificationNotification();
+
+        return response()->json(['message' => 'Usuario creado con éxito. Por favor revise la confirmacion en su correo.'], 201);
+    }
+
   
     /**
      * Inicio de sesión y creación de token
      */
     public function login(Request $request)
     {
+        $this->middleware(['auth','verified']);
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
@@ -54,22 +99,30 @@ class AuthController extends Controller
                 'message' => 'Unauthorized'
             ], 401);
 
-        $user = $request->user();
-        if($user->rol_id != 4){
-            $tokenResult = $user->createToken('Personal Access Token');   
-            $token = $tokenResult->token;
 
-            if ($request->remember_me)
-                $token->expires_at = Carbon::now()->addWeeks(1);
-            $token->save();
-    
-            return response()->json([
-                'access_token' => $tokenResult->accessToken,
-                'token_type' => 'Bearer',
-                'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
-                'user'=>$user 
-            ]);
-        }
+            $user = $request->user();
+
+            if ($user->email_verified_at!=NULL) {
+                $tokenResult = $user->createToken('Personal Access Token');   
+                $token = $tokenResult->token;
+
+                if ($request->remember_me)
+                    $token->expires_at = Carbon::now()->addWeeks(1);
+                $token->save();
+                // if($user->email_verified_at !=Null){
+                return response()->json([
+                    'access_token' => $tokenResult->accessToken,
+                    'token_type' => 'Bearer',
+                    'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
+                    'user'=>$user 
+                ]);
+            }
+
+
+            
+        
+        //}
+        
         return response()->json([
             'message' => 'Unauthorized'], 401);
     }

@@ -37,7 +37,7 @@ class ProductoApiController extends Controller
     {
         $user = Auth::user();
 
-        if($user && isset($user-> establecimiento_id)){
+        if($user && isset($user-> establecimiento_id)&&($user->rol_id==2||$user->rol_id==3)){
             $products = Producto::where('id_establecimiento', $user-> establecimiento_id)->get();
             return response()->json( ['products'=> $products], 200);           
         }
@@ -45,17 +45,10 @@ class ProductoApiController extends Controller
         return response()->json( ['message'=> 'El usuario actual no puede obtener esta informacion'], 403);
     }
 
-    public function getUncategorizedProducts()
-    {
-        $products = Producto::where('id_categoria', null)->get();
-        return response()->json( ['products'=> $products], 200); 
-
-    }
-
+    
     public function getProductsfilter($searchTerm) {
         $user = Auth::user();
     
-        if ($user && isset($user->establecimiento_id)) {
             $products = Producto::where('id_establecimiento', $user->establecimiento_id)
                                ->where(function ($query) use ($searchTerm) {
                                    $query->where('nombreProducto',$searchTerm )
@@ -68,7 +61,7 @@ class ProductoApiController extends Controller
             }
     
             return response()->json(['products' => $products], 200);
-        }
+        
     
         return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
     }
@@ -77,6 +70,10 @@ class ProductoApiController extends Controller
     
     public function store(Request $request)
 {   
+
+    $user = Auth::user();
+
+
     $request->validate([ 
         'codigoProducto' => 'required|numeric',
         'nombreProducto' => 'required',
@@ -88,9 +85,7 @@ class ProductoApiController extends Controller
         'id_subcategoria' => 'required|numeric',
     ]);
 
-    $user = Auth::user();
 
-    if($user && isset($user->establecimiento_id)){
         $existingProduct = Producto::where('codigoProducto', $request->codigoProducto)
                                     ->where('id_establecimiento', $user->establecimiento_id)
                                     ->first();
@@ -99,7 +94,6 @@ class ProductoApiController extends Controller
             return response()->json(['error' => 'Ya existe un producto con el mismo código de barras en este establecimiento.'], 422);
         }
 
-        // Si no existe, crear el nuevo producto
         $product = Producto::create([
             'codigoProducto' => $request->codigoProducto,
             'nombreProducto' => $request->nombreProducto,
@@ -114,9 +108,8 @@ class ProductoApiController extends Controller
         ]);
 
         return response()->json(['message' => 'Producto creado con éxito', 'product' => $product], 201);
-    }
+    
 
-    return response()->json(['message' => 'El usuario no posee permisos para crear productos.'], 401);
 }
 
     public function show($id)
@@ -141,39 +134,47 @@ class ProductoApiController extends Controller
     }
 
     public function activate($id)
-    {
-        try {
-            $product= Producto::FindOrFail($id);
+     {
+        $user = Auth::user();
+         
+         try {
+             $product= Producto::FindOrFail($id);
 
-            $product->update([
-                'estado'=> 1    
-            ]);
-            return response()->json(['message' => 'Producto activado con éxito'], 201);
-
-        } catch (NotFound $e) {
-            return response()->json(['message' => 'Producto no encontrado'], 404);
-
-        } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
-        }  
-    }
+             $product->update([
+                 'estado'=> 1    
+             ]);
+             return response()->json(['message' => 'Producto activado con éxito'], 201);
+ 
+         } catch (NotFound $e) {
+             return response()->json(['message' => 'Producto no encontrado'], 404);
+ 
+         } catch (\Exception $e) {
+             return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
+         }  
+    
+        
+        return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
+ }
 
     public function deactivate($id)
     {
-        try {
-            $product= Producto::FindOrFail($id);
+        $user = Auth::user();
+         try {
+             $product= Producto::FindOrFail($id);
+ 
+             $product->update([
+                 'estado'=> 0    
+             ]);
+             return response()->json(['message' => 'Producto desactivado con éxito'], 201);
 
-            $product->update([
-                'estado'=> 0    
-            ]);
-            return response()->json(['message' => 'Producto desactivado con éxito'], 201);
+         } catch (NotFound $e) {
+             return response()->json(['message' => 'Producto no encontrado'], 404);
 
-        } catch (NotFound $e) {
-            return response()->json(['message' => 'Producto no encontrado'], 404);
-
-        } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
-        } 
+         } catch (\Exception $e) {
+              return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
+         } 
+        
+        return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
     }
 
     
@@ -236,11 +237,21 @@ class ProductoApiController extends Controller
 
     public function destroy($id)
     {
+        $user = Auth::user();
+
+
         try {
+
             $product = Producto::findOrFail($id);
-            $product-> delete();
+            
+            
+            if ($product->id_establecimiento != $user->establecimiento_id) {
+                return response()->json(['error' => 'No tienes permisos para eliminar este producto.'], 403);
+            }
+            
+            $product->delete();
     
-            return response()->json(['message' => 'Producto Eliminado!', 'product'=> $product], 200);
+            return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 200);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
@@ -248,5 +259,6 @@ class ProductoApiController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
+  
     }
 }

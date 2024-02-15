@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Api;
 use App\Http\Controllers\Controller;
 
 use Illuminate\Http\Request;
+use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
@@ -54,19 +55,19 @@ class UserApiController extends Controller
             'email' => 'required|email|unique:users',
             'rol_id' => 'required|numeric',
         ]);
-
+    
         $user = User::create([
-            'name' => $request-> name,
-            'email' => $request-> email,
-            'documento' => $request-> documento,
-            'establecimiento_id' => $request-> establecimiento_id,
-            'rol_id' => $request-> rol_id,
-            'password' => Hash::make($request-> name)
+            'name' => $request->name,
+            'email' => $request->email,
+            'documento' => $request->documento,
+            'establecimiento_id' => $request->establecimiento_id,
+            'rol_id' => $request->rol_id,
+            'password' => Hash::make($request->name),
         ]);
-
+    
         return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
     }
-
+    
     /**
      * Display the specified resource.
      *

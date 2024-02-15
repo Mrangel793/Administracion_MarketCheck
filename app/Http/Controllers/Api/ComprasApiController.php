@@ -162,11 +162,6 @@ public function getPurchasePin($pin) {
     return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
 }
 
-
-
-    
-    
-
     public function getMonthlySales(Request $request)
 {
     $userEstablishmentId = $request->user()->establecimiento_id;

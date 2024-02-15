@@ -36,44 +36,7 @@
             <span class="navbar-toggler-icon"></span>
         </button>
 
-        <div class="collapse navbar-collapse" id="navbarSupportedContent">
-            <!-- Left Side Of Navbar -->
-            <ul class="navbar-nav me-auto">
-            </ul>
-
-            <!-- Right Side Of Navbar -->
-            <ul class="navbar-nav margen negrita">
-                <li class="nav-item ms-3">
-                    <a class="nav-link" href="{{ route('producto.index') }}">Productos</a>
-                </li>
-                <li class="nav-item ms-3">
-                    <a class="nav-link" href="{{ route('oferta.index') }}">Ofertas</a>
-                </li>
-                <li class="nav-item ms-3">
-                    <a class="nav-link" href="{{ route('importe') }}">Inventario</a>
-                </li>
-                <li class="nav-item ms-3">
-                <a class="nav-link" href="{{ route('user.index') }}">Usuarios</a>
-                </li>
-            </ul>
-                
-            <ul class="navbar-nav ms-auto">
-                @auth
-                <li class="nav-item negrita">
-                <a class="dropdown-item ms-2 negrita" href="{{ route('logout') }}"
-            onclick="event.preventDefault();
-              document.getElementById('logout-form').submit();">
-            {{ __('Logout') }}
-            </a>
-            <form id="logout-form" action="{{ route('logout') }}" method="POST" class="d-none">
-            @csrf
-            </form>
-                </li>
-                @endauth
-            </ul>
-            
-        </div>
-    </div>
+        
 </nav>
 @endif
 
