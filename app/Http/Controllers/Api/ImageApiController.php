@@ -55,7 +55,11 @@ class ImageApiController extends Controller
         try {     
             if ($request-> hasFile('image')) {
                 if($imagePath){
-                    Storage::delete("public/images/$imagePath");
+                    $oldImagePath = "public/images/$imagePath"; 
+    
+                    if (Storage::exists($oldImagePath)) {
+                        Storage::delete("public/images/$imagePath");
+                    }
                 }else{
                     return response()->json(['message' => 'No se proporcionó el path de la imagen actual'], 400);
                 }
