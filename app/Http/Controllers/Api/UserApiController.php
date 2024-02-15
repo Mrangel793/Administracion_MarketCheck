@@ -21,7 +21,7 @@ class UserApiController extends Controller
      *
      * @return \Illuminate\Http\Response
      */
-
+    
     public function index()
     {    
         $user= Auth::user();
