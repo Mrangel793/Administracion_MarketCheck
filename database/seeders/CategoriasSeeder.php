@@ -14,67 +14,132 @@ class CategoriasSeeder extends Seeder
      */
     public function run()
     {
-        //
         Categoria::create([
             'id' => 1,
             'nombre' => 'Alimentos básicos',
-            'imagen' => 'https://ejemplo.com/imagen/alimentos-basicos.jpg',
+            'imagen' => 'alimentosBasicos.png',
         ]);
         
         Categoria::create([
             'id' => 2,
             'nombre' => 'Bebidas',
-            'imagen' => 'https://ejemplo.com/imagen/bebidas.jpg',
+            'imagen' => 'bebidas.png'
         ]);
         
         Categoria::create([
             'id' => 3,
             'nombre' => 'Productos enlatados y secos',
-            'imagen' => 'https://ejemplo.com/imagen/enlatados-y-secos.jpg',
+            'imagen' => 'enlatados.png',
         ]);
         
         Categoria::create([
             'id' => 4,
             'nombre' => 'Snacks y golosinas',
-            'imagen' => 'https://ejemplo.com/imagen/snacks-y-golosinas.jpg',
+            'imagen' => 'golosinas.png',
         ]);
         
         Categoria::create([
             'id' => 5,
             'nombre' => 'Productos de despensa',
-            'imagen' => 'https://ejemplo.com/imagen/despensa.jpg',
+            'imagen' => 'despensa.png',
         ]);
         
         Categoria::create([
             'id' => 6,
             'nombre' => 'Productos congelados',
-            'imagen' => 'https://ejemplo.com/imagen/congelados.jpg',
+            'imagen' => 'congelados.png',
         ]);
         
         Categoria::create([
             'id' => 7,
             'nombre' => 'Desayuno y cereales',
-            'imagen' => 'https://ejemplo.com/imagen/desayuno-y-cereales.jpg',
+            'imagen' => 'cereales.png',
         ]);
         
         Categoria::create([
             'id' => 8,
             'nombre' => 'Alimentos étnicos',
-            'imagen' => 'https://ejemplo.com/imagen/alimentos-etnicos.jpg',
+            'imagen' => 'internacional.png',
         ]);
         
         Categoria::create([
             'id' => 9,
-            'nombre' => 'Alimentos para bebés y productos infantiles',
-            'imagen' => 'https://ejemplo.com/imagen/alimentos-para-bebes.jpg',
+            'nombre' => 'Productos para bebés',
+            'imagen' => 'bebes.png',
         ]);
         
         Categoria::create([
             'id' => 10,
             'nombre' => 'Productos dietéticos y saludables',
-            'imagen' => 'https://ejemplo.com/imagen/dieteticos-y-saludables.jpg',
+            'imagen' => 'saludable.png',
         ]);
-
+        
+        Categoria::create([
+            'id' => 11,
+            'nombre' => 'Carnes',
+            'imagen' => 'carnes.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 12,
+            'nombre' => 'Bebidas Alcohólicas',
+            'imagen' => 'licor.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 13,
+            'nombre' => 'Lácteos',
+            'imagen' => 'lacteos.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 14,
+            'nombre' => 'Panadería y Repostería',
+            'imagen' => 'panaderia.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 15,
+            'nombre' => 'Frutas y Verduras',
+            'imagen' => 'panaderia.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 16,
+            'nombre' => 'Higiene Personal',
+            'imagen' => 'belleza.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 17,
+            'nombre' => 'Artículos de Limpieza',
+            'imagen' => 'detergente.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 18,
+            'nombre' => 'Electrodomésticos',
+            'imagen' => 'electrodomesticos.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 19,
+            'nombre' => 'Cuidado del Hogar',
+            'imagen' => 'hogar.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 20,
+            'nombre' => 'Mascotas',
+            'imagen' => 'mascotas.png',
+        ]);
+        
+        Categoria::create([
+            'id' => 21,
+            'nombre' => 'Belleza y Cuidado Personal',
+            'imagen' => 'maquillaje.png',
+        ]);
+        
         
     }
 }
