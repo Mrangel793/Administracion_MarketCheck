@@ -189,7 +189,6 @@ class ProductoApiController extends Controller
         'numeroStock' => 'required|numeric|min:0',
         'estado' => 'required',
         'id_categoria' => 'required|numeric',
-        'id_subcategoria' => 'required|numeric',
     ]);
 
     $user = Auth::user();

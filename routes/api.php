@@ -51,6 +51,7 @@ Route::put('/establecimiento/activate/{id}', [EstablecimientoApiController::clas
 Route::put('/establecimiento/deactivate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore']); //<--- AUTENTICABLE???
 
 Route::put('/establecimiento/images/{id}', [EstablecimientoApiController::class, 'updateImageField']); //<--- AUTENTICABLE???
+Route::get('/establecimiento/showCategoriesByStore/{id}',[EstablecimientoApiController::class,'showCategoriesByStore']);
 
 //OFERTAS API CONTROLLER---------------------------------------------------------------------------------------------------
 

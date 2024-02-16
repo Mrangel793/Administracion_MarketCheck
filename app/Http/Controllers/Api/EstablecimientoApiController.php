@@ -18,6 +18,7 @@ use App\Models\Image;
 use App\Models\Oferta;
 use App\Models\Compra;
 use App\Models\Establecimiento;
+use App\Models\Categoria;
 
 //REVISADO <--- REMOVER EN PRODUCCION
 class EstablecimientoApiController extends Controller
@@ -94,6 +95,23 @@ class EstablecimientoApiController extends Controller
         } catch (\Exception $e) {
             return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }    
+    }
+
+    public function showCategoriesByStore($id){
+    try {
+        $categories = Categoria::select('categorias.*')
+        ->join('productos', 'categorias.id', '=', 'productos.id_categoria')
+        ->join('establecimientos', 'establecimientos.id', '=', 'productos.id_establecimiento')
+        ->where('establecimientos.id', $id)
+        ->get();
+
+        return $categories;
+    } catch (NotFound $e) {
+        return response()->json(['message' => 'Tienda no encontrada'], 404);
+
+    } catch (\Exception $e) {
+        return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
+    }    
     }
 
     public function activateOrDestivateStore($id)
