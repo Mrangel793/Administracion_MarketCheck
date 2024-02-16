@@ -21,6 +21,18 @@ class ProductoApiController extends Controller
         return response()->json( ['products'=> $products], 200);            
     }
 
+    public function productByStoreAndScanner(Request $request){
+        $request->validate([
+            'store_id' => 'required', 
+            'product_code' => 'required',
+        ]);
+        $storeId= $request-> store_id;
+        $productCode= $request-> product_code;
+
+        $product = Producto::where('id_establecimiento', $storeId)->where('codigoProducto', $productCode)->where('estado', 1)->first();
+        return response()->json( ['product'=> $product], 200);
+    }
+
     public function index()
     {
         $user = Auth::user();

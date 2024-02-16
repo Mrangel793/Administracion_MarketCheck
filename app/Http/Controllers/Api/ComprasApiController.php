@@ -44,7 +44,7 @@ class ComprasApiController extends Controller
 
         if($user && isset($user-> id)){
             $compra = Compra::create([
-                'hora' => now()->format('H:i:s'),
+                'hora' => now()->format('H:i:s'), 
                 'fecha' => Carbon::now(),
                 'total' => 0,
                 'estado' => 0,
@@ -52,7 +52,7 @@ class ComprasApiController extends Controller
                 'establecimiento_id' => $request-> establecimiento_id,
                 'user_id' => $user-> id
             ]);   
-            return response()->json(['message' => 'Compra creada con éxito.', 'pin'=> $compra-> pin], 201);
+            return response()->json(['message' => 'Compra creada con éxito.', 'id'=> $compra-> id, 'pin'=> $compra-> pin], 201);
         }
 
         return response()->json(['message' => 'Error al procesar la solicitud'], 500);   
@@ -162,11 +162,6 @@ public function getPurchasePin($pin) {
     return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
 }
 
-
-
-    
-    
-
     public function getMonthlySales(Request $request)
 {
     $userEstablishmentId = $request->user()->establecimiento_id;
@@ -244,6 +239,10 @@ public function getPurchasePin($pin) {
             
             if($purchase-> estado === 1){
                 return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada'], 403);
+            }
+
+            if($request-> itemsCount <= 0){
+                return response()->json(['message' => "La compra debe contener un producto. Cantidad:($itemCount)"], 403);
             }
 
             if($stock < $request-> itemsCount){

@@ -73,9 +73,11 @@ Route::prefix('ofertas')->group(function () {
     
 });
 
+//USER CRUD ---------------------------------------------------------------------//
 
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword']); //<--- AUTENTICABLE???
+//-------------------------------------------------------------------------------**--//
 
 Route::apiResource('rol',RolApiController::class); //<--- AUTENTICABLE???
 
@@ -91,23 +93,20 @@ Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::
 
 Route::prefix('productos')->group(function () {
 
-  
+    Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])/*->middleware('auth:api')*/;
+    Route::post('/scanner-product', [ProductoApiController::class, 'productByStoreAndScanner'])/*->middleware('auth:api')*/;
 
-        Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])->middleware('auth:api');
+    Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
+    Route::get('/uncategorized', [ProductoApiController::class, 'getUncategorizedProducts']);
 
-        
-            Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
-            Route::get('/uncategorized', [ProductoApiController::class, 'getUncategorizedProducts']);
-        
-            Route::get('/{id}', [ProductoApiController::class, 'show']);
-            Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
-            Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
-            Route::delete('/{id}', [ProductoApiController::class, 'destroy'])->middleware('auth:api');
-            Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); 
-            Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate'])->middleware('auth:api');
-            Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
-        
-    
+    Route::get('/{id}', [ProductoApiController::class, 'show']);
+    Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
+    Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
+    Route::delete('/{id}', [ProductoApiController::class, 'destroy'])->middleware('auth:api'); 
+    Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); //<--- SOLO UNA FUNCION
+    Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate'])->middleware('auth:api'); 
+    Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
+          
 });
 
 
@@ -121,14 +120,14 @@ Route::group([
     Route::post('mobile-app',[AuthController::class, 'addUserMovil']);
   
     Route::group([
-      'middleware' => 'auth:api'
+      'middleware' => ['auth:api','verified']
     ], function() {
         Route::get('logout', [AuthController::class,'logout']);
         Route::get('user', [AuthController::class,'user']);
     });
 });
 
-//COMPRAS API CONTROLLER---------------------------------------------------------------------------------------------------
+//COMPRAS API CONTROLLER--------------------------------------------------------------------------------------------------- 
 
 Route::prefix('compras')->group(function () {
     Route::get('/mobile-app', [ComprasApiController::class, 'purchasesMobileApp'])->middleware('auth:api');
