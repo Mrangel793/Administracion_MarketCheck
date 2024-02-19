@@ -101,7 +101,7 @@ class CategoriasSeeder extends Seeder
         Categoria::create([
             'id' => 15,
             'nombre' => 'Frutas y Verduras',
-            'imagen' => 'panaderia.png',
+            'imagen' => 'frutas.png',
         ]);
         
         Categoria::create([

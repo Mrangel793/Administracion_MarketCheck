@@ -112,7 +112,7 @@ class EstablecimientoApiController extends Controller
     } catch (\Exception $e) {
         return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
     }    
-    }
+    }         
 
     public function activateOrDestivateStore($id)
     {
