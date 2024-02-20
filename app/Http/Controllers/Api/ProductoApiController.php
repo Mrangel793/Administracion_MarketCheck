@@ -232,7 +232,54 @@ class ProductoApiController extends Controller
     return response()->json(['message' => 'El usuario no posee permisos para actualizar productos.'], 403);
 }
 
-    
+
+    public function assignCategory(Request $request)
+    {
+        $categoria_id = $request->input('categoria_id');
+        $productos_ids = $request->input('productos_ids');
+        $user = auth()->user(); 
+
+        try {
+                if (!$user || !$user->establecimiento_id) {
+                return response()->json(['error' => 'Usuario no tiene un establecimiento asignado'], 403);
+            }
+
+         $categoria = Categoria::find($categoria_id);
+
+            if (!$categoria) {
+            return response()->json(['error' => 'Categoría no encontrada'], 404);
+            }
+
+            Producto::whereIn('id', $productos_ids)
+                ->where('id_establecimiento', $user->establecimiento_id)
+                ->update(['id_categoria' => $categoria_id]);
+
+            return response()->json(['message' => 'Categoría asignada correctamente a los productos']);
+            } catch (\Exception $e) {
+            return response()->json(['error' => 'Error al asignar la categoría a los productos', 'details' => $e->getMessage()], 500);
+        }
+    }
+
+    public function productosSinCategoria()
+    {
+    try {
+        $user = Auth::user();
+
+        // Verificar si el usuario tiene un establecimiento asignado
+        if (!$user || !$user->establecimiento_id) {
+            return response()->json(['error' => 'Usuario no tiene un establecimiento asignado'], 403);
+        }
+
+        // Consulta para obtener productos sin categoría del mismo establecimiento
+        $productosSinCategoria = Producto::whereNull('id_categoria')
+            ->where('id_establecimiento', $user->establecimiento_id)
+            ->get();
+
+        return response()->json(['productos' => $productosSinCategoria]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al obtener productos sin categoría', 'details' => $e->getMessage()], 500);
+    }
+    }
 
     public function destroy($id)
     {

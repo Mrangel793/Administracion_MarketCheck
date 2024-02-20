@@ -107,8 +107,10 @@ Route::prefix('productos')->group(function () {
     Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); //<--- SOLO UNA FUNCION
     Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate'])->middleware('auth:api'); 
     Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
-          
+    Route::post('/assignCategory', [ProductoApiController::class, 'assignCategory'])->middleware('auth:api'); ;
 });
+    Route::get('/productos-sin-categoria', [ProductoApiController::class, 'productosSinCategoria'])->middleware('auth:api');
+
 
 
 
