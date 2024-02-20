@@ -103,10 +103,13 @@ class EstablecimientoApiController extends Controller
             ->join('productos', 'categorias.id', '=', 'productos.id_categoria')
             ->join('establecimientos', 'establecimientos.id', '=', 'productos.id_establecimiento')
             ->where('establecimientos.id', $id)
+            ->distinct() 
             ->get();
+        
             return response()->json(['categories' => $categories], 200);
-            //DARWING MAMAHUEVO
-            //return $categories;
+        
+            
+        
         } catch (NotFound $e) {
             return response()->json(['message' => 'Tienda no encontrada'], 404);
 
