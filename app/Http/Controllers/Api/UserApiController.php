@@ -114,7 +114,7 @@ class UserApiController extends Controller
                 'rol_id' => $request-> rol_id,
             ]);
     
-            return response()->json(['message' => 'Datos actualizados con éxito'], 201);
+            return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
@@ -136,7 +136,7 @@ class UserApiController extends Controller
                 'password' => Hash::make($request-> password)
             ]);
     
-            return response()->json(['message' => 'Contraseña actualizada con éxito'], 200);
+            return response()->json(['message' => 'Contraseña actualizada con éxito'], 201);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);

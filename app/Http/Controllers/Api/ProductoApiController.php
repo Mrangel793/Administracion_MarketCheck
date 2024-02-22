@@ -281,6 +281,20 @@ class ProductoApiController extends Controller
     }
     }
 
+    public function productosConCategoria($id_establecimiento,$id_categoria)
+    {
+    try {
+
+        $productosConCategoria = Producto::where('id_categoria',$id_categoria)
+            ->where('id_establecimiento', $id_establecimiento)
+            ->get();
+
+        return response()->json(['productos' => $productosConCategoria]);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al obtener productos sin categoría', 'details' => $e->getMessage()], 500);
+    }
+    }
+
     public function destroy($id)
     {
         $user = Auth::user();

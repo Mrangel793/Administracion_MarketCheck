@@ -98,20 +98,24 @@ class EstablecimientoApiController extends Controller
     }
 
     public function showCategoriesByStore($id){
-    try {
-        $categories = Categoria::select('categorias.*')
-        ->join('productos', 'categorias.id', '=', 'productos.id_categoria')
-        ->join('establecimientos', 'establecimientos.id', '=', 'productos.id_establecimiento')
-        ->where('establecimientos.id', $id)
-        ->get();
+        try {
+            $categories = Categoria::select('categorias.*')
+            ->join('productos', 'categorias.id', '=', 'productos.id_categoria')
+            ->join('establecimientos', 'establecimientos.id', '=', 'productos.id_establecimiento')
+            ->where('establecimientos.id', $id)
+            ->distinct() 
+            ->get();
+        
+            return response()->json(['categories' => $categories], 200);
+        
+            
+        
+        } catch (NotFound $e) {
+            return response()->json(['message' => 'Tienda no encontrada'], 404);
 
-        return $categories;
-    } catch (NotFound $e) {
-        return response()->json(['message' => 'Tienda no encontrada'], 404);
-
-    } catch (\Exception $e) {
-        return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
-    }    
+        } catch (\Exception $e) {
+            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
+        }    
     }         
 
     public function activateOrDestivateStore($id)
