@@ -18,8 +18,10 @@ use App\Models\Oferta_Producto;
 //TODO: REVISADO
 class OfertaApiController extends Controller
 {   
-    public function offersMobileApp(){
-        $offers = Oferta::where('estado', 1)->get();
+    public function offersMobileApp($id){
+        $offers = Oferta::where('estado', 1)
+        ->where('establecimiento_id',$id)
+        ->get();
         return response()->json(['offers'=> $offers]);
     }
 

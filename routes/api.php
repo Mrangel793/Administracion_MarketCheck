@@ -44,19 +44,19 @@ Route::middleware('auth:sanctum')->get('/user', function (Request $request) {
 
 });
 
-Route::apiResource('establecimiento',EstablecimientoApiController::class)/*->middleware("auth:api")*/;
+Route::apiResource('establecimiento',EstablecimientoApiController::class)->middleware("auth:api");
 Route::get('establecimiento/{establecimiento_id}/ofertas/{oferta_id}', [EstablecimientoApiController::class, 'showOffer'])->middleware('auth:api');
 
-Route::put('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore']); //<--- AUTENTICABLE???
-Route::put('/establecimiento/deactivate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore']); //<--- AUTENTICABLE???
+Route::put('/establecimiento/activate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore'])->middleware('auth:api');
+Route::put('/establecimiento/deactivate/{id}', [EstablecimientoApiController::class, 'activateOrDestivateStore'])->middleware('auth:api');
 
-Route::put('/establecimiento/images/{id}', [EstablecimientoApiController::class, 'updateImageField']); //<--- AUTENTICABLE???
+Route::put('/establecimiento/images/{id}', [EstablecimientoApiController::class, 'updateImageField'])->middleware('auth:api');
 Route::get('/establecimiento/showCategoriesByStore/{id}',[EstablecimientoApiController::class,'showCategoriesByStore']);
 
 //OFERTAS API CONTROLLER---------------------------------------------------------------------------------------------------
 
 Route::prefix('ofertas')->group(function () {
-    Route::get('/mobile-app', [OfertaApiController::class, 'offersMobileApp']);
+    Route::get('/mobile-app/{id}', [OfertaApiController::class, 'offersMobileApp']);
     Route::get('/show-offer/{id}', [OfertaApiController::class, 'showOfferMobileApp']); //<--- AUTENTICABLE???
 
     Route::get('/', [OfertaApiController::class, 'index'])->middleware('auth:api');
@@ -104,7 +104,7 @@ Route::prefix('productos')->group(function () {
     Route::post('/', [ProductoApiController::class, 'store'])->middleware('auth:api');
     Route::put('/{id}', [ProductoApiController::class, 'update'])->middleware('auth:api');
     Route::delete('/{id}', [ProductoApiController::class, 'destroy'])->middleware('auth:api'); 
-    Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); //<--- SOLO UNA FUNCION
+    Route::put('/activate/{id}', [ProductoApiController::class, 'activate'])->middleware('auth:api'); 
     Route::put('/deactivate/{id}', [ProductoApiController::class, 'deactivate'])->middleware('auth:api'); 
     Route::get('/getProductsfilter/{searchTerm}',[ProductoApiController::class,'getProductsfilter'])->middleware('auth:api');
     Route::post('/assignCategory', [ProductoApiController::class, 'assignCategory'])->middleware('auth:api'); 

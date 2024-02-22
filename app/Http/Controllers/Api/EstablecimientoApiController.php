@@ -30,14 +30,15 @@ class EstablecimientoApiController extends Controller
      */
     public function index()
     {
+
         $stores = Establecimiento::all();
         return response()->json(['stores'=> $stores], 200);
+        
+        return response()->json(['message' => 'No tienes permisos para ejecutar esta acción'], 403);
+
     }
 
-    /**
-     * @param  \Illuminate\Http\Request  $request
-     * @return \Illuminate\Http\Response
-     */
+    
     public function store(Request $request)
     {
         $request->validate([
@@ -48,7 +49,10 @@ class EstablecimientoApiController extends Controller
             "CorreoEstablecimiento"=> 'required|email|unique:establecimientos', 
         ]);
 
+
         try {
+            if (Auth::user()->rol_id == 1) {
+
             $store= Establecimiento::create([
                 "Nit" => $request-> Nit, 
                 "Estado" => $request-> Estado, 
@@ -70,7 +74,11 @@ class EstablecimientoApiController extends Controller
             ]);
             event(new Registered($user));
 
+
             return response()->json(['message' => 'Establecimiento creado con éxito', 'id'=> $store-> id], 201);
+
+            
+        }else{return response()->json(['message' => 'No tienes permisos para ejecutar esta acción'], 403);}
 
         } catch (\Exception $e) {
             return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
@@ -120,7 +128,11 @@ class EstablecimientoApiController extends Controller
 
     public function activateOrDestivateStore($id)
     {
+
+        
         try {
+            if (Auth::user()->rol_id == 1) {
+
             $store = Establecimiento::FindOrFail($id);
             $state= $store-> Estado;
             switch ($state) {
@@ -141,6 +153,7 @@ class EstablecimientoApiController extends Controller
                     
                     break;
             }
+            }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Tienda no encontrada'], 404);
@@ -159,6 +172,7 @@ class EstablecimientoApiController extends Controller
      */
     public function update(Request $request, $id)
     {  
+
         $request->validate([
             "Nit"=> 'required|numeric', 
             "Estado"=> 'required', 
@@ -168,10 +182,13 @@ class EstablecimientoApiController extends Controller
         ]);
 
         try {
-            $store = Establecimiento::FindOrFail($id);
-            $store->update($request->all());
+            if (Auth::user()->rol_id == 1) {
 
-            return response()->json(['message' => 'Actualizacion éxitosa', 'store'=> $store], 201);
+                $store = Establecimiento::FindOrFail($id);
+                $store->update($request->all());
+
+                return response()->json(['message' => 'Actualizacion éxitosa', 'store'=> $store], 201);
+            }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Tienda no encontrada'], 404);
@@ -214,64 +231,52 @@ class EstablecimientoApiController extends Controller
      * @return \Illuminate\Http\Response
      */
     public function destroy($id){      
+        $user = Auth::user();
+
         try {
-            $store = Establecimiento::findOrFail($id);
 
-            $imagePath= $store-> Imagen;
-            $logoPath= $store-> Logo;
+            if ($user->rol_id == 1) {
 
-           if($imagePath) Storage::delete("public/images/$imagePath");
-           if($logoPath) Storage::delete("public/images/$logoPath");
+                    $store = Establecimiento::findOrFail($id);
+
+                    $imagePath= $store-> Imagen;
+                    $logoPath= $store-> Logo;
+
+                if($imagePath) Storage::delete("public/images/$imagePath");
+                if($logoPath) Storage::delete("public/images/$logoPath");
                 
             
 
-            $offers = Oferta::where('establecimiento_id', $store-> id)->get();
-            if($offers->isNotEmpty()){
-                foreach ($offers as $offer) {             
-                    $path= $offer->imagen;
-                    if($path) Storage::delete("public/images/$path");    
+                    $offers = Oferta::where('establecimiento_id', $store-> id)->get();
+                    if($offers->isNotEmpty()){
+                        foreach ($offers as $offer) {             
+                            $path= $offer->imagen;
+                            if($path) Storage::delete("public/images/$path");    
                     
-                    $offer->productos()->detach();
-                    $offer->delete();
-                }
-            }
-
-            $purchases = Compra::where('establecimiento_id', $store-> id)->get();
-            if($purchases->isNotEmpty()){
-                foreach ($purchases as $purchase) {
-                    $purchase->productos()->detach();
-                    $purchase->delete();
-                }
-            }
-
-            $store->delete();
-
-            return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);
-
-            //ANTIGUO
-            /*$images= Image::where('establecimiento_id', $store-> id)->get();
-            foreach ($images as $image) {
-                $path= $image->imagePath;
-                if($path) Storage::delete("public/images/$path");    
-            }
-
-            $offers = Oferta::where('establecimiento_id', $store-> id)->get();
-            if($offers->isNotEmpty()){
-                foreach ($offers as $offer) {
-                    $images= Image::where('oferta_id', $offer->id)->get();
-                    foreach ($images as $image) {
-                        $path= $image->imagePath;
-                        if($path) Storage::delete("public/images/$path");
-                        $image->delete();    
+                            $offer->productos()->detach();
+                            $offer->delete();
+                        }
                     }
-                    $offer->productos()->detach();
-                    $offer->delete();
-                }
-            }*/
+
+                    $purchases = Compra::where('establecimiento_id', $store-> id)->get();
+                    if($purchases->isNotEmpty()){
+                        foreach ($purchases as $purchase) {
+                            $purchase->productos()->detach();
+                            $purchase->delete();
+                        }
+                    }
+
+                    $store->delete();
+                    return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);
+            
+            }else{return response()->json(['message' => 'No tienes permisos para ejecutar esta acción'], 403);}
+
+          
         } catch (NotFound $e) {
             return response()->json(['message' => 'Establecimiento no encontrado'], 404);
 
         } catch (\Exception $e) {
+            
             return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
         }
     }

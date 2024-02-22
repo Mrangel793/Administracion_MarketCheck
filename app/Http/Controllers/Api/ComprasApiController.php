@@ -378,9 +378,16 @@ public function getPurchasePin($pin) {
      * @return \Illuminate\Http\Response
      */
     public function showCompra($id){
+        $user = Auth::user();
+
         try {
             $purchase = Compra::findOrFail($id);
+            if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id||$purchase->user_id == Auth::id()) {
+
             return response()->json(['purchase' => $purchase], 200);   
+
+        }
+        return response()->json(['message'=>'El usuario no tiene permisos para ejecutar esta acción'], 403);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Compra no encontrada'], 404);
@@ -388,6 +395,8 @@ public function getPurchasePin($pin) {
         } catch (\Exception $e) {
             return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
         }
+    
+
     }
 
     /**
@@ -409,30 +418,35 @@ public function getPurchasePin($pin) {
      * @return \Illuminate\Http\Response
      */
     public function destroy($id)
-    {
-        try {
-            $purchase = Compra::findOrFail($id);
+{
+    try {
+        $purchase = Compra::findOrFail($id);
 
-            if($purchase-> estado === 0){      
-                $purchase->productos()->detach();
-                $purchase->delete();
+        if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id||$purchase->user_id == Auth::id()) {
+            if ($purchase->estado === 0) {
+                    $purchase->productos()->detach();
+                    $purchase->delete();
 
-                return response()->json(['message' => 'Compra Eliminada!', 'purchase'=> $purchase], 200);
+                    return response()->json(['message' => 'Compra Eliminada!', 'purchase' => $purchase], 200);
+                } else {
+                    return response()->json(['message' => 'No se puede realizar esta accion!'], 403);
+                }    
             }
-            return response()->json(['message' => 'No se puede realizar esta accion!'], 403);   
-
-        } catch (NotFound $e) {
-            return response()->json(['message' => 'Compra no encontrada'], 404);
-
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
+ else {
+            return response()->json(['message' => 'No tienes permisos para eliminar esta compra'], 403);
         }
+    } catch (NotFound $e) {
+        return response()->json(['message' => 'Compra no encontrada'], 404);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al procesar la solicitud', 'error' => $e], 500);
     }
+}
 
     public function destroyPurchaseItem($purchaseId, $itemId)
     {   
         try {
             $purchase = Compra::findOrFail($purchaseId);
+            if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id||$purchase->user_id == Auth::id()) {
 
             if($purchase-> estado === 0){      
                 $product = ComprasProductos::where('producto_id', $itemId)->where('compra_id', $purchaseId)->first();
@@ -453,6 +467,9 @@ public function getPurchasePin($pin) {
                 }
 
             }
+        }else{ return response()->json(['message' => 'No tienes permisos para eliminar esta compra'], 403);
+        }
+
             return response()->json(['message' => 'No se puede realizar esta accion!'], 403);   
 
         } catch (NotFound $e) {
