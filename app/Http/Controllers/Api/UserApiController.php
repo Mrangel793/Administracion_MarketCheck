@@ -63,10 +63,10 @@ class UserApiController extends Controller
                 'documento' => $request->documento,
                 'establecimiento_id' => $request->establecimiento_id,
                 'rol_id' => $request->rol_id,
-                'password' => Hash::make($request->name),
+                'password' => Hash::make($request->documento),
             ]);
             $user->sendEmailVerificationNotification();    
-            return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
+            return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el numero de documento'], 201);
         }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
     }
@@ -168,7 +168,7 @@ class UserApiController extends Controller
         try {
 
             $user = User::findOrFail($id);
-            if (($user->establecimiento_id==Auth::user()->establecimiento_id)||(Auth::user()->rol_id == 1)||(Auth::user()->id==$id && Auth::user()->rol_id==4) ){
+            if ((($user->establecimiento_id==Auth::user()->establecimiento_id)&&Auth::user()->rol_id==2)||(Auth::user()->rol_id == 1)||(Auth::user()->id==$id && Auth::user()->rol_id==4)){
             $user->delete();
             }else{
                 return response()->json(['message'=>'No tiene autorización para eliminar este usuario'],403);
