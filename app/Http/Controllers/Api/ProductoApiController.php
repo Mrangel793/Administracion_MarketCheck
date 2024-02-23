@@ -82,8 +82,9 @@ class ProductoApiController extends Controller
         'numeroStock' => 'required|numeric|min:0',
         'estado' => 'required',
         'id_categoria' => 'required|numeric',
-        'id_subcategoria' => 'required|numeric',
     ]);
+    if (Auth::user()->rol_id == 2 || Auth::user()->rol_id ==3) {
+
 
 
         $existingProduct = Producto::where('codigoProducto', $request->codigoProducto)
@@ -108,6 +109,9 @@ class ProductoApiController extends Controller
         ]);
 
         return response()->json(['message' => 'Producto creado con éxito', 'product' => $product], 201);
+    
+    }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
+
     
 
 }
@@ -138,13 +142,16 @@ class ProductoApiController extends Controller
         $user = Auth::user();
          
          try {
+
              $product= Producto::FindOrFail($id);
+             if ((Auth::user()->rol_id == 2 || Auth::user()->rol_id ==3)&& $product->id_establecimiento == $user->establecimiento_id) {
 
              $product->update([
                  'estado'=> 1    
              ]);
              return response()->json(['message' => 'Producto activado con éxito'], 201);
- 
+            }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
+
          } catch (NotFound $e) {
              return response()->json(['message' => 'Producto no encontrado'], 404);
  
@@ -161,11 +168,13 @@ class ProductoApiController extends Controller
         $user = Auth::user();
          try {
              $product= Producto::FindOrFail($id);
- 
+             if ((Auth::user()->rol_id == 2 || Auth::user()->rol_id ==3)&& $product->id_establecimiento == $user->establecimiento_id) {
+
              $product->update([
                  'estado'=> 0    
              ]);
              return response()->json(['message' => 'Producto desactivado con éxito'], 201);
+            }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
          } catch (NotFound $e) {
              return response()->json(['message' => 'Producto no encontrado'], 404);

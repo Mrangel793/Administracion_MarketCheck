@@ -55,17 +55,20 @@ class UserApiController extends Controller
             'email' => 'required|email|unique:users',
             'rol_id' => 'required|numeric',
         ]);
-    
-        $user = User::create([
-            'name' => $request->name,
-            'email' => $request->email,
-            'documento' => $request->documento,
-            'establecimiento_id' => $request->establecimiento_id,
-            'rol_id' => $request->rol_id,
-            'password' => Hash::make($request->name),
-        ]);
-        $user->sendEmailVerificationNotification();    
-        return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
+        if ((Auth::user()->rol_id == 1 || Auth::user()->rol_id ==2)) {
+
+            $user = User::create([
+                'name' => $request->name,
+                'email' => $request->email,
+                'documento' => $request->documento,
+                'establecimiento_id' => $request->establecimiento_id,
+                'rol_id' => $request->rol_id,
+                'password' => Hash::make($request->name),
+            ]);
+            $user->sendEmailVerificationNotification();    
+            return response()->json(['message' => 'Usuario creado con éxito. Recuerde que la contraseña es el mismo nombre'], 201);
+        }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
+
     }
     
     /**
@@ -105,16 +108,19 @@ class UserApiController extends Controller
     
         try {
             $user = User::findOrFail($id);
+            if ((Auth::user()->rol_id == 1 || Auth::user()->rol_id ==2)) {
+
+                $user->update([
+                    'name' => $request-> name,
+                    'email' => $request-> email,
+                    'documento' => $request-> documento,
+                    'establecimiento_id' => $request-> establecimiento_id,
+                    'rol_id' => $request-> rol_id,
+                ]);
     
-            $user->update([
-                'name' => $request-> name,
-                'email' => $request-> email,
-                'documento' => $request-> documento,
-                'establecimiento_id' => $request-> establecimiento_id,
-                'rol_id' => $request-> rol_id,
-            ]);
-    
-            return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201);
+                return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201);
+
+            }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
@@ -126,17 +132,21 @@ class UserApiController extends Controller
 
     public function changePassword(Request $request, $id)
     {
+
         $request->validate([
             'password' => 'required|string|min:8',
         ]);
 
         try {
             $user = User::findOrFail($id);
-            $user->update([
-                'password' => Hash::make($request-> password)
-            ]);
+            if (Auth::user()->id == $user->id) {
+
+                $user->update([
+                    'password' => Hash::make($request-> password)
+                ]);
     
-            return response()->json(['message' => 'Contraseña actualizada con éxito'], 201);
+                return response()->json(['message' => 'Contraseña actualizada con éxito'], 201);
+            }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
@@ -156,8 +166,13 @@ class UserApiController extends Controller
     public function destroy($id)
     { 
         try {
+
             $user = User::findOrFail($id);
+            if (($user->establecimiento_id==Auth::user()->establecimiento_id)||(Auth::user()->rol_id == 1)||(Auth::user()->id==$id && Auth::user()->rol_id==4) ){
             $user->delete();
+            }else{
+                return response()->json(['message'=>'No tiene autorización para eliminar este usuario'],403);
+            }
     
             return response()->json(['message' => 'Usuario Eliminado!', 'user'=> $user], 200);
 

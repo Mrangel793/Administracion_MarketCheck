@@ -77,7 +77,7 @@ Route::prefix('ofertas')->group(function () {
 //USER CRUD ---------------------------------------------------------------------//
 
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
-Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword']); //<--- AUTENTICABLE???
+Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword'])->middleware("auth:api"); 
 //-------------------------------------------------------------------------------**--//
 
 Route::apiResource('rol',RolApiController::class); //<--- AUTENTICABLE???
