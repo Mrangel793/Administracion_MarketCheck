@@ -136,7 +136,7 @@ Route::group([
 
 Route::prefix('compras')->group(function () {
     Route::get('/mobile-app', [ComprasApiController::class, 'purchasesMobileApp'])->middleware('auth:api');
-    Route::post('/new-purchase', [ComprasApiController::class, 'newPurchaseMobileApp'])->middleware('auth:api');
+    Route::get('/new-purchase/{store_id}', [ComprasApiController::class, 'newPurchaseMobileApp'])->middleware('auth:api');
 
     Route::get('/', [ComprasApiController::class, 'index'])->middleware('auth:api');
     Route::get('/compra/{compraid}', [ComprasApiController::class, 'showCompra'])->middleware('auth:api');

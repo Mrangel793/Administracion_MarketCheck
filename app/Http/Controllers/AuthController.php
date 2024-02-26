@@ -21,17 +21,20 @@ class AuthController extends Controller
         $request->validate([
             'name' => 'required',
             'email' => 'required|email|unique:users',
+            'documento' => 'required',
             'establecimiento_id' => 'required|exists:establecimientos,id', 
         ]);
     
         $name = $request->input('name');
         $email = $request->input('email');
+        $documento=$request->input('documento');
         $establecimientoId = $request->input('establecimiento_id');
         
         $user=User::create([
             'name' => $name,
             'email' => $email,
-            'password' => Hash::make($name),
+            'documento'=>$documento,
+            'password' => Hash::make($documento),
             'establecimiento_id' => $establecimientoId,
             'rol_id'=>2
         ]);

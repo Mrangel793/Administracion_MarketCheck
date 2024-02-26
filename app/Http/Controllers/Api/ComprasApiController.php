@@ -35,10 +35,8 @@ class ComprasApiController extends Controller
         
     } 
 
-    public function newPurchaseMobileApp(Request $request){
-        $request->validate([
-            'establecimiento_id' => 'required'
-        ]);
+    public function newPurchaseMobileApp($store_id){
+        
     
         $user = Auth::user();
 
@@ -49,7 +47,7 @@ class ComprasApiController extends Controller
                 'total' => 0,
                 'estado' => 0,
                 'pin' => mt_rand(100000,999999),
-                'establecimiento_id' => $request-> establecimiento_id,
+                'establecimiento_id' => $store_id,
                 'user_id' => $user-> id
             ]);   
             return response()->json(['message' => 'Compra creada con éxito.', 'id'=> $compra-> id, 'pin'=> $compra-> pin], 201);
