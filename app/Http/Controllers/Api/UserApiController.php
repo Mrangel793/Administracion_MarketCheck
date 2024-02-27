@@ -54,6 +54,8 @@ class UserApiController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users',
             'rol_id' => 'required|numeric',
+            'documento'=>'required|numeric',
+            'establecimiento_id'=>'required|numeric'
         ]);
         if ((Auth::user()->rol_id == 1 || Auth::user()->rol_id ==2)) {
 
