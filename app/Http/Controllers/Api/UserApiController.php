@@ -110,7 +110,7 @@ class UserApiController extends Controller
     
         try {
             $user = User::findOrFail($id);
-            if ((Auth::user()->rol_id == 1 || Auth::user()->rol_id ==2)) {
+            if (Auth::user()->rol_id != 3) {
 
                 $user->update([
                     'name' => $request-> name,
@@ -122,7 +122,9 @@ class UserApiController extends Controller
     
                 return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201);
 
-            }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
+            }else{
+                return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);
+            }
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);

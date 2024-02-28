@@ -24,12 +24,25 @@ class ComprasApiController extends Controller
      * @return \Illuminate\Http\Response
      */
 
-     public function purchasesMobileApp() 
+    public function openPurchasesApp() 
     {
         $user = Auth::user();     
         if($user && isset($user-> id)){ 
-            $purchases = Compra::where('user_id', $user-> id)->get();
-            return response()->json(['purchases'=> $purchases], 200);
+            $purchase = Compra::where('user_id', $user-> id)->where('estado', 0)->first();
+
+            return response()->json(['openPurchase'=> $purchase], 200);
+        }
+        return response()->json(['message' => 'Error al procesar la solicitud'], 500);
+        
+    }
+
+    public function closePurchasesApp() 
+    {
+        $user = Auth::user();     
+        if($user && isset($user-> id)){ 
+            $purchases = Compra::where('user_id', $user-> id)->where('estado', 1)->get();
+
+            return response()->json(['closePurchases'=> $purchases], 200);
         }
         return response()->json(['message' => 'Error al procesar la solicitud'], 500);
         
