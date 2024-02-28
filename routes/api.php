@@ -5,14 +5,14 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Route;
 
 use App\Http\Controllers\AuthController;
-use App\Http\Controllers\API\RolApiController;
+use App\Http\Controllers\Api\RolApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ImageApiController;
 use App\Http\Controllers\Api\OfertaApiController;
 use App\Http\Controllers\Api\ComprasApiController;
 use App\Http\Controllers\Api\ProductoApiController;
-use App\Http\Controllers\API\CategoriaApiController;
-use App\Http\Controllers\API\SubCategoriaApiController;
+use App\Http\Controllers\Api\CategoriaApiController;
+use App\Http\Controllers\Api\SubCategoriaApiController;
 use App\Http\Controllers\Api\EstablecimientoApiController;
 use App\Http\Controllers\Api\CargaInventarioApiController;
 
