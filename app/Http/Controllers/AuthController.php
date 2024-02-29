@@ -74,7 +74,8 @@ class AuthController extends Controller
             'email' => $request-> email,
             'establecimiento_id' => null,
             'rol_id' => 4,
-            'password' => Hash::make($request-> password)
+            'password' => Hash::make($request-> password),
+            'profile_image'=>0
         ]);
 
         $user->sendEmailVerificationNotification();

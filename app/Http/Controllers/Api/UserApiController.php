@@ -110,6 +110,10 @@ class UserApiController extends Controller
     
         try {
             $user = User::findOrFail($id);
+            $profile_image=null;
+            if($request->profile_image){
+                $profile_image = $request->profile_image;
+            }
             if (Auth::user()->rol_id != 3) {
 
                 $user->update([
@@ -118,6 +122,7 @@ class UserApiController extends Controller
                     'documento' => $request-> documento,
                     'establecimiento_id' => $request-> establecimiento_id,
                     'rol_id' => $request-> rol_id,
+                    'profile_image' => $profile_image
                 ]);
     
                 return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201);

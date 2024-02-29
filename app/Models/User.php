@@ -32,7 +32,8 @@ class User extends Authenticatable implements MustVerifyEmail
         'password',
         'establecimiento_id',
         'rol_id',
-        'email_verified_at'
+        'email_verified_at',
+        'profile_image'
     ];
 
     public function establecimiento(){

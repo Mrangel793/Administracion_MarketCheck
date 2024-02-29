@@ -20,6 +20,7 @@ class CreateUsersTable extends Migration
             $table->string('email')->unique();
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
+            $table->integer('profile_image')->nullable();
 
             $table->foreignId('establecimiento_id')->nullable();
             $table->foreign('establecimiento_id')->references('id')->on('establecimientos');
