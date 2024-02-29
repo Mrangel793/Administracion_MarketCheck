@@ -58,7 +58,7 @@ class ListasApiController extends Controller
                 'productos' => $request->input('productos'),
             ]);
 
-            return response()->json(['message' => 'Lista creada correctamente', 'lista' => $nuevaLista], 201);
+            return response()->json(['message' => 'Lista creada correctamente', 'lista' => $nuevaLista], 201,[], JSON_NUMERIC_CHECK);
         } else {
             return response()->json(['message' => 'No tiene permisos para hacer esto'], 403);
         }
@@ -79,7 +79,7 @@ class ListasApiController extends Controller
 
         if($user->id == $lista->user_id){
 
-            return response()->json(['lista' => $lista], 200);
+            return response()->json(['lista' => $lista], 200,[], JSON_NUMERIC_CHECK);
         }else{
             return response()->json(['message' => 'No tiene permisos para hacer esto'], 403);
     }
@@ -114,7 +114,7 @@ class ListasApiController extends Controller
                 'productos' => $request->input('productos'),
             ]);
 
-            return response()->json(['message' => 'Lista actualizada correctamente', 'lista' => $lista], 200);
+            return response()->json(['message' => 'Lista actualizada correctamente', 'lista' => $lista], 200,[], JSON_NUMERIC_CHECK);
         }else{
             return response()->json(['message' => 'No tiene permisos para hacer esto'], 403);
 
