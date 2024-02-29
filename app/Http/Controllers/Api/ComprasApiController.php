@@ -391,7 +391,7 @@ public function getPurchasePin($pin) {
 
         try {
             $purchase = Compra::findOrFail($id);
-            if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id||$purchase->user_id == Auth::id()) {
+            if (((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$purchase->user_id == Auth::id()) {
 
             return response()->json(['purchase' => $purchase], 200);   
 
@@ -431,7 +431,7 @@ public function getPurchasePin($pin) {
     try {
         $purchase = Compra::findOrFail($id);
 
-        if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id||$purchase->user_id == Auth::id()) {
+        if (((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$purchase->user_id == Auth::id()) {
             if ($purchase->estado === 0) {
                     $purchase->productos()->detach();
                     $purchase->delete();
@@ -455,7 +455,7 @@ public function getPurchasePin($pin) {
     {   
         try {
             $purchase = Compra::findOrFail($purchaseId);
-            if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id||$purchase->user_id == Auth::id()) {
+            if (((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$purchase->user_id == Auth::id()) {
 
             if($purchase-> estado === 0){      
                 $product = ComprasProductos::where('producto_id', $itemId)->where('compra_id', $purchaseId)->first();
