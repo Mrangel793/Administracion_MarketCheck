@@ -32,7 +32,7 @@ class EstablecimientoApiController extends Controller
     {
 
         $stores = Establecimiento::all();
-        return response()->json(['stores'=> $stores], 200);
+        return response()->json(['stores'=> $stores], 200,[],JSON_NUMERIC_CHECK);
         
         return response()->json(['message' => 'No tienes permisos para ejecutar esta acción'], 403);
 
@@ -75,7 +75,7 @@ class EstablecimientoApiController extends Controller
             event(new Registered($user));
 
 
-            return response()->json(['message' => 'Establecimiento creado con éxito', 'id'=> $store-> id], 201);
+            return response()->json(['message' => 'Establecimiento creado con éxito', 'id'=> $store-> id], 201,[],JSON_NUMERIC_CHECK);
 
             
         }else{return response()->json(['message' => 'No tienes permisos para ejecutar esta acción'], 403);}
@@ -95,7 +95,7 @@ class EstablecimientoApiController extends Controller
     {
         try {
             $store = Establecimiento::FindOrFail($id);
-            return response()->json(['store'=> $store], 200);
+            return response()->json(['store'=> $store], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Tienda no encontrada'], 404);
@@ -114,7 +114,7 @@ class EstablecimientoApiController extends Controller
             ->distinct() 
             ->get();
         
-            return response()->json(['categories' => $categories], 200);
+            return response()->json(['categories' => $categories], 200,[],JSON_NUMERIC_CHECK);
         
             
         
@@ -140,13 +140,13 @@ class EstablecimientoApiController extends Controller
                     $store->update([
                         'Estado'=> 1    
                     ]);
-                    return response()->json(['message' => 'Tienda activada con éxito'], 201);
+                    return response()->json(['message' => 'Tienda activada con éxito'], 201,[],JSON_NUMERIC_CHECK);
                     
                 case 1:
                     $store->update([
                         'Estado'=> 0    
                     ]);
-                    return response()->json(['message' => 'Tienda desactivada con éxito'], 201);
+                    return response()->json(['message' => 'Tienda desactivada con éxito'], 201,[],JSON_NUMERIC_CHECK);
                     break;
                 
                 default:
@@ -187,7 +187,7 @@ class EstablecimientoApiController extends Controller
                 $store = Establecimiento::FindOrFail($id);
                 $store->update($request->all());
 
-                return response()->json(['message' => 'Actualizacion éxitosa', 'store'=> $store], 201);
+                return response()->json(['message' => 'Actualizacion éxitosa', 'store'=> $store], 201,[],JSON_NUMERIC_CHECK);
             }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
         } catch (NotFound $e) {
@@ -214,7 +214,7 @@ class EstablecimientoApiController extends Controller
                     'Imagen' => $image
                 ]);
             }
-            return response()->json(['message' => 'Actualizacion éxitosa.', 'L'=>$logo , 'I'=>$image],201);
+            return response()->json(['message' => 'Actualizacion éxitosa.', 'L'=>$logo , 'I'=>$image],201,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Tienda no encontrada.'], 404);
@@ -267,7 +267,7 @@ class EstablecimientoApiController extends Controller
                     }
 
                     $store->delete();
-                    return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200);
+                    return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200,[],JSON_NUMERIC_CHECK);
             
             }else{return response()->json(['message' => 'No tienes permisos para ejecutar esta acción'], 403);}
 

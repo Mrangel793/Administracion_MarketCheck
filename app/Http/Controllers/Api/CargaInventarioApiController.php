@@ -36,8 +36,8 @@ class CargaInventarioApiController extends Controller
              $path = $request->file('documento')->getRealPath();
              
              try {
-                 Excel::import(new ProductsImport, $path);
-                 return response()->json(['message' => 'Import successful'], 200);
+                Excel::import(new ProductsImport, $path, 'Xlsx');
+                return response()->json(['message' => 'Import successful'], 200,[],JSON_NUMERIC_CHECK);
              } catch (\Exception $e) {
                  return response()->json(['error' => 'Import failed', 'message' => $e->getMessage()], 500);
              }

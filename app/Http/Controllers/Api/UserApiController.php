@@ -31,7 +31,7 @@ class UserApiController extends Controller
             ->whereNotIn('id', [$user-> id])
             ->get();
 
-            return response()->json(['users'=> $users], 200);
+            return response()->json(['users'=> $users], 200,[],JSON_NUMERIC_CHECK);
         }
         elseif ($user){
             $users = User::where('rol_id', '!=', 1)->get();
@@ -83,7 +83,7 @@ class UserApiController extends Controller
     {
         try {
             $user= User::FindOrFail($id);
-            return response()->json(['user'=> $user], 200);
+            return response()->json(['user'=> $user], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
@@ -178,7 +178,7 @@ class UserApiController extends Controller
                 return response()->json(['message'=>'No tiene autorización para eliminar este usuario'],403);
             }
     
-            return response()->json(['message' => 'Usuario Eliminado!', 'user'=> $user], 200);
+            return response()->json(['message' => 'Usuario Eliminado!', 'user'=> $user], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);

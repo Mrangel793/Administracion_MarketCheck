@@ -30,7 +30,7 @@ class ComprasApiController extends Controller
         if($user && isset($user-> id)){ 
             $purchase = Compra::where('user_id', $user-> id)->where('estado', 0)->first();
 
-            return response()->json(['openPurchase'=> $purchase], 200);
+            return response()->json(['openPurchase'=> $purchase], 200,[],JSON_NUMERIC_CHECK);
         }
         return response()->json(['message' => 'Error al procesar la solicitud'], 500);
         
@@ -42,7 +42,7 @@ class ComprasApiController extends Controller
         if($user && isset($user-> id)){ 
             $purchases = Compra::where('user_id', $user-> id)->where('estado', 1)->get();
 
-            return response()->json(['closePurchases'=> $purchases], 200);
+            return response()->json(['closePurchases'=> $purchases], 200,[],JSON_NUMERIC_CHECK);
         }
         return response()->json(['message' => 'Error al procesar la solicitud'], 500);
         
@@ -61,7 +61,7 @@ class ComprasApiController extends Controller
                 'establecimiento_id' => $storeId,
                 'user_id' => $user-> id
             ]);   
-            return response()->json(['message' => 'Compra creada con éxito.', 'id'=> $compra-> id, 'pin'=> $compra-> pin], 201);
+            return response()->json(['message' => 'Compra creada con éxito.', 'id'=> $compra-> id, 'pin'=> $compra-> pin], 201,[],JSON_NUMERIC_CHECK);
         }
 
         return response()->json(['message' => 'Error al procesar la solicitud'], 500);   
@@ -72,7 +72,7 @@ class ComprasApiController extends Controller
         $user = Auth::user();     
         if($user && isset($user->establecimiento_id)){ 
             $purchases = Compra::where('establecimiento_id', $user->establecimiento_id)->get();
-            return response()->json(['purchases'=> $purchases], 200);
+            return response()->json(['purchases'=> $purchases], 200,[],JSON_NUMERIC_CHECK);
         }
         return response()->json(['message' => 'El Usuario no tiene permisos para visualizar este Contenido'], 403);
         
@@ -82,7 +82,7 @@ class ComprasApiController extends Controller
     {   
         try {
             $purchaseItems = ComprasProductos::where('compra_id', $compraid)->get();
-            return response()->json(['items'=>$purchaseItems], 200);
+            return response()->json(['items'=>$purchaseItems], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (\Exception $e) {
             return response()->json(['message'=> 'Error al procesar la solicitud', 'error'=> $e], 500);
@@ -106,7 +106,7 @@ class ComprasApiController extends Controller
         ->limit(10)
         ->get();
 
-    return response()->json(['topSellingProducts' => $topSellingProducts]);
+    return response()->json(['topSellingProducts' => $topSellingProducts],[],JSON_NUMERIC_CHECK);
     }
 
     public function getDailySales(Request $request)
@@ -121,7 +121,7 @@ class ComprasApiController extends Controller
             ->where('estado',1)
             ->sum('total');
     
-        return response()->json(['totalVentasDelDia' => $totalVentasDelDia, 'diaActual' => $diaActual]);
+        return response()->json(['totalVentasDelDia' => $totalVentasDelDia, 'diaActual' => $diaActual],[],JSON_NUMERIC_CHECK);
     }
 
 
@@ -150,7 +150,7 @@ public function getSalesLast10Months(Request $request)
         ];
     }
 
-    return response()->json(['last_10_months_sales' => $last10MonthsSales], 200);
+    return response()->json(['last_10_months_sales' => $last10MonthsSales], 200,[],JSON_NUMERIC_CHECK);
 }
 
 public function getPurchasePin($pin) {
@@ -165,7 +165,7 @@ public function getPurchasePin($pin) {
             return response()->json(['message' => 'No se encontraron compras con el PIN proporcionado.'], 404);
         }
 
-        return response()->json(['purchases' => $purchases], 200);
+        return response()->json(['purchases' => $purchases], 200,[],JSON_NUMERIC_CHECK);
     }
 
     return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
@@ -184,7 +184,7 @@ public function getPurchasePin($pin) {
         ->where('estado',1)
         ->sum('total');
 
-    return response()->json(['ventas del mes' => $monthlySales]);
+    return response()->json(['ventas del mes' => $monthlySales],[],JSON_NUMERIC_CHECK);
 }
 
 
@@ -201,7 +201,7 @@ public function getPurchasePin($pin) {
             ->where('estado',1)
             ->sum('total');
 
-        return response()->json(['annualSales' => $annualSales]);
+        return response()->json(['annualSales' => $annualSales],[],JSON_NUMERIC_CHECK);
     }
 
 
@@ -224,7 +224,7 @@ public function getPurchasePin($pin) {
                 'establecimiento_id' => $user-> establecimiento_id,
                 'seller_id' => $user-> id
             ]);   
-            return response()->json(['message' => 'Compra creada con éxito.', 'id'=>$compra->id], 201);
+            return response()->json(['message' => 'Compra creada con éxito.', 'id'=>$compra->id], 201,[],JSON_NUMERIC_CHECK);
         }
 
         return response()->json(['message' => 'El Usuario no tiene permisos para realizar esta accion'], 403);   
@@ -262,7 +262,7 @@ public function getPurchasePin($pin) {
 
                 $purchaseItemPrice= $this-> createOrUpdatePurchaseItem($product, $request-> itemsCount, $purchaseId, $itemId, $stock);
                 if($purchaseItemPrice === null){
-                    return response()->json(['message' => "El stock es insuficiente para la transaccion. Stock disponible($stock)"], 403);
+                    return response()->json(['message' => "El stock es insuficiente para la transaccion. Stock disponible($stock)"], 403,[],JSON_NUMERIC_CHECK);
                 } 
                 if($purchaseItemPrice === 0){
                     return response()->json(['message' => "La cantidad minima es 1."], 400);
@@ -273,7 +273,7 @@ public function getPurchasePin($pin) {
                     'total' => $purchaseTotal
                 ]);
             
-                return response()->json(['message' => 'Compra actualizada.'], 201);    
+                return response()->json(['message' => 'Compra actualizada.'], 201,[],JSON_NUMERIC_CHECK);    
             }
 
             return response()->json(['message' => 'El Usuario no tiene permisos para realizar esta accion'], 403);   
@@ -348,7 +348,7 @@ public function getPurchasePin($pin) {
             $purchase-> update([
                 'estado' => 1
             ]);
-            return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock'], 201);
+            return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock'], 201,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Compra no encontrada'], 404);
@@ -393,7 +393,7 @@ public function getPurchasePin($pin) {
             $purchase = Compra::findOrFail($id);
             if (((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$purchase->user_id == Auth::id()) {
 
-            return response()->json(['purchase' => $purchase], 200);   
+            return response()->json(['purchase' => $purchase], 200,[],JSON_NUMERIC_CHECK);   
 
         }
         return response()->json(['message'=>'El usuario no tiene permisos para ejecutar esta acción'], 403);
@@ -436,7 +436,7 @@ public function getPurchasePin($pin) {
                     $purchase->productos()->detach();
                     $purchase->delete();
 
-                    return response()->json(['message' => 'Compra Eliminada!', 'purchase' => $purchase], 200);
+                    return response()->json(['message' => 'Compra Eliminada!', 'purchase' => $purchase], 200,[],JSON_NUMERIC_CHECK);
                 } else {
                     return response()->json(['message' => 'No se puede realizar esta accion!'], 403);
                 }    
@@ -472,7 +472,7 @@ public function getPurchasePin($pin) {
                         'total'=> $total
                     ]);
 
-                    return response()->json(['message' => 'Producto eliminado!', 'Item'=> $product], 200);
+                    return response()->json(['message' => 'Producto eliminado!', 'Item'=> $product], 200,[],JSON_NUMERIC_CHECK);
                 }
 
             }

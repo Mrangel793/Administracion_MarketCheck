@@ -21,7 +21,7 @@ class RolApiController extends Controller
     public function index()
     {
         $rols = Rol::all();
-        return response()->json(['rols'=> $rols],200);
+        return response()->json(['rols'=> $rols],200,[],JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -45,7 +45,7 @@ class RolApiController extends Controller
     {
         try {
             $rol= Rol::FindOrFail($id);
-            return response()->json(['rols'=> $rol], 200);
+            return response()->json(['rols'=> $rol], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Rol no encontrado'], 404);

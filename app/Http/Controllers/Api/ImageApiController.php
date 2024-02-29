@@ -32,7 +32,7 @@ class ImageApiController extends Controller
         
                     $path = $image->store('public/images');
                     $imagePath = basename($path);
-                    return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $imagePath], 201);
+                    return response()->json(['message' => 'Imagen almacenada con éxito', 'path' => $imagePath], 201,[],JSON_NUMERIC_CHECK);
                 }
                 return response()->json(['message' => 'No se proporcionó ningún archivo de imagen', 'path' => null]);
 
@@ -65,7 +65,7 @@ class ImageApiController extends Controller
                 $path = $image->store('public/images');
                 $newImagePath = basename($path);
             
-                return response()->json(['message' => 'Imagen actualizada con éxito', "path"=> $newImagePath], 201);
+                return response()->json(['message' => 'Imagen actualizada con éxito', "path"=> $newImagePath], 201,[],JSON_NUMERIC_CHECK);
             //ANTIGUO
            /* $imageInstance = Image::findOrFail($imageId);
     
@@ -103,7 +103,7 @@ class ImageApiController extends Controller
     
             if (Storage::exists($rutaArchivo)) {
                 $imageUrl=Storage::url("public/images/$path");
-                return response()->json(['image_url'=>$imageUrl,200]);
+                return response()->json(['image_url'=>$imageUrl,200,[],JSON_NUMERIC_CHECK]);
             }
     
             return response()->json(['mensaje' => 'Archivo no encontrado'], 404);
@@ -129,7 +129,7 @@ class ImageApiController extends Controller
             if($imagePath) Storage::delete("public/images/$imagePath");
             
            // $image->delete();
-            return response()->json(['message' => 'Imagen eliminada con éxito'], 201      
+            return response()->json(['message' => 'Imagen eliminada con éxito'], 201,[],JSON_NUMERIC_CHECK      
         );
 
         } catch (NotFound $e) {

@@ -18,7 +18,7 @@ class ProductoApiController extends Controller
 {   
     public function productsByStoreMobileApp($id){
         $products = Producto::where('id_establecimiento', $id)->where('estado', 1)->get();
-        return response()->json( ['products'=> $products], 200);            
+        return response()->json( ['products'=> $products], 200,[],JSON_NUMERIC_CHECK);            
     }
 
     public function productByStoreAndScanner(Request $request){
@@ -30,7 +30,7 @@ class ProductoApiController extends Controller
         $productCode= $request-> product_code;
 
         $product = Producto::where('id_establecimiento', $storeId)->where('codigoProducto', $productCode)->where('estado', 1)->first();
-        return response()->json( ['product'=> $product], 200);
+        return response()->json( ['product'=> $product], 200,[],JSON_NUMERIC_CHECK);
     }
 
     public function index()
@@ -39,7 +39,7 @@ class ProductoApiController extends Controller
 
         if($user && isset($user-> establecimiento_id)&&($user->rol_id==2||$user->rol_id==3)){
             $products = Producto::where('id_establecimiento', $user-> establecimiento_id)->get();
-            return response()->json( ['products'=> $products], 200);           
+            return response()->json( ['products'=> $products], 200,[],JSON_NUMERIC_CHECK);           
         }
 
         return response()->json( ['message'=> 'El usuario actual no puede obtener esta informacion'], 403);
@@ -60,7 +60,7 @@ class ProductoApiController extends Controller
                 return response()->json(['message' => 'No se encontraron productos con el término proporcionado.'], 404);
             }
     
-            return response()->json(['products' => $products], 200);
+            return response()->json(['products' => $products], 200,[],JSON_NUMERIC_CHECK);
         
     
         return response()->json(['message' => 'El usuario no tiene permisos para visualizar este contenido.'], 403);
@@ -108,7 +108,7 @@ class ProductoApiController extends Controller
             'id_establecimiento' => $user->establecimiento_id
         ]);
 
-        return response()->json(['message' => 'Producto creado con éxito', 'product' => $product], 201);
+        return response()->json(['message' => 'Producto creado con éxito', 'product' => $product], 201,[],JSON_NUMERIC_CHECK);
     
     }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
 
@@ -127,7 +127,7 @@ class ProductoApiController extends Controller
                     return response()->json(['message'=> 'El producto no se encuentra disponible.'], 404);
                 } 
             }    
-            return response()->json(['product'=> $product], 200);
+            return response()->json(['product'=> $product], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontraron resultados'], 404);
@@ -284,7 +284,7 @@ class ProductoApiController extends Controller
             ->where('id_establecimiento', $user->establecimiento_id)
             ->get();
 
-        return response()->json(['productos' => $productosSinCategoria]);
+        return response()->json(['productos' => $productosSinCategoria],[],JSON_NUMERIC_CHECK);
     } catch (\Exception $e) {
         return response()->json(['error' => 'Error al obtener productos sin categoría', 'details' => $e->getMessage()], 500);
     }
@@ -298,7 +298,7 @@ class ProductoApiController extends Controller
             ->where('id_establecimiento', $id_establecimiento)
             ->get();
 
-        return response()->json(['productos' => $productosConCategoria]);
+        return response()->json(['productos' => $productosConCategoria],[],JSON_NUMERIC_CHECK);
     } catch (\Exception $e) {
         return response()->json(['error' => 'Error al obtener productos sin categoría', 'details' => $e->getMessage()], 500);
     }
@@ -320,7 +320,7 @@ class ProductoApiController extends Controller
             
             $product->delete();
     
-            return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 200);
+            return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);

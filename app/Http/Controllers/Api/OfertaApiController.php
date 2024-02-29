@@ -22,7 +22,7 @@ class OfertaApiController extends Controller
         $offers = Oferta::where('estado', 1)
         ->where('establecimiento_id',$id)
         ->get();
-        return response()->json(['offers'=> $offers]);
+        return response()->json(['offers'=> $offers],[],JSON_NUMERIC_CHECK);
     }
 
     public function showOfferMobileApp($id){   
@@ -32,7 +32,7 @@ class OfertaApiController extends Controller
             if($offer-> estado !== 1){
                 return response()->json(['message' => 'La oferta no se encuentra disponible'], 404);
             }
-            return response()->json(['offer' => $offer], 200);
+            return response()->json(['offer' => $offer], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'La oferta no existe.'], 404);
@@ -47,7 +47,7 @@ class OfertaApiController extends Controller
         $user = Auth::user();
         if($user && isset($user-> establecimiento_id)){
             $offers = Oferta::where('establecimiento_id', $user-> establecimiento_id)->get();
-            return response()->json(['offers'=> $offers]);
+            return response()->json(['offers'=> $offers],[],JSON_NUMERIC_CHECK);
         }
         return response()->json(['message'=> 'El usuario no tiene permisos para visualizar este Contenido'], 403);
     }
@@ -74,7 +74,7 @@ class OfertaApiController extends Controller
                 'establecimiento_id' => $user-> establecimiento_id,
                 'image' => null,
             ]);
-            return response()->json(['message' => 'Oferta creada con éxito', 'offer' => $offer], 201);
+            return response()->json(['message' => 'Oferta creada con éxito', 'offer' => $offer], 201,[],JSON_NUMERIC_CHECK);
         }
 
         return response()->json(['message' => 'El usuario no tiene permisos para visualizar este Contenido'], 403);
@@ -89,7 +89,7 @@ class OfertaApiController extends Controller
             if ($offer-> establecimiento_id !== $user-> establecimiento_id) {
                 return response()->json(['message' => 'No tienes permiso para ver esta oferta.'], 403);
             }
-            return response()->json(['offer' => $offer], 200);
+            return response()->json(['offer' => $offer], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'La oferta no existe.'], 404);
@@ -121,7 +121,7 @@ class OfertaApiController extends Controller
                     $offer->update([
                         'estado' => 1
                     ]);
-                    return response()->json(['message' => 'Oferta activada.', 'offer' => $offer]);
+                    return response()->json(['message' => 'Oferta activada.', 'offer' => $offer],[],JSON_NUMERIC_CHECK);
 
                 case 1:
                     foreach ($offerItems as $item) {
@@ -179,7 +179,7 @@ class OfertaApiController extends Controller
                     'precio_oferta' => $discountPrice
                 ]);
                 $result= $this-> editProductPrice($offer, $product, $discountPrice);
-                return response()->json(['message' => 'Oferta actualizado con éxito.', 'oferta_producto' => $offerItem, 'result' => $result]);
+                return response()->json(['message' => 'Oferta actualizado con éxito.', 'oferta_producto' => $offerItem, 'result' => $result],[],JSON_NUMERIC_CHECK);
             }
 
             $offerItem = Oferta_Producto::create([
@@ -191,7 +191,7 @@ class OfertaApiController extends Controller
     
             $result= $this-> editProductPrice($offer, $product, $discountPrice);
 
-            return response()->json(['message' => "Producto agregado con éxito a la oferta", 'oferta_producto' => $offerItem, 'result' => $result], 200);
+            return response()->json(['message' => "Producto agregado con éxito a la oferta", 'oferta_producto' => $offerItem, 'result' => $result], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
@@ -223,7 +223,7 @@ class OfertaApiController extends Controller
                 'estado' => $request-> estado,
             ]);
     
-            return response()->json(['message' => 'Oferta actualizada con éxito.', 'offer'=> $offer], 201); 
+            return response()->json(['message' => 'Oferta actualizada con éxito.', 'offer'=> $offer], 201,[],JSON_NUMERIC_CHECK); 
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
@@ -243,7 +243,7 @@ class OfertaApiController extends Controller
                     'imagen' => $image
                 ]);
             }
-            return response()->json(['message' => 'Actualizacion éxitosa.', 'I'=>$image],201);
+            return response()->json(['message' => 'Actualizacion éxitosa.', 'I'=>$image],201,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Tienda no encontrada.'], 404);
@@ -258,7 +258,7 @@ class OfertaApiController extends Controller
             $offer = Oferta::findOrFail($offerId);
             $offerItems = $offer-> productos;
     
-            return response()->json(['offerItems' => $offerItems], 200);  
+            return response()->json(['offerItems' => $offerItems], 200,[],JSON_NUMERIC_CHECK);  
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);

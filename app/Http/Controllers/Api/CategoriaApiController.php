@@ -22,7 +22,7 @@ class CategoriaApiController extends Controller
     public function index()
     {
         $categories = Categoria::all();
-        return response()->json(['categories'=> $categories], 200);
+        return response()->json(['categories'=> $categories], 200,[],JSON_NUMERIC_CHECK);
     }
 
     /**
@@ -44,7 +44,7 @@ class CategoriaApiController extends Controller
     {
         try {
             $categorie = Categoria::findOrFail($id);
-            return response()->json(['categorie'=>$categorie], 200);
+            return response()->json(['categorie'=>$categorie], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message'=> 'No encontraron resultados'], 404);

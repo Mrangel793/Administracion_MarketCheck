@@ -22,14 +22,14 @@ class SubCategoriaApiController extends Controller
     public function index()
     {
         $subcategorias = SubCategoria::all();
-        return response()->json(['subcategories'=> $subcategorias], 200);
+        return response()->json(['subcategories'=> $subcategorias], 200,[],JSON_NUMERIC_CHECK);
     } 
 
     public function indexporCategoria($categoria_id)
     {
         try {
             $subcategorias = SubCategoria::where('categoria_id', $categoria_id)->get();
-            return response()->json(['sub_categories'=>$subcategorias], 200);
+            return response()->json(['sub_categories'=>$subcategorias], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message'=> 'No encontraron resultados por esta Categoria'], 404);
@@ -61,7 +61,7 @@ class SubCategoriaApiController extends Controller
     {
         try {
             $subcategoria = SubCategoria::with('categoria')->findOrFail($id);
-            return response()->json(['sub_categorie'=>$subcategoria], 200);
+            return response()->json(['sub_categorie'=>$subcategoria], 200,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message'=> 'No encontraron resultados'], 404);
