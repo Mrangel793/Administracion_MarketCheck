@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User as Authenticatable;
 use App\Models\Rol;
 use App\Models\Compra;
 use App\Models\Establecimiento;
+use App\Models\Lista;
 
 use Laravel\Passport\HasApiTokens;
 
@@ -50,6 +51,10 @@ class User extends Authenticatable implements MustVerifyEmail
 
     public function seller(){
         return $this->hasMany(Compra::class,'seller_id');
+    }
+
+    public function listas(){
+        return $this->hasMany(Lista::class,'rol_id');
     }
 
     public function sendEmailVerificationNotification()
