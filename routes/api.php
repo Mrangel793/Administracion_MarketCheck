@@ -9,6 +9,7 @@ use App\Http\Controllers\Api\RolApiController;
 use App\Http\Controllers\Api\UserApiController;
 use App\Http\Controllers\Api\ImageApiController;
 use App\Http\Controllers\Api\OfertaApiController;
+use App\Http\Controllers\Api\ListasApiController;
 use App\Http\Controllers\Api\ComprasApiController;
 use App\Http\Controllers\Api\ProductoApiController;
 use App\Http\Controllers\Api\CategoriaApiController;
@@ -131,6 +132,10 @@ Route::group([
         Route::get('user', [AuthController::class,'user']);
     });
 });
+
+// LISTAS API CONTROLLER----------------------------------------------------------------
+
+Route::apiResource('/listas',ListasApiController::class)->middleware('auth:api');
 
 //COMPRAS API CONTROLLER--------------------------------------------------------------------------------------------------- 
 

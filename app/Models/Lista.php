@@ -13,12 +13,15 @@ class Lista extends Model
     protected $table = 'listas';
 
     protected $fillable = [
-        'list_name', 
+        'listName', 
         'user_id', 
         'productos'
     ];
 
+    public $timestamps = false;
+
+
     public function usuario(){
-        return $this->belongsTo(User::class,'rol_id'); 
+        return $this->belongsTo(User::class,'user_id'); 
     }
 }
