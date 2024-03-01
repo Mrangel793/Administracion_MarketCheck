@@ -159,6 +159,10 @@ class OfertaApiController extends Controller
             $productId = $request-> product;
             $percent = $request-> percent;
 
+            if($offer->estado==1){
+                return response()->json(['message' => 'Primero desactiva la oferta para poder agregar productos'], 403);
+            }
+
             $product = Producto::find($productId);  
             if(!$product){
                 return response()->json(['message' => 'No se encontró el Producto.'], 404);

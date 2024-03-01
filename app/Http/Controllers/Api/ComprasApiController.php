@@ -432,7 +432,7 @@ public function getPurchasePin($pin) {
         $purchase = Compra::findOrFail($id);
 
         if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && ($purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$puchase->user_id == Auth::user()->id) {
-            if ($purchase->estado === 0) {
+            if ($purchase->estado == 0) {
                     $purchase->productos()->detach();
                     $purchase->delete();
 
