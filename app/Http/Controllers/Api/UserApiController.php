@@ -106,6 +106,7 @@ class UserApiController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
             'rol_id' => 'required|numeric',
+            'profile_image' => 'required',
         ]);
     
         try {
@@ -119,7 +120,7 @@ class UserApiController extends Controller
                     'documento' => $request-> documento,
                     'establecimiento_id' => $request-> establecimiento_id,
                     'rol_id' => $request-> rol_id,
-                    'profile_image' => 0
+                    'profile_image' => $request->profile_image
                 ]);
     
                 return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201,[],JSON_NUMERIC_CHECK);
