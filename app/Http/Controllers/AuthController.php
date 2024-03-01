@@ -89,7 +89,7 @@ class AuthController extends Controller
      */
     public function login(Request $request)
     {
-        $this->middleware(['auth','verified']);
+        $this->middleware(['verified']);
         $request->validate([
             'email' => 'required|string|email',
             'password' => 'required|string',
