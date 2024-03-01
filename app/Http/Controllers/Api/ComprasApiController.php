@@ -251,11 +251,11 @@ public function getPurchasePin($pin) {
             }
 
             if($request-> itemsCount <= 0){
-                return response()->json(['message' => "La compra debe contener un producto. Cantidad:($itemCount)"], 403);
+                return response()->json(['message' => "La compra debe contener un producto. Cantidad:($itemCount)"], 403,[],JSON_NUMERIC_CHECK);
             }
 
             if($stock < $request-> itemsCount){
-                return response()->json(['message' => "El stock es insuficiente para la transaccion. Stock disponible($stock)"], 403);
+                return response()->json(['message' => "El stock es insuficiente para la transaccion. Stock disponible($stock)"],403, [],JSON_NUMERIC_CHECK);
             }
 
             if($user && isset($user-> rol_id) && $user-> rol_id != 1){
