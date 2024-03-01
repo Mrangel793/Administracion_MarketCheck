@@ -106,7 +106,6 @@ class UserApiController extends Controller
             'name' => 'required',
             'email' => 'required|email|unique:users,email,'.$id,
             'rol_id' => 'required|numeric',
-            'profile_image' => 'required',
         ]);
     
         try {
@@ -123,7 +122,7 @@ class UserApiController extends Controller
                     'profile_image' => $request->profile_image
                 ]);
     
-                return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201,[],JSON_NUMERIC_CHECK);
+                return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user, 'image'=>$request->profile_image], 201,[],JSON_NUMERIC_CHECK);
 
             }else{
                 return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);
