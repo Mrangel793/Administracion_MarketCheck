@@ -228,7 +228,7 @@ class ProductoApiController extends Controller
                 'id_establecimiento' => $user->establecimiento_id
             ]);
 
-            return response()->json(['message' => 'Producto actualizado con éxito'], 200);
+            return response()->json(['message' => 'Producto actualizado con éxito'], 201);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);
@@ -263,7 +263,7 @@ class ProductoApiController extends Controller
                 ->where('id_establecimiento', $user->establecimiento_id)
                 ->update(['id_categoria' => $categoria_id]);
 
-            return response()->json(['message' => 'Categoría asignada correctamente a los productos']);
+            return response()->json(['message' => 'Categoría asignada correctamente a los productos'],201);
             } catch (\Exception $e) {
             return response()->json(['error' => 'Error al asignar la categoría a los productos', 'details' => $e->getMessage()], 500);
         }
@@ -274,17 +274,15 @@ class ProductoApiController extends Controller
     try {
         $user = Auth::user();
 
-        // Verificar si el usuario tiene un establecimiento asignado
         if (!$user || !$user->establecimiento_id) {
             return response()->json(['error' => 'Usuario no tiene un establecimiento asignado'], 403);
         }
 
-        // Consulta para obtener productos sin categoría del mismo establecimiento
         $productosSinCategoria = Producto::whereNull('id_categoria')
             ->where('id_establecimiento', $user->establecimiento_id)
             ->get();
 
-        return response()->json(['productos' => $productosSinCategoria],[],JSON_NUMERIC_CHECK);
+        return response()->json(['productos' => $productosSinCategoria],200,[],JSON_NUMERIC_CHECK);
     } catch (\Exception $e) {
         return response()->json(['error' => 'Error al obtener productos sin categoría', 'details' => $e->getMessage()], 500);
     }
@@ -298,7 +296,7 @@ class ProductoApiController extends Controller
             ->where('id_establecimiento', $id_establecimiento)
             ->get();
 
-        return response()->json(['productos' => $productosConCategoria],[],JSON_NUMERIC_CHECK);
+        return response()->json(['productos' => $productosConCategoria],200,[],JSON_NUMERIC_CHECK);
     } catch (\Exception $e) {
         return response()->json(['error' => 'Error al obtener productos sin categoría', 'details' => $e->getMessage()], 500);
     }
@@ -320,7 +318,7 @@ class ProductoApiController extends Controller
             
             $product->delete();
     
-            return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 200,[],JSON_NUMERIC_CHECK);
+            return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 201,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Producto no encontrado'], 404);

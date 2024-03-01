@@ -22,7 +22,7 @@ class OfertaApiController extends Controller
         $offers = Oferta::where('estado', 1)
         ->where('establecimiento_id',$id)
         ->get();
-        return response()->json(['offers'=> $offers],[],JSON_NUMERIC_CHECK);
+        return response()->json(['offers'=> $offers],200,[],JSON_NUMERIC_CHECK);
     }
 
     public function showOfferMobileApp($id){   
@@ -47,7 +47,7 @@ class OfertaApiController extends Controller
         $user = Auth::user();
         if($user && isset($user-> establecimiento_id)){
             $offers = Oferta::where('establecimiento_id', $user-> establecimiento_id)->get();
-            return response()->json(['offers'=> $offers],[],JSON_NUMERIC_CHECK);
+            return response()->json(['offers'=> $offers],200,[],JSON_NUMERIC_CHECK);
         }
         return response()->json(['message'=> 'El usuario no tiene permisos para visualizar este Contenido'], 403);
     }
@@ -121,7 +121,7 @@ class OfertaApiController extends Controller
                     $offer->update([
                         'estado' => 1
                     ]);
-                    return response()->json(['message' => 'Oferta activada.', 'offer' => $offer],[],JSON_NUMERIC_CHECK);
+                    return response()->json(['message' => 'Oferta activada.', 'offer' => $offer],201,[],JSON_NUMERIC_CHECK);
 
                 case 1:
                     foreach ($offerItems as $item) {
@@ -133,7 +133,7 @@ class OfertaApiController extends Controller
                     $offer->update([
                         'estado' => 0
                     ]);
-                    return response()->json(['message' => 'Oferta desactivada.', 'offer' => $offer]);    
+                    return response()->json(['message' => 'Oferta desactivada.', 'offer' => $offer],201,[],JSON_NUMERIC_CHECK);    
                 
                 default:
                     return response()->json(['message' => 'Estado de oferta incorrecto.'], 400);
@@ -179,7 +179,7 @@ class OfertaApiController extends Controller
                     'precio_oferta' => $discountPrice
                 ]);
                 $result= $this-> editProductPrice($offer, $product, $discountPrice);
-                return response()->json(['message' => 'Oferta actualizado con éxito.', 'oferta_producto' => $offerItem, 'result' => $result],[],JSON_NUMERIC_CHECK);
+                return response()->json(['message' => 'Oferta actualizado con éxito.', 'oferta_producto' => $offerItem, 'result' => $result],201,[],JSON_NUMERIC_CHECK);
             }
 
             $offerItem = Oferta_Producto::create([
@@ -191,7 +191,7 @@ class OfertaApiController extends Controller
     
             $result= $this-> editProductPrice($offer, $product, $discountPrice);
 
-            return response()->json(['message' => "Producto agregado con éxito a la oferta", 'oferta_producto' => $offerItem, 'result' => $result], 200,[],JSON_NUMERIC_CHECK);
+            return response()->json(['message' => "Producto agregado con éxito a la oferta", 'oferta_producto' => $offerItem, 'result' => $result], 201,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
@@ -289,7 +289,7 @@ class OfertaApiController extends Controller
                 'precioProducto' => $product-> precioOriginal
             ]);
     
-            return response()->json(['message' => 'Producto eliminado de la oferta con éxito']);
+            return response()->json(['message' => 'Producto eliminado de la oferta con éxito'],201);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);
@@ -324,7 +324,7 @@ class OfertaApiController extends Controller
             $offer->productos()->detach();
             $offer->delete();
     
-            return response()->json(['message' => 'Oferta eliminada con éxito.']);
+            return response()->json(['message' => 'Oferta eliminada con éxito.'],201);
             
         } catch (NotFound $e) {
             return response()->json(['message' => 'No se encontró la oferta.'], 404);

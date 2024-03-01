@@ -267,7 +267,7 @@ class EstablecimientoApiController extends Controller
                     }
 
                     $store->delete();
-                    return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 200,[],JSON_NUMERIC_CHECK);
+                    return response()->json(['message' => 'Establecimiento Eliminado!', 'store'=> $store], 201,[],JSON_NUMERIC_CHECK);
             
             }else{return response()->json(['message' => 'No tienes permisos para ejecutar esta acción'], 403);}
 

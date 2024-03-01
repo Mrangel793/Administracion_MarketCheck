@@ -142,7 +142,7 @@ class ListasApiController extends Controller
 
             $lista->delete();
 
-            return response()->json(['message' => 'Lista eliminada correctamente'], 200);
+            return response()->json(['message' => 'Lista eliminada correctamente'], 201);
         }else{
             return response()->json(['message' => 'No tiene permisos para hacer esto'], 403);
     }

@@ -106,7 +106,7 @@ class ComprasApiController extends Controller
         ->limit(10)
         ->get();
 
-    return response()->json(['topSellingProducts' => $topSellingProducts],[],JSON_NUMERIC_CHECK);
+    return response()->json(['topSellingProducts' => $topSellingProducts],200,[],JSON_NUMERIC_CHECK);
     }
 
     public function getDailySales(Request $request)
@@ -121,7 +121,7 @@ class ComprasApiController extends Controller
             ->where('estado',1)
             ->sum('total');
     
-        return response()->json(['totalVentasDelDia' => $totalVentasDelDia, 'diaActual' => $diaActual],[],JSON_NUMERIC_CHECK);
+        return response()->json(['totalVentasDelDia' => $totalVentasDelDia, 'diaActual' => $diaActual],200,[],JSON_NUMERIC_CHECK);
     }
 
 
@@ -184,7 +184,7 @@ public function getPurchasePin($pin) {
         ->where('estado',1)
         ->sum('total');
 
-    return response()->json(['ventas del mes' => $monthlySales],[],JSON_NUMERIC_CHECK);
+    return response()->json(['ventas del mes' => $monthlySales],200,[],JSON_NUMERIC_CHECK);
 }
 
 
@@ -201,7 +201,7 @@ public function getPurchasePin($pin) {
             ->where('estado',1)
             ->sum('total');
 
-        return response()->json(['annualSales' => $annualSales],[],JSON_NUMERIC_CHECK);
+        return response()->json(['annualSales' => $annualSales],200,[],JSON_NUMERIC_CHECK);
     }
 
 
@@ -246,7 +246,7 @@ public function getPurchasePin($pin) {
             $purchasePrice = 0;
             $stock= $product-> numeroStock;
             
-            if($purchase-> estado === 1){
+            if($purchase-> estado == 1){
                 return response()->json(['message' => 'No se pueden agregar productos. Compra Finalizada'], 403);
             }
 
@@ -391,7 +391,7 @@ public function getPurchasePin($pin) {
 
         try {
             $purchase = Compra::findOrFail($id);
-            if (((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$purchase->user_id == Auth::id()) {
+            if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && ($purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$puchase->user_id == Auth::user()->id) {
 
             return response()->json(['purchase' => $purchase], 200,[],JSON_NUMERIC_CHECK);   
 
@@ -431,7 +431,7 @@ public function getPurchasePin($pin) {
     try {
         $purchase = Compra::findOrFail($id);
 
-        if (((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$purchase->user_id == Auth::id()) {
+        if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && ($purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$puchase->user_id == Auth::user()->id) {
             if ($purchase->estado === 0) {
                     $purchase->productos()->detach();
                     $purchase->delete();
@@ -455,7 +455,7 @@ public function getPurchasePin($pin) {
     {   
         try {
             $purchase = Compra::findOrFail($purchaseId);
-            if (((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && $purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$purchase->user_id == Auth::id()) {
+            if ((Auth::user()->rol_id == 2||Auth::user()->rol_id == 3) && ($purchase ->establecimiento_id == Auth::user()->establecimiento_id)||$puchase->user_id == Auth::user()->id) {
 
             if($purchase-> estado === 0){      
                 $product = ComprasProductos::where('producto_id', $itemId)->where('compra_id', $purchaseId)->first();

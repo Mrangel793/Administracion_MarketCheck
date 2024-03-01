@@ -35,7 +35,7 @@ class UserApiController extends Controller
         }
         elseif ($user){
             $users = User::where('rol_id', '!=', 1)->get();
-            return response()->json(['users'=> $users], 200);
+            return response()->json(['users'=> $users], 200,[],JSON_NUMERIC_CHECK);
         }
 
         return response()->json(['message'=> 'Por favor inicie sesion'], 401);
@@ -125,7 +125,7 @@ class UserApiController extends Controller
                     'profile_image' => $profile_image
                 ]);
     
-                return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201);
+                return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201,[],JSON_NUMERIC_CHECK);
 
             }else{
                 return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);
@@ -183,7 +183,7 @@ class UserApiController extends Controller
                 return response()->json(['message'=>'No tiene autorización para eliminar este usuario'],403);
             }
     
-            return response()->json(['message' => 'Usuario Eliminado!', 'user'=> $user], 200,[],JSON_NUMERIC_CHECK);
+            return response()->json(['message' => 'Usuario Eliminado!', 'user'=> $user], 201,[],JSON_NUMERIC_CHECK);
 
         } catch (NotFound $e) {
             return response()->json(['message' => 'Usuario no encontrado'], 404);
