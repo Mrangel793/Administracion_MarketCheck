@@ -119,7 +119,7 @@ class UserApiController extends Controller
                     'documento' => $request-> documento,
                     'establecimiento_id' => $request-> establecimiento_id,
                     'rol_id' => $request-> rol_id,
-                    'profile_image' => $request->profile_image
+                    'profile_image' => 0
                 ]);
     
                 return response()->json(['message' => 'Datos actualizados con éxito', 'user'=>$user], 201,[],JSON_NUMERIC_CHECK);
