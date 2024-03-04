@@ -31,20 +31,26 @@ class CargaInventarioApiController extends Controller
     public function importar(Request $request)
     {
         $user = Auth::user();
-        if($user->rol_id== 2){
-         if ($request->hasFile('documento')) {
-             $path = $request->file('documento')->getRealPath();
-             
-             try {
-                Excel::import(new ProductsImport, $path, 'xlsx');
-                return response()->json(['message' => 'Import successful'], 200,[],JSON_NUMERIC_CHECK);
-             } catch (\Exception $e) {
-                 return response()->json(['error' => 'Import failed', 'message' => $e->getMessage()], 500);
-             }
-         }
+        if ($user->rol_id == 2) {
+            if ($request->hasFile('documento')) {
+                $path = $request->file('documento')->getRealPath();
 
-         return response()->json(['error' => 'No file provided'], 400);
+                try {
+                    $excelType = Excel::detectType($path);
+                    
+                    if ($excelType == Excel::XLSX) {
+                        Excel::import(new ProductsImport, $path, Excel::XLSX);
+                        return response()->json(['message' => 'Import successful'], 200, [], JSON_NUMERIC_CHECK);
+                    } else {
+                        return response()->json(['error' => 'Invalid file type'], 400);
+                    }
+                } catch (\Exception $e) {
+                    return response()->json(['error' => 'Import failed', 'message' => $e->getMessage()], 500);
+                }
+            }
+
+            return response()->json(['error' => 'No file provided'], 400);
         }
-        return response()->json(['error'=>'El usuario no tiene permisos para ejecutar esta accion'],403);
+        return response()->json(['error' => 'El usuario no tiene permisos para ejecutar esta accion'], 403);
     }
 }
