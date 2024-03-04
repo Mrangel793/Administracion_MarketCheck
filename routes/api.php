@@ -79,6 +79,9 @@ Route::prefix('ofertas')->group(function () {
 
 Route::apiResource('user',UserApiController::class)->middleware("auth:api");
 Route::put('/user/{id}/change-password', [UserApiController::class, 'changePassword'])->middleware("auth:api"); 
+Route::get('/user/userStores/{id}',[UserApiController::class, 'UserStores'])->middleware("auth:api"); 
+Route::get('/user/userProducts/{id}',[UserApiController::class, 'UserMostPurchasedProducts'])->middleware("auth:api"); 
+
 //-------------------------------------------------------------------------------**--//
 
 Route::apiResource('rol',RolApiController::class); //<--- AUTENTICABLE???

@@ -7,11 +7,15 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Auth\Events\Registered;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\DB;
+
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 
 use App\Models\User;
 use App\Models\Establecimiento;
+use App\Models\ComprasProductos;
+
 
 //REVISADO <--- REMOVER EN PRODUCCION
 class UserApiController extends Controller
@@ -100,6 +104,65 @@ class UserApiController extends Controller
      * @param  int  $id
      * @return \Illuminate\Http\Response
      */
+
+     public function UserStores($id)
+    {
+        $user=Auth::user();
+
+        if($user->id == $id && $user->rol_id==4) {
+            $establecimientos = Establecimiento::join('compras', 'establecimientos.id', '=', 'compras.establecimiento_id')
+                ->where('compras.user_id', $id)
+                ->distinct()
+                ->select('establecimientos.*') 
+                ->get();
+
+                return response()->json(['establecimientos' => $establecimientos],200,[],JSON_NUMERIC_CHECK);
+        }else{
+            return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);
+
+        }
+        
+
+    }
+
+    public function UserMostPurchasedProducts($id)
+    {
+        $user=Auth::user();
+
+        if($user->id == $id && $user->rol_id==4) {
+
+            $productosMasComprados = DB::table('compras_productos')
+            ->join('compras', 'compras_productos.compra_id', '=', 'compras.id')
+            ->join('productos', 'compras_productos.producto_id', '=', 'productos.id')
+            ->join('establecimientos', 'productos.id_establecimiento', '=', 'establecimientos.id')
+            ->where('compras.user_id', $id)
+            ->select(
+                'productos.id as producto_id',
+                'productos.nombreProducto',
+                'productos.id_establecimiento',
+                DB::raw('SUM(compras_productos.cantidad) as total_comprado'),
+                'establecimientos.NombreEstablecimiento as nombre_establecimiento'
+            )
+            ->groupBy(
+                'productos.id',
+                'productos.nombreProducto',
+                'productos.id_establecimiento',
+                'establecimientos.NombreEstablecimiento'
+            )
+            ->orderByDesc('total_comprado')
+            ->limit(10)
+            ->get();
+
+            return response()->json(['productos_mas_comprados' => $productosMasComprados], 200,[],JSON_NUMERIC_CHECK);
+
+        }else{
+            return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);
+
+        }
+    }
+
+
+
     public function update(Request $request, $id)
     {
         $request->validate([
