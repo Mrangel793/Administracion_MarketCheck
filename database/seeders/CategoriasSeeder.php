@@ -76,7 +76,7 @@ class CategoriasSeeder extends Seeder
         
         Categoria::create([
             'id' => 11,
-            'nombre' => 'Carnes',
+            'nombre' => 'Carnes, pollo y pescado',
             'imagen' => 'carnes.png',
         ]);
         
@@ -139,7 +139,31 @@ class CategoriasSeeder extends Seeder
             'nombre' => 'Belleza y Cuidado Personal',
             'imagen' => 'maquillaje.png',
         ]);
-        
+
+        Categoria::create([
+            'id' => 22,
+            'nombre' => 'Papeleria y Oficina',
+            'imagen' => 'papeleria.png',
+        ]);
+
+        Categoria::create([
+            'id' => 23,
+            'nombre' => 'Utensilios de cocina y accesorios',
+            'imagen' => 'papeleria.png',
+        ]);
+
+        Categoria::create([
+            'id' => 24,
+            'nombre' => 'Condimentos y Especias',
+            'imagen' => 'condimentos.png',
+        ]);
+
+        Categoria::create([
+            'id' => 25,
+            'nombre' => 'Productos de Farmacia',
+            'imagen' => 'farmacia.png',
+        ]);
+
         
     }
 }
