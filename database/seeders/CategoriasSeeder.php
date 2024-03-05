@@ -88,7 +88,7 @@ class CategoriasSeeder extends Seeder
         
         Categoria::create([
             'id' => 13,
-            'nombre' => 'Lácteos',
+            'nombre' => 'Lacteos y Huevos',
             'imagen' => 'lacteos.png',
         ]);
         
@@ -138,6 +138,18 @@ class CategoriasSeeder extends Seeder
             'id' => 21,
             'nombre' => 'Belleza y Cuidado Personal',
             'imagen' => 'maquillaje.png',
+        ]);
+
+        Categoria::create([
+            'id' => 21,
+            'nombre' => 'Productos carnicos',
+            'imagen' => 'carnicos.png',
+        ]);
+
+        Categoria::create([
+            'id' => 21,
+            'nombre' => 'Productos de farmacia',
+            'imagen' => 'farmacia.png',
         ]);
         
         
