@@ -169,7 +169,7 @@ class CategoriasSeeder extends Seeder
             'nombre' => 'Procesados Carnicos',
             'imagen' => 'carnicos.png',
         ]);
-
+        
         
     }
 }
