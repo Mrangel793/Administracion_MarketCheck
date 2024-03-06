@@ -68,6 +68,7 @@ class UserApiController extends Controller
                 'email' => $request->email,
                 'documento' => $request->documento,
                 'establecimiento_id' => $request->establecimiento_id,
+                'estado'=>1,
                 'rol_id' => $request->rol_id,
                 'password' => Hash::make($request->documento),
             ]);
@@ -238,7 +239,15 @@ class UserApiController extends Controller
 
             $user = User::findOrFail($id);
             if ((($user->establecimiento_id==Auth::user()->establecimiento_id)&&Auth::user()->rol_id==2)||(Auth::user()->rol_id == 1)||(Auth::user()->id==$id && Auth::user()->rol_id==4)){
-            $user->delete();
+                if($user->rol_id==4){
+                    
+                    $user->update([
+                        'estado' => 0,
+                        'email_verified_at' => null,
+                    ]);
+                    
+                }
+            
             }else{
                 return response()->json(['message'=>'No tiene autorización para eliminar este usuario'],403);
             }

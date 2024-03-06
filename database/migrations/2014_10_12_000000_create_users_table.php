@@ -21,6 +21,7 @@ class CreateUsersTable extends Migration
             $table->timestamp('email_verified_at')->nullable();
             $table->string('password');
             $table->integer('profile_image')->nullable();
+            $table->boolean('estado');
 
             $table->foreignId('establecimiento_id')->nullable();
             $table->foreign('establecimiento_id')->references('id')->on('establecimientos');

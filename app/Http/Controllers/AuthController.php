@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 use Carbon\Carbon;
 use App\Models\User;
+use Illuminate\Validation\Rule;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
@@ -30,11 +31,13 @@ class AuthController extends Controller
         $documento=$request->input('documento');
         $establecimientoId = $request->input('establecimiento_id');
         
+        
         $user=User::create([
             'name' => $name,
             'email' => $email,
             'documento'=>$documento,
             'password' => Hash::make($documento),
+            'estado'=>1,
             'establecimiento_id' => $establecimientoId,
             'rol_id'=>2
         ]);
@@ -60,28 +63,44 @@ class AuthController extends Controller
         
     }
 
-    public function addUserMovil(Request $request){
-        $request->validate([
-            'name' => 'required',
-            'documento' => 'required|numeric',
-            'email' => 'required|email|unique:users',
-            'password' => 'required|min:6',
+
+public function addUserMovil(Request $request)
+{
+    
+
+    $existingUser = User::where('email', $request->email)->where('estado', 0)->first();
+
+    if ($existingUser) {
+        $existingUser->update([
+            'name' => $request->name,
+            'documento' => $request->documento,
+            'password' => Hash::make($request->password),
+            'estado' =>1
         ]);
 
-        $user = User::create([
-            'name' => $request-> name,
-            'documento' => $request-> documento,
-            'email' => $request-> email,
-            'establecimiento_id' => null,
-            'rol_id' => 4,
-            'password' => Hash::make($request-> password),
-            'profile_image'=>0
-        ]);
+        $existingUser->sendEmailVerificationNotification();
 
-        $user->sendEmailVerificationNotification();
-
-        return response()->json(['message' => 'Usuario creado con éxito. Por favor revise la confirmacion en su correo.'], 201);
+        return response()->json(['message' => 'Usuario actualizado y código de verificación reenviado con éxito. Por favor, revise la confirmación en su correo.'], 200);
     }
+
+    $user = User::create([
+        'name' => $request->name,
+        'documento' => $request->documento,
+        'email' => $request->email,
+        'establecimiento_id' => null,
+        'rol_id' => 4,
+        'estado' => 1,
+        'password' => Hash::make($request->password),
+        'profile_image' => 0,
+    ]);
+
+    $user->sendEmailVerificationNotification();
+
+    return response()->json(['message' => 'Usuario creado con éxito. Por favor, revise la confirmación en su correo.'], 201);
+}
+
+
+    
 
   
     /**
@@ -106,29 +125,25 @@ class AuthController extends Controller
 
             $user = $request->user();
 
-            if ($user->email_verified_at!=NULL) {
+            if ($user->email_verified_at!=NULL&&$user->estado==1) {
                 $tokenResult = $user->createToken('Personal Access Token');   
                 $token = $tokenResult->token;
 
                 if ($request->remember_me)
                     $token->expires_at = Carbon::now()->addWeeks(1);
                 $token->save();
-                // if($user->email_verified_at !=Null){
                 return response()->json([
                     'access_token' => $tokenResult->accessToken,
                     'token_type' => 'Bearer',
                     'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
                     'user'=>$user
                 ],200,[],JSON_NUMERIC_CHECK);
+            }else{
+                return response()->json([
+                    'message' => 'Su cuenta esta sin verificar o inactiva. Verifique su correo o intentelo nuevamente.'
+                ], 401);
             }
 
-
-            
-        
-        //}
-        
-        return response()->json([
-            'message' => 'Unauthorized'], 401);
     }
   
     /**
