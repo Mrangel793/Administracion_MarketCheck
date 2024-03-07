@@ -115,7 +115,7 @@ class EstablecimientoApiController extends Controller
             ->distinct() 
             ->get();
         
-            return response()->json(['categories' => $categories], 200,[],JSON_NUMERIC_CHECK);
+            return response()->json(['categories' => $categories,'message'=>'Ok'], 200,[],JSON_NUMERIC_CHECK);
         
             
         
