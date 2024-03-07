@@ -17,7 +17,7 @@ class ProductoApiController extends Controller
 {   
     public function productsByStoreMobileApp($id){
         $products = Producto::where('id_establecimiento', $id)->where('estado', 1)->get();
-        return response()->json( ['products'=> $products], 200,[],JSON_NUMERIC_CHECK);            
+        return response()->json( ['products'=> $products,'message'=>'Ok'], 200,[],JSON_NUMERIC_CHECK);            
     }
 
     public function productByStoreAndScanner(Request $request){
