@@ -38,7 +38,9 @@ class UserApiController extends Controller
             return response()->json(['users'=> $users], 200,[],JSON_NUMERIC_CHECK);
         }
         elseif ($user){
-            $users = User::where('rol_id', '!=', 1)->get();
+            $users = User::where('rol_id', '!=', 1)
+            ->where('estado',1)
+            ->get();
             return response()->json(['users'=> $users], 200,[],JSON_NUMERIC_CHECK);
         }
 
