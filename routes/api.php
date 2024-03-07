@@ -13,7 +13,6 @@ use App\Http\Controllers\Api\ListasApiController;
 use App\Http\Controllers\Api\ComprasApiController;
 use App\Http\Controllers\Api\ProductoApiController;
 use App\Http\Controllers\Api\CategoriaApiController;
-use App\Http\Controllers\Api\SubCategoriaApiController;
 use App\Http\Controllers\Api\EstablecimientoApiController;
 use App\Http\Controllers\Api\CargaInventarioApiController;
 
@@ -92,8 +91,6 @@ Route::apiResource('compra',CompraController::class); //<--- AUTENTICABLE???
 
 Route::apiResource('images', ImageApiController::class);
 
-Route::apiResource('subcategoria',SubCategoriaApiController::class); //<--- AUTENTICABLE???
-Route::get('subcategoria/categoria/{id_categoria}', [SubCategoriaApiController::class, 'indexporCategoria']); //<--- AUTENTICABLE???
 
 
 Route::prefix('productos')->group(function () {
@@ -155,6 +152,7 @@ Route::prefix('compras')->group(function () {
     Route::post('/{idCompra}/producto/{productoId}', [ComprasApiController::class, 'guardar'])->middleware('auth:api');
 
     Route::put('/{idCompra}/finalizarCompra',[ComprasApiController::class, 'finalizarCompra'])->middleware('auth:api');
+    
     Route::delete('/{idCompra}',[ComprasApiController::class, 'destroy'])->middleware('auth:api');
     Route::delete('/{idCompra}/item{itemId}',[ComprasApiController::class, 'destroyPurchaseItem'])->middleware('auth:api');
 

@@ -10,7 +10,6 @@ use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
 
 use App\Models\Producto;
 use App\Models\Categoria;
-use App\Models\SubCategoria;
 
 
 //REVISADO <--- REMOVER EN PRODUCCION
@@ -104,7 +103,6 @@ class ProductoApiController extends Controller
             'numeroStock' => $request->numeroStock,
             'estado' => $request->estado,
             'id_categoria' => $request->id_categoria,
-            'id_subcategoria' => $request->id_subcategoria,
             'id_establecimiento' => $user->establecimiento_id
         ]);
 
@@ -224,7 +222,6 @@ class ProductoApiController extends Controller
                 'numeroStock' => $request->numeroStock,
                 'estado' => $request->estado,
                 'id_categoria' => $request->id_categoria,
-                'id_subcategoria' => $request->id_subcategoria,
                 'id_establecimiento' => $user->establecimiento_id
             ]);
 

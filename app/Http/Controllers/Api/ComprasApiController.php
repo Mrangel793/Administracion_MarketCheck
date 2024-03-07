@@ -222,7 +222,7 @@ public function getPurchasePin($pin) {
                 'estado' => 0,
                 'pin' => mt_rand(100000,999999),
                 'establecimiento_id' => $user-> establecimiento_id,
-                'seller_id' => $user-> id
+                'vendedor' => $user-> name
             ]);   
             return response()->json(['message' => 'Compra creada con éxito.', 'id'=>$compra->id], 201,[],JSON_NUMERIC_CHECK);
         }
@@ -329,34 +329,37 @@ public function getPurchasePin($pin) {
      * @return \Illuminate\Http\Response
      */
     public function finalizarCompra(Request $request, $purchaseId)
-    {
-        try {
-            $purchase = Compra::findOrFail($purchaseId);
-            /* DEPENDE SI SE VA A REUTILIZAR PARA MOVIL
-            
+{
+    try {
+        $purchase = Compra::findOrFail($purchaseId);
+
+        $itemList = $purchase->productos;
+        if ($itemList->count() < 1) {
+            return response()->json(['message' => 'No se puede procesar la solicitud. No hay productos.'], 400);
+        }
+
+        $stockUpdate = $this->updateStock($itemList, $purchaseId);
+
+        // Verifica si el vendedor es nulo y asigna el nombre del usuario logueado
+        if ($purchase->vendedor === null) {
             $user = Auth::user();
-            if(!$user || $purchase-> establecimiento_id !== $user-> establecimiento_id){
-                return response()->json(['message' => 'El Usuario no tiene permisos para realizar esta accion'], 403);       
-            }*/
-
-            $itemList = $purchase-> productos;
-            if($itemList->count() < 1){
-                return response()->json(['message' => 'No se puede procesar la solicitud. No hay productos.'], 400);
+            if ($user) {
+                $purchase->vendedor = $user->name;
             }
-            $stockUpdate= $this->updateStock($itemList, $purchaseId);
-            
-            $purchase-> update([
-                'estado' => 1
-            ]);
-            return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock'], 201,[],JSON_NUMERIC_CHECK);
+        }
 
-        } catch (NotFound $e) {
-            return response()->json(['message' => 'Compra no encontrada'], 404);
+        $purchase->update([
+            'estado' => 1
+        ]);
 
-        } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
-        }     
+        return response()->json(['message' => 'Compra Finalizada. Productos descontados del Stock'], 201, [], JSON_NUMERIC_CHECK);
+    } catch (NotFound $e) {
+        return response()->json(['message' => 'Compra no encontrada'], 404);
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al procesar la solicitud', 'error' => $e], 500);
     }
+}
+
     
     private function updateStock($itemList, $purchaseId){
         foreach ($itemList as $item) {
@@ -416,9 +419,19 @@ public function getPurchasePin($pin) {
      * @return \Illuminate\Http\Response
      */
     public function update(Request $request, $id)
-    {
-        //
+{
+    try {
+        // Obtén la compra existente por su ID
+        $purchase = Purchase::findOrFail($id);
+
+        // Actualiza los campos necesarios según los datos proporcionados en la solicitud
+        $purchase->update($request->all());
+
+        return response()->json(['message' => 'Compra actualizada con éxito'], 200);
+    } catch (\Exception $e) {
+        return response()->json(['error' => 'Error al actualizar la compra', 'message' => $e->getMessage()], 500);
     }
+}
 
     /**
      * Remove the specified resource from storage.

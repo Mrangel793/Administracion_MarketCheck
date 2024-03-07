@@ -247,6 +247,10 @@ class UserApiController extends Controller
                     ]);
                     
                 }
+
+                if($user->rol_id==2||$user->rol_id==3){
+                    $user->delete();
+                }
             
             }else{
                 return response()->json(['message'=>'No tiene autorización para eliminar este usuario'],403);

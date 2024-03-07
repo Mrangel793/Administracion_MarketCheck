@@ -23,7 +23,7 @@ class Compra extends Model{
         'pin',
         'establecimiento_id',
         'user_id',
-        'seller_id'
+        'vendedor'
     ];
 
     public $timestamps = false;

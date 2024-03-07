@@ -27,8 +27,7 @@ class CreateComprasTable extends Migration
             $table->unsignedBigInteger('user_id')->nullable();
             $table->foreign('user_id')->references('id')->on('users');
 
-            $table->unsignedBigInteger('seller_id')->nullable();
-            $table->foreign('seller_id')->references('id')->on('users');
+            $table->string('vendedor')->nullable();
             //$table->timestamps();
         });
     }

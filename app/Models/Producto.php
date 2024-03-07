@@ -24,9 +24,7 @@ class Producto extends Model{
     public function establecimiento(){
         return $this->belongsTo(Establecimiento::class,'id_establecimiento');
     }
-    public function subcategoria(){
-        return $this->belongsTo(SubCategoria::class,'id_subcategoria');
-    }
+    
     public function compra(){
         return $this->belongsToMany(Compra::class,'compras_productos', 'producto_id','compra_id')
         ->withPivot('id','cantidad', 'precio');
@@ -48,7 +46,6 @@ class Producto extends Model{
         'numeroStock',
         'id_categoria', 
         'id_establecimiento',
-        'id_subcategoria'
     ];
     protected $attributes = [
         'precioProducto' => 0, 

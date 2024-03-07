@@ -70,6 +70,7 @@ class EstablecimientoApiController extends Controller
                 'email' => $request-> CorreoEstablecimiento,            
                 'establecimiento_id' => $store-> id,
                 'rol_id' => 2,
+                'estado' =>1,
                 'password' => Hash::make($request-> Nit)
             ]);
             event(new Registered($user));
