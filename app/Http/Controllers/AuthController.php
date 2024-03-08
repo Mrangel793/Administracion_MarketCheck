@@ -9,6 +9,8 @@ use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Auth\Events\Registered;
 
+use App\Models\Establecimiento;
+
 
 class AuthController extends Controller
 {
@@ -107,44 +109,57 @@ public function addUserMovil(Request $request)
      * Inicio de sesión y creación de token
      */
     public function login(Request $request)
-    {
-        $this->middleware(['auth','verified']);
-        $request->validate([
-            'email' => 'required|string|email',
-            'password' => 'required|string',
-            'remember_me' => 'boolean'
-        ]);
+{
+    $this->middleware(['auth','verified']);
+    
+    $request->validate([
+        'email' => 'required|string|email',
+        'password' => 'required|string',
+        'remember_me' => 'boolean'
+    ]);
 
-        $credentials = request(['email', 'password']);
+    $credentials = request(['email', 'password']);
 
-        if (!Auth::attempt($credentials))
-            return response()->json([
-                'message' => 'Unauthorized'
-            ], 401);
+    if (!Auth::attempt($credentials)) {
+        return response()->json([
+            'message' => 'Datos incorrectos. intente nuevamente'
+        ], 401);
+    }
 
+    $user = $request->user();
 
-            $user = $request->user();
+    if ($user->email_verified_at != NULL && $user->estado == 1) {
+        // Obtener el establecimiento del usuario
+        $establecimiento = Establecimiento::find($user->establecimiento_id);
+        
+        if ($establecimiento && $establecimiento->Estado == 1||$establecimiento==null) {
+            $tokenResult = $user->createToken('Personal Access Token');
+            $token = $tokenResult->token;
 
-            if ($user->email_verified_at!=NULL&&$user->estado==1) {
-                $tokenResult = $user->createToken('Personal Access Token');   
-                $token = $tokenResult->token;
-
-                if ($request->remember_me)
-                    $token->expires_at = Carbon::now()->addWeeks(1);
-                $token->save();
-                return response()->json([
-                    'access_token' => $tokenResult->accessToken,
-                    'token_type' => 'Bearer',
-                    'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
-                    'user'=>$user
-                ],200,[],JSON_NUMERIC_CHECK);
-            }else{
-                return response()->json([
-                    'message' => 'Su cuenta esta sin verificar o inactiva. Verifique su correo o intentelo nuevamente.'
-                ], 401);
+            if ($request->remember_me) {
+                $token->expires_at = Carbon::now()->addWeeks(1);
             }
 
+            $token->save();
+            
+            return response()->json([
+                'access_token' => $tokenResult->accessToken,
+                'token_type' => 'Bearer',
+                'expires_at' => Carbon::parse($token->expires_at)->toDateTimeString(),
+                'user' => $user
+            ], 200, [], JSON_NUMERIC_CHECK);
+        } else {
+            return response()->json([
+                'message' => 'Su cuenta o establecimiento está inactivo. Verifique su correo o inténtelo nuevamente.'
+            ], 401);
+        }
+    } else {
+        return response()->json([
+            'message' => 'Su cuenta está sin verificar o inactiva. Verifique su correo o inténtelo nuevamente.'
+        ], 401);
     }
+}
+
   
     /**
      * Cierre de sesión (anular el token)

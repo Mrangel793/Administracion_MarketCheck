@@ -46,6 +46,7 @@ class Producto extends Model{
         'numeroStock',
         'id_categoria', 
         'id_establecimiento',
+        'visible'
     ];
     protected $attributes = [
         'precioProducto' => 0, 

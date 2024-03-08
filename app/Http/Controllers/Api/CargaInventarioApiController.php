@@ -38,7 +38,6 @@ class CargaInventarioApiController extends Controller
     if ($user->rol_id == 2) {
         if ($request->hasFile('documento')) {
             $path = $request->file('documento')->store('importe');
-            return response()->json(([$request->all(),$request->hasFile('documento'),$request->file('documento')->getRealPath(),$request->file('documento')->getClientOriginalName(),$path]));
 
             try {
                 Excel::import(new ProductsImport, storage_path('app/' . $path));

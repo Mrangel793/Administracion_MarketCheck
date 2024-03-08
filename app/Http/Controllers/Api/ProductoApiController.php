@@ -7,6 +7,7 @@ use App\Http\Controllers\Controller;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Database\Eloquent\ModelNotFoundException as NotFound;
+use App\Models\Oferta_Producto;
 
 use App\Models\Producto;
 use App\Models\Categoria;
@@ -16,7 +17,10 @@ use App\Models\Categoria;
 class ProductoApiController extends Controller
 {   
     public function productsByStoreMobileApp($id){
-        $products = Producto::where('id_establecimiento', $id)->where('estado', 1)->get();
+        $products = 
+        Producto::where('id_establecimiento', $id)
+        ->where('estado', 1)
+        ->where('visible',1)->get();
         return response()->json( ['products'=> $products,'message'=>'Ok'], 200,[],JSON_NUMERIC_CHECK);            
     }
 
@@ -28,7 +32,7 @@ class ProductoApiController extends Controller
         $storeId= $request-> store_id;
         $productCode= $request-> product_code;
 
-        $product = Producto::where('id_establecimiento', $storeId)->where('codigoProducto', $productCode)->where('estado', 1)->first();
+        $product = Producto::where('id_establecimiento', $storeId)->where('codigoProducto', $productCode)->where('estado', 1)->where('visible',1)->first();
         return response()->json( ['product'=> $product], 200,[],JSON_NUMERIC_CHECK);
     }
 
@@ -37,7 +41,7 @@ class ProductoApiController extends Controller
         $user = Auth::user();
 
         if($user && isset($user-> establecimiento_id)&&($user->rol_id==2||$user->rol_id==3)){
-            $products = Producto::where('id_establecimiento', $user-> establecimiento_id)->get();
+            $products = Producto::where('id_establecimiento', $user-> establecimiento_id)->where('visible',1)->get();
             return response()->json( ['products'=> $products], 200,[],JSON_NUMERIC_CHECK);           
         }
 
@@ -68,51 +72,75 @@ class ProductoApiController extends Controller
 
     
     public function store(Request $request)
-{   
-
-    $user = Auth::user();
-
-
-    $request->validate([ 
-        'codigoProducto' => 'required|numeric',
-        'nombreProducto' => 'required',
-        'descripcionProducto' => 'required',
-        'precioProducto' => 'required|numeric|min:0',
-        'numeroStock' => 'required|numeric|min:0',
-        'estado' => 'required',
-        'id_categoria' => 'required|numeric',
-    ]);
-    if (Auth::user()->rol_id == 2 || Auth::user()->rol_id ==3) {
-
-
-
-        $existingProduct = Producto::where('codigoProducto', $request->codigoProducto)
-                                    ->where('id_establecimiento', $user->establecimiento_id)
-                                    ->first();
-
-        if($existingProduct){
-            return response()->json(['error' => 'Ya existe un producto con el mismo código de barras en este establecimiento.'], 422);
+    {   
+        // Verificar si el usuario está autenticado antes de acceder a Auth::user()
+        $user = Auth::user();
+    
+        // Buscar un producto existente con el mismo código y 'visible' a 0
+        $existing = Producto::where('codigoProducto', $request->codigoProducto)
+                            ->where('visible', 0)
+                            ->first();
+    
+        // Si se encuentra un producto existente, actualizar sus valores y cambiar 'visible' a 1
+        if ($existing) {
+            $existing->update([
+                'nombreProducto' => $request->nombreProducto,
+                'descripcionProducto' => $request->descripcionProducto,
+                'precioProducto' => $request->precioProducto,
+                'precioOriginal' => $request->precioProducto,
+                'numeroStock' => $request->numeroStock,
+                'estado' => $request->estado,
+                'id_categoria' => $request->id_categoria,
+                'visible' => 1
+            ]);
+    
+            return response()->json(['message' => 'Producto actualizado exitosamente.'], 200);
         }
-
-        $product = Producto::create([
-            'codigoProducto' => $request->codigoProducto,
-            'nombreProducto' => $request->nombreProducto,
-            'descripcionProducto' => $request->descripcionProducto,
-            'precioProducto' => $request->precioProducto,
-            'precioOriginal' => $request->precioProducto,
-            'numeroStock' => $request->numeroStock,
-            'estado' => $request->estado,
-            'id_categoria' => $request->id_categoria,
-            'id_establecimiento' => $user->establecimiento_id
+    
+        // Validar los campos del nuevo producto
+        $request->validate([ 
+            'codigoProducto' => 'required|numeric',
+            'nombreProducto' => 'required',
+            'descripcionProducto' => 'required',
+            'precioProducto' => 'required|numeric|min:0',
+            'numeroStock' => 'required|numeric|min:0',
+            'estado' => 'required',
+            'id_categoria' => 'required|numeric',
         ]);
-
-        return response()->json(['message' => 'Producto creado con éxito', 'product' => $product], 201,[],JSON_NUMERIC_CHECK);
     
-    }else{return response()->json(['message'=>'No tienes permisos para realizar esta accion'],403);}
-
+        // Verificar permisos del usuario para crear un nuevo producto
+        if ($user->rol_id == 2 || $user->rol_id == 3) {
+            // Verificar si ya existe un producto con el mismo código en este establecimiento
+            $existingProduct = Producto::where('codigoProducto', $request->codigoProducto)
+                                        ->where('id_establecimiento', $user->establecimiento_id)
+                                        ->where('visible',1)
+                                        ->first();
     
-
-}
+            // Si existe, devolver un error
+            if ($existingProduct) {
+                return response()->json(['error' => 'Ya existe un producto con el mismo código de barras en este establecimiento.'], 422);
+            }
+    
+            // Crear un nuevo producto
+            $product = Producto::create([
+                'codigoProducto' => $request->codigoProducto,
+                'nombreProducto' => $request->nombreProducto,
+                'descripcionProducto' => $request->descripcionProducto,
+                'precioProducto' => $request->precioProducto,
+                'precioOriginal' => $request->precioProducto,
+                'numeroStock' => $request->numeroStock,
+                'estado' => $request->estado,
+                'id_categoria' => $request->id_categoria,
+                'id_establecimiento' => $user->establecimiento_id,
+                'visible' => 1
+            ]);
+    
+            return response()->json(['message' => 'Producto creado con éxito', 'product' => $product], 201, [], JSON_NUMERIC_CHECK);
+        } else {
+            return response()->json(['message' => 'No tienes permisos para realizar esta acción'], 403);
+        }
+    }
+    
 
     public function show($id)
     {   
@@ -300,29 +328,34 @@ class ProductoApiController extends Controller
     }
 
     public function destroy($id)
-    {
-        $user = Auth::user();
+{
+    $user = Auth::user();
 
+    try {
+        $product = Producto::findOrFail($id);
 
-        try {
-
-            $product = Producto::findOrFail($id);
-            
-            
-            if ($product->id_establecimiento != $user->establecimiento_id) {
-                return response()->json(['error' => 'No tienes permisos para eliminar este producto.'], 403);
-            }
-            
-            $product->delete();
-    
-            return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 201,[],JSON_NUMERIC_CHECK);
-
-        } catch (NotFound $e) {
-            return response()->json(['message' => 'Producto no encontrado'], 404);
-
-        } catch (\Exception $e) {
-            return response()->json(['message' => 'Error al procesar la solicitud', 'error'=> $e], 500);
+        if ($product->id_establecimiento != $user->establecimiento_id) {
+            return response()->json(['error' => 'No tienes permisos para eliminar este producto.'], 403);
         }
-  
+
+        $isProductInOffer = Oferta_Producto::where('id_producto', $product->id)->exists();
+
+        if ($isProductInOffer) {
+            return response()->json(['message' => 'No se puede eliminar el producto porque está asociado a una oferta. Elimina primero el producto de la oferta.'], 422);
+        }
+
+        $product->update([
+            'estado' => 0,
+            'visible' => 0,
+        ]);
+
+        return response()->json(['message' => 'Producto Eliminado!', 'product' => $product], 201, [], JSON_NUMERIC_CHECK);
+
+    } catch (ModelNotFoundException $e) {
+        return response()->json(['message' => 'Producto no encontrado'], 404);
+
+    } catch (\Exception $e) {
+        return response()->json(['message' => 'Error al procesar la solicitud', 'error' => $e], 500);
     }
+}
 }

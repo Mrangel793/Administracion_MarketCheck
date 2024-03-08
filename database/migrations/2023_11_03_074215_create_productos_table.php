@@ -27,6 +27,8 @@ class CreateProductosTable extends Migration
             $table->foreign('id_categoria')->references('id')->on('categorias');
             $table->unsignedBigInteger('id_establecimiento')->nullable();
             $table->foreign('id_establecimiento')->references('id')->on('establecimientos');
+            $table->boolean('visible');
+
 
 
             //$table->timestamps();

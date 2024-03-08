@@ -40,6 +40,7 @@ public function model(array $row)
         'descripcionProducto' => $row['descripcion'],
         'numeroStock' => $row['stock'],
         'id_establecimiento' => $usuario->establecimiento_id,
+        'visible'=>1
     ]);
 }
 
