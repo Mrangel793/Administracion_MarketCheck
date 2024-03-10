@@ -101,16 +101,18 @@ class OfertaApiController extends Controller
 
 
     public function activateOrDesactivateOffer($ofertaId){
-        try {    
+        try {
             $offer = Oferta::findOrFail($ofertaId);
-            $offerItems = $offer-> productos;
-            $option= $offer-> estado;
-
+            $offerItems = $offer->productos;
+            $option = $offer->estado;
+    
+            
+    
             switch ($option) {
                 case 0:
                     foreach ($offerItems as $item) {
-                        $offerPrice = $item->pivot->precio_oferta; 
-            
+                        $offerPrice = $item->pivot->precio_oferta;
+    
                         if ($item->precioProducto !== null) {
                             $item->update([
                                 'precioProducto' => $offerPrice
@@ -118,34 +120,39 @@ class OfertaApiController extends Controller
                         }
                     }
 
+                    // Verificar si la oferta tiene productos
+                    if ($offerItems->isEmpty()) {
+                        return response()->json(['message' => 'No se puede activar una oferta sin productos.'], 400);
+                    }
+    
                     $offer->update([
                         'estado' => 1
                     ]);
-                    return response()->json(['message' => 'Oferta activada.', 'offer' => $offer],201,[],JSON_NUMERIC_CHECK);
-
+                    return response()->json(['message' => 'Oferta activada.', 'offer' => $offer], 201, [], JSON_NUMERIC_CHECK);
+    
                 case 1:
                     foreach ($offerItems as $item) {
                         $item->update([
-                            'precioProducto' => $item-> precioOriginal
-                        ]);      
+                            'precioProducto' => $item->precioOriginal
+                        ]);
                     }
-
+    
                     $offer->update([
                         'estado' => 0
                     ]);
-                    return response()->json(['message' => 'Oferta desactivada.', 'offer' => $offer],201,[],JSON_NUMERIC_CHECK);    
-                
+                    return response()->json(['message' => 'Oferta desactivada.', 'offer' => $offer], 201, [], JSON_NUMERIC_CHECK);
+    
                 default:
                     return response()->json(['message' => 'Estado de oferta incorrecto.'], 400);
                     break;
             }
-                
+    
         } catch (NotFound $e) {
             return response()->json(['message' => 'La oferta no existe.'], 404);
-
+    
         } catch (\Exception $e) {
-            return response()->json(['message'=>'Error al procesar la solicitud', 'error'=> $e], 500);
-        } 
+            return response()->json(['message' => 'Error al procesar la solicitud', 'error' => $e], 500);
+        }
     }
 
 
