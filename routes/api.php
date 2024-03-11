@@ -95,8 +95,8 @@ Route::apiResource('images', ImageApiController::class);
 
 Route::prefix('productos')->group(function () {
 
-    Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])/*->middleware('auth:api')*/;
-    Route::post('/scanner-product', [ProductoApiController::class, 'productByStoreAndScanner'])/*->middleware('auth:api')*/;
+    Route::get('/store-products/{id}', [ProductoApiController::class, 'productsByStoreMobileApp'])->middleware('auth:api');
+    Route::post('/scanner-product', [ProductoApiController::class, 'productByStoreAndScanner'])->middleware('auth:api');
 
     Route::get('/', [ProductoApiController::class, 'index'])->middleware('auth:api');
     Route::get('/uncategorized', [ProductoApiController::class, 'getUncategorizedProducts']);

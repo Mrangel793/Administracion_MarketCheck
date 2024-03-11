@@ -53,8 +53,8 @@ class ListasApiController extends Controller
             ]);
 
             $nuevaLista = Lista::create([
-                'listName' => $request->input('listName'),
                 'user_id' => Auth::user()->id,
+                'listName' => $request->input('listName'),
                 'productos' => $request->input('productos'),
             ]);
 
@@ -104,25 +104,25 @@ class ListasApiController extends Controller
                 'productos' => 'required|json',
             ]);
 
-    
-        $lista = Lista::findOrFail($listaId);
+        
+            $lista = Lista::findOrFail($listaId);
 
-        if($user->id == $lista->user_id){
+            if($user->id == $lista->user_id){
 
-            $lista->update([
-                'listName' => $request->input('listName'),
-                'productos' => $request->input('productos'),
-            ]);
+                $lista->update([
+                    'listName' => $request->input('listName'),
+                    'productos' => $request->input('productos'),
+                ]);
 
-            return response()->json(['message' => 'Lista actualizada correctamente', 'lista' => $lista], 200,[], JSON_NUMERIC_CHECK);
-        }else{
-            return response()->json(['message' => 'No tiene permisos para hacer esto'], 403);
+                return response()->json(['message' => 'Lista actualizada correctamente', 'lista' => $lista], 201,[], JSON_NUMERIC_CHECK);
+            }else{
+                return response()->json(['message' => 'No tiene permisos para hacer esto'], 403);
 
-        }
+            }
         } else {
         // Manejar el caso donde el usuario no está autenticado o no tiene los permisos adecuados
         return response()->json(['message' => 'No tiene permisos para hacer esto'], 403);
-    }
+        }
     }
 
 
