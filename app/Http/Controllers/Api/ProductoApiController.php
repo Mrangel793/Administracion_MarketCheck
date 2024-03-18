@@ -241,12 +241,18 @@ class ProductoApiController extends Controller
                 return response()->json(['error' => 'Ya existe un producto con el mismo código de barras en este establecimiento.'], 422);
             }
 
-            // Si no existe, proceder con la actualización del producto
+            $isProductInOffer = Oferta_Producto::where('id_producto', $product->id)->exists();
+
+            if ($isProductInOffer) {
+                return response()->json(['message' => 'No se puede editar el producto porque está asociado a una oferta. Elimina primero el producto de la oferta.'], 422);
+            }
+
             $product->update([
                 'codigoProducto' => $request->codigoProducto,
                 'nombreProducto' => $request->nombreProducto,
                 'descripcionProducto' => $request->descripcionProducto,
                 'precioProducto' => $request->precioProducto,
+                'precioOriginal' => $request->precioProducto,
                 'numeroStock' => $request->numeroStock,
                 'estado' => $request->estado,
                 'id_categoria' => $request->id_categoria,
