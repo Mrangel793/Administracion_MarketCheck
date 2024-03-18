@@ -319,6 +319,8 @@ class ProductoApiController extends Controller
 
         $productosConCategoria = Producto::where('id_categoria',$id_categoria)
             ->where('id_establecimiento', $id_establecimiento)
+            ->where('estado', 1)
+            ->where('visible',1)
             ->get();
 
         return response()->json(['productos' => $productosConCategoria],200,[],JSON_NUMERIC_CHECK);
