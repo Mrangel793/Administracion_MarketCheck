@@ -3,45 +3,43 @@
 namespace App\Imports;
 
 use App\Models\Producto;
+use Illuminate\Support\Facades\Auth;
 use Maatwebsite\Excel\Concerns\ToModel;
 use Maatwebsite\Excel\Concerns\WithHeadingRow;
-use Illuminate\Support\Facades\Auth;
-use Illuminate\Validation\Rule;
 
 class ProductsImport implements ToModel, WithHeadingRow
 {
-    /**
-    * @param array $row
-    *
-    * @return \Illuminate\Database\Eloquent\Model|null
-    */
+    public function model(array $row)
+    {
+        $usuario = Auth::user();
 
+        // Realiza la validación de los datos de la fila antes de intentar crear un modelo
+        $validator = validator($row, [
+            'codigo' => 'required|unique:productos,codigoProducto,null,id,id_establecimiento,' . $usuario->establecimiento_id,
+            'estado' => 'required',
+            'precio' => 'required|numeric',
+            'nombre' => 'required',
+            'descripcion' => 'required',
+            'stock' => 'required|numeric',
+        ]);
 
-public function model(array $row)
-{
-    $usuario = Auth::user();
+        // Si la validación falla, devuelve null para omitir la fila
+        if ($validator->fails()) {
+            return null;
+        }
 
-    // Verificar si ya existe un producto con el mismo código de barras en el establecimiento
-    $existingProduct = Producto::where('codigoProducto', $row['codigo'])
-                                ->where('id_establecimiento', $usuario->establecimiento_id)
-                                ->first();
-
-    if($existingProduct){
-        // Puedes manejar el error como prefieras, por ejemplo, lanzando una excepción
-        throw new \Exception('Ya existe un producto con el mismo código de barras en este establecimiento.');
+        // Si la validación pasa, crea y devuelve el modelo Producto
+        return new Producto([
+            'codigoProducto' => $row['codigo'],
+            'estado' => $row['estado'],
+            'precioProducto' => $row['precio'],
+            'precioOriginal' => $row['precio'],
+            'nombreProducto' => $row['nombre'],
+            'descripcionProducto' => $row['descripcion'],
+            'numeroStock' => $row['stock'],
+            'id_establecimiento' => $usuario->establecimiento_id,
+            'visible' => 1
+        ]);
     }
-
-    return new Producto([
-        'codigoProducto' => $row['codigo'],
-        'estado' => $row['estado'],
-        'precioProducto' => $row['precio'],
-        'precioOriginal' => $row['precio'],
-        'nombreProducto' => $row['nombre'],
-        'descripcionProducto' => $row['descripcion'],
-        'numeroStock' => $row['stock'],
-        'id_establecimiento' => $usuario->establecimiento_id,
-        'visible'=>1
-    ]);
 }
 
-}
